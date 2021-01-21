@@ -1,0 +1,30 @@
+Package: scapesClassification
+Title: Seascape or Landscape Classification Using Environmental Data
+Version: 1.0
+Authors@R: 
+    person(given = "Gerald H.",
+           family = "Taranto",
+           role = c("aut", "cre"),
+           email = "gh.taranto@gmail.com",
+           comment = c(ORCID = "0000-0002-7968-1982"))
+Description: Classification of seascapes or landscapes using environmental 
+  and geographic data stored as Raster* objects. The classification is 
+  implemented using a stepwise procedure. At each step a portion of the 
+  'scape' is classified based on user defined conditions, local spatial 
+  statistics and/or spatial contiguity between classes. The portion of 
+  'scape' classified can be considered in the next classification step. 
+  User defined conditions can be absolute, relative to the focal cell or 
+  relative to the focal neighbourhood.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    raster,
+    rgdal (>= 1.2),
+    sp,
+    stringr
