@@ -208,34 +208,28 @@ raster::plot(rstack)
 
 <img src="man/figures/README-rastPlot-1.png" width="100%" />
 
-### Step 0: Set anchor cells from the islands shapefile
+## Island Shelf Units
 
 In order to start our GMUs classification, we can consider **island
-shelf units (ISUs)**. ISUs are comprise two main elements: (i) island
+shelf units (ISUs)**. ISUs comprise two main elements: (i) island
 shelves (i.e. relatively flat areas surrounding islands) and (ii) slopes
 that connect island shelves with the seafloor. We will classify island
 shelves with the numeric value `1000` and island slopes with the numeric
 value `1100`.
 
-Let us start by loading and plot the island shapefile:
+By definition, it is possible to consider all cells adjacent to
+landmasses as island shelves. We can use a shapefile to determine where
+the islands are located, the function `anchor.svo` to extract anchor
+cells from spatial vector objects and the function `anchor.cell` to
+perform the first step of our classification:
 
 ``` r
-# READ AND PLOT SHAPEFILE
+# READ SHAPEFILE
 shp <- system.file("extdata", "Azores.shp", package = "scapesClassification")
 
 island <- rgdal::readOGR(dsn = shp, verbose = F)
 island <- sp::spTransform(island, raster::crs(rstack))
 
-raster::plot(rstack[["bathymetry_exm"]])
-raster::plot(island, add = TRUE)
-```
-
-<img src="man/figures/README-islandshape-1.png" width="100%" />
-
-We can consider that all cells adjacent to landmasses can be classified
-as island shelves. We can use the function `?anchor.svo` to do so:
-
-``` r
 ## ANCHOR POINTS FROM LAND POSITION
 anchorL <- anchor.svo (rstack = rstack, 
                        spatial_vector_name = shp, 
@@ -243,20 +237,42 @@ anchorL <- anchor.svo (rstack = rstack,
                        fill_NAs = TRUE, 
                        plot = FALSE)
 
-## INCLUDE ANCHOR POINTS IN A RASTER
-r2   <- rstack[[1]]
-r2[] <- NA
-r2[anchorL] <- 1
+## INCLUDE ANCHOR POINTS IN A RASTER FOR PLOTTING
+rL          <- rstack[[1]]
+rL[]        <- NA
+rL[anchorL] <- 1
 
-## YOU CAN SAVE THE RASTER
-# writeRaster(r2, "step0.tif")
+## SET CELLS ADJACENT TO LAND ANCHOR POINTS AS ISLAND SHELVES (class = 1000)
+classVector <- anchor.cell(dt, 
+                           rstack, 
+                           anchor      = anchorL, 
+                           class       = 1000,
+                           classVector = NULL,
+                           class2cell  = FALSE,
+                           class2nbs   = TRUE,
+                           plot        = FALSE)
 
-## PLOT THE RESULTS
-raster::plot(rstack[["bathymetry_exm"]], legend = FALSE) # BATHYMETRY
-raster::plot(r2, add = TRUE, col = "black", legend = FALSE) # ANCHOR CELLS
+## INCLUDE classVector IN A RASTER FOR PLOTTING
+rAC   <- rstack[[1]]
+rAC[] <- NA
+rAC[dt$Cell] <- classVector
+
+## PLOT RESULTS
+par(mfrow=c(2,2), mar=c(2,1,2,0))
+raster::plot(rstack[["bathymetry_exm"]], main = "Bathymetry", legend = FALSE, axes = FALSE, box = FALSE)
+
+raster::plot(rstack[["bathymetry_exm"]], main = "Islands", legend = FALSE, axes = FALSE, box = FALSE)
+raster::plot(island, add = TRUE, border = "red", lwd = 1.5)
+
+
+raster::plot(rstack[["bathymetry_exm"]], main = "anchor.svo", legend = FALSE, axes = FALSE, box = FALSE) # BATHYMETRY
+raster::plot(rL, add = TRUE, col = "black", legend = FALSE) # ANCHOR CELLS
+
+raster::plot(rstack[["bathymetry_exm"]], main = "anchor.cell", legend = FALSE, axes = FALSE, box = FALSE) # BATHYMETRY
+raster::plot(rAC, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
 ```
 
-<img src="man/figures/README-step0-1.png" width="100%" />
+<img src="man/figures/README-islandshape-1.png" width="100%" />
 
 Note that the arguments: \* `only_NAs` determines the function to return
 only cell numbers overlapping with the spatial vector data that have
