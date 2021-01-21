@@ -107,14 +107,14 @@ Once anchor cells are defined, we can proceed with our classification considerin
 
 The following is an example using `scapesClassification` to classify marine seafloor structures, hereinafter referred to as geomorphic management units (GMUs). Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge. In order to identify relevant GMUs, we will use a `RasterStack` of four layers, including bathymetry and bathymetric derivatives (e.g. see [Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm) as a reference for benthic derivatives):
 
-* Bathymetry: or depth values;
+* Bathymetry: depth values;
 * Local benthic position index: useful to identify the limits of different GMUs;
 * Regional benthic position index: useful to identify GMUs relevant at regional scales;
 * Slope: useful to identify areas with distinct ecological settings.
 
 We can load the `RasterStack` and create the attribute table and the 8-neighbors list with the following code:
 
-```{r rastPlot}
+```{r rastPlot1}
 library(scapesClassification)
 
 # READ RASTER STACK
@@ -128,16 +128,17 @@ dt <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "s
 # 8-neighbors list
 nbs <- ngbList(rstack)
 
-raster::plot(rstack)
+raster::plot(rstack, axes = FALSE, box = FALSE)
 ```
 
 
-## Island Shelf Units
+### Island Shelf Units
 
+**Step 1**
 
 In order to start our GMUs classification, we can consider **island shelf units (ISUs)**. ISUs comprise two main elements: (i) island shelves (i.e. relatively flat areas surrounding islands) and (ii) slopes that connect island shelves with the seafloor. We will classify island shelves with the numeric value `1000` and island slopes with the numeric value `1100`. 
 
-By definition, it is possible to consider all cells adjacent to landmasses as island shelves. We can use a shapefile to determine where the islands are located, the function `anchor.svo` to extract anchor cells from spatial vector objects and the function `anchor.cell` to perform the first step of our classification: 
+By definition, it is possible to consider all cells adjacent to landmasses as island shelves. We can (i) use a shapefile to determine where the islands are located, (ii) the function `anchor.svo` to extract anchor cells from spatial vector objects and (iii) the function `anchor.cell` to perform the first step of our classification by classifying all cells adjacent to landmasses as island shelves: 
 
 
 ```{r islandshape}
@@ -177,21 +178,57 @@ rAC[dt$Cell] <- classVector
 ## PLOT RESULTS
 par(mfrow=c(2,2), mar=c(2,1,2,0))
 raster::plot(rstack[["bathymetry_exm"]], main = "Bathymetry", legend = FALSE, axes = FALSE, box = FALSE)
-
 raster::plot(rstack[["bathymetry_exm"]], main = "Islands", legend = FALSE, axes = FALSE, box = FALSE)
 raster::plot(island, add = TRUE, border = "red", lwd = 1.5)
-
-
-raster::plot(rstack[["bathymetry_exm"]], main = "anchor.svo", legend = FALSE, axes = FALSE, box = FALSE) # BATHYMETRY
+raster::plot(rstack[["bathymetry_exm"]], main = "anchor.svo", legend = FALSE, axes = FALSE, box = FALSE)
 raster::plot(rL, add = TRUE, col = "black", legend = FALSE) # ANCHOR CELLS
-
-raster::plot(rstack[["bathymetry_exm"]], main = "anchor.cell", legend = FALSE, axes = FALSE, box = FALSE) # BATHYMETRY
+raster::plot(rstack[["bathymetry_exm"]], main = "anchor.cell", legend = FALSE, axes = FALSE, box = FALSE)
 raster::plot(rAC, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
 ```
 
+* **`?anchor.svo`** arguments:
+  + `only_NAs` determines the function to return only cell numbers overlapping with the spatial vector data that have missing values in    rstack.
+  + `fill_NAs` determines the function to return cell numbers of cells adjacent to those overlapping with the spatial vector data that     have missing values in rstack.
+* **`?anchor.cell`** arguments: 
+  + `class2nbs` attribute the new classification, defined by the argument `class`, to the cells adjacent to anchor cells.
+  
+The classification of the first step is returned as a class vector (`classVector`). All class vectors can be indexed back into the original raster considering the the cell numbers stored in the attribute table, column `Cell`. In this example we can use the code:
 
+```{r indCV}
+## CREATE AN EMPTY RASTER WITH THE SAME PROPERTIES AS THE ORIGINAL RASTER STACK
+# r2   <- rstack[[1]]
+# r2[] <- NA
 
-Note that the arguments:
-* `only_NAs` determines the function to return only cell numbers overlapping with the spatial vector data that have missing values in rstack.
-* `fill_NAs` determines the function to return cell numbers of cells adjacent to those overlapping with the spatial vector data that have missing values in rstack.
+## INDEX THE CLASS VECTOR INTO THE RASTER
+# r2[dt$Cell] <- classVector
 
+## PLOT OR SAVE RESULTS
+# raster::plot(r2)
+# raster::writeRaster(r2, "step01_ISU.tif")
+```
+  
+**Step 2**
+
+In the second step we define that all cells adjacent to island shelf cells having a moderate slope have to be considered as island shelf cells as well. Note that we want to push this classification to all cells neighboring newly classified cells (neighbors of neighbors or `nofn`) that respect our conditions. We can do so using the function `?cond.4.nofn` to classify all neighbors and `nofn` of island shelf cells (`nbs_of = 1000`) as island shelf (`class = 1000`) if they have a moderate slope (`conditions = "slope <= 5"`): 
+
+```{r step2}
+
+# STEP 2
+classVector2 <- cond.4.nofn(dt, 
+                            nbs, 
+                            classVector, # class vector as returned from step 1
+                            nbs_of = 1000, 
+                            conditions = "slope <= 5", 
+                            class = 1000)
+
+## INCLUDE classVector IN A RASTER FOR PLOTTING
+r2   <- rstack[[1]]
+r2[] <- NA
+r2[dt$Cell] <- classVector
+
+## PLOT RESULTS
+raster::plot(rstack[["slope_exm"]], legend = FALSE, axes = FALSE, box = FALSE)
+raster::plot(r2, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
+```
+  
+  
