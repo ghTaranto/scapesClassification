@@ -208,16 +208,20 @@ raster::plot(rstack)
 
 <img src="man/figures/README-rastPlot-1.png" width="100%" />
 
-### Step 0: Set anchor cells from the islands shapefile
+## Island Shelf Units
 
 In order to start our GMUs classification, we can consider **island
-shelf units (ISUs)**. ISUs are comprise two main elements: (i) island
+shelf units (ISUs)**. ISUs comprise two main elements: (i) island
 shelves (i.e. relatively flat areas surrounding islands) and (ii) slopes
 that connect island shelves with the seafloor. We will classify island
 shelves with the numeric value `1000` and island slopes with the numeric
 value `1100`.
 
-Let us start by loading and plot the island shapefile:
+By definition, it is possible to consider all cells adjacent to
+landmasses as island shelves. We can use a shapefile to determine where
+the islands are located, the function `anchor.svo` to extract anchor
+cells from spatial vector objects and the function `anchor.cell` to
+perform the first step of our classification:
 
 ``` r
 # READ AND PLOT SHAPEFILE
@@ -231,9 +235,6 @@ raster::plot(island, add = TRUE)
 ```
 
 <img src="man/figures/README-islandshape-1.png" width="100%" />
-
-We can consider that all cells adjacent to landmasses can be classified
-as island shelves. We can use the function `?anchor.svo` to do so:
 
 ``` r
 ## ANCHOR POINTS FROM LAND POSITION

@@ -132,13 +132,12 @@ raster::plot(rstack)
 ```
 
 
-### Step 0: Set anchor cells from the islands shapefile
+## Island Shelf Units
 
 
-In order to start our GMUs classification, we can consider **island shelf units (ISUs)**. ISUs are comprise two main elements: (i) island shelves (i.e. relatively flat areas surrounding islands) and (ii) slopes that connect island shelves with the seafloor. We will classify island shelves with the numeric value `1000` and island slopes with the numeric value `1100`. 
+In order to start our GMUs classification, we can consider **island shelf units (ISUs)**. ISUs comprise two main elements: (i) island shelves (i.e. relatively flat areas surrounding islands) and (ii) slopes that connect island shelves with the seafloor. We will classify island shelves with the numeric value `1000` and island slopes with the numeric value `1100`. 
 
-Let us start by loading and plot the island shapefile:
-
+By definition, it is possible to consider all cells adjacent to landmasses as island shelves. We can use a shapefile to determine where the islands are located, the function `anchor.svo` to extract anchor cells from spatial vector objects and the function `anchor.cell` to perform the first step of our classification: 
 
 
 ```{r islandshape}
@@ -151,10 +150,6 @@ island <- sp::spTransform(island, raster::crs(rstack))
 raster::plot(rstack[["bathymetry_exm"]])
 raster::plot(island, add = TRUE)
 ```
-
-
-
-We can consider that all cells adjacent to landmasses can be classified as island shelves. We can use the function `?anchor.svo` to do so: 
 
 ```{r step0}
 ## ANCHOR POINTS FROM LAND POSITION
@@ -176,6 +171,8 @@ r2[anchorL] <- 1
 raster::plot(rstack[["bathymetry_exm"]], legend = FALSE) # BATHYMETRY
 raster::plot(r2, add = TRUE, col = "black", legend = FALSE) # ANCHOR CELLS
 ```
+
+
 
 Note that the arguments:
 * `only_NAs` determines the function to return only cell numbers overlapping with the spatial vector data that have missing values in rstack.
