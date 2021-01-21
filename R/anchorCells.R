@@ -4,7 +4,7 @@
 #' vector data. These cells can be used as anchor cells in other
 #' \code{scapesClassification} functions.
 #'
-#' @param rstack \code{RasterStack} or \code{RasterLayer} object.
+#' @param rstack \code{Raster*} object.
 #' @param spatial_vector_name OGR data source name.
 #' @param only_NAs logic, return only cell numbers overlapping with the spatial
 #'   vector data that have missing values in rstack.

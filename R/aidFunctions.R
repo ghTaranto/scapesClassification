@@ -178,3 +178,37 @@ conditions <- function(names_attTbl,
   }
 }
 
+
+#' Class Vector To Raster
+#'
+#' Index a class vector into a raster.
+#'
+#' @param r The \code{Raster*} object on which classification is based (see
+#'   \code{\link{attTbl}}).
+#' @param index The cell numbers of complete cases, i.e., raster cells having a
+#'   value for every layer in the stack (see \code{\link{attTbl}}).
+#' @param classVector numeric vector, defines the raster cell that have already
+#'   been classified.
+#' @param plot logic, plot anchor \code{classVector}.
+#' @param writeRaster filename, if a raster name is provided save the
+#'   \code{classVector} as a raster file.
+#'
+#' @return plot or save \code{classVector} as a raster.
+#'
+#' @export
+cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL){
+
+  r2 <- r[[1]]
+  r2[] <- NA
+  r2[index] <- classVector
+
+  if (plot){
+    raster::plot(r2)
+  }
+
+  if (!is.null(writeRaster)){
+    raster::writeRaster(r2, writeRaster)
+  }
+
+}
+

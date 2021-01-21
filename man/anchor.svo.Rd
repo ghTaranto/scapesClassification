@@ -16,7 +16,7 @@ anchor.svo(
 )
 }
 \arguments{
-\item{rstack}{\code{RasterStack} or \code{RasterLayer} object.}
+\item{rstack}{\code{Raster*} object.}
 
 \item{spatial_vector_name}{OGR data source name.}
 
