@@ -230,6 +230,7 @@ shp <- system.file("extdata", "Azores.shp", package = "scapesClassification")
 island <- rgdal::readOGR(dsn = shp, verbose = F)
 island <- sp::spTransform(island, raster::crs(rstack))
 
+
 ## ANCHOR POINTS FROM LAND POSITION
 anchorL <- anchor.svo (rstack = rstack, 
                        spatial_vector_name = shp, 
