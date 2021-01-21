@@ -17,7 +17,8 @@ anchor.seed(
   classVector = NULL,
   saveRDS = NULL,
   overWrite = FALSE,
-  isolationClass = FALSE
+  isolationClass = FALSE,
+  silent = FALSE
 )
 }
 \arguments{
@@ -69,6 +70,8 @@ overwritten.}
 
 \item{isolationClass}{logic, return cells meeting isolation conditions
 (\code{isolator cells}) classified as \code{'-1'}.}
+
+\item{silent}{logic, progress is not printed on the console.}
 }
 \value{
 Classification vector.

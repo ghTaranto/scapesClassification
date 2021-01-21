@@ -186,11 +186,22 @@ benthic derivatives):
     regional scales;
   - Slope: useful to identify areas with distinct ecological settings.
 
+We will use the package `rasterVis` for plotting our results.
+
 We can load the `RasterStack` and create the attribute table and the
 8-neighbors list with the following code:
 
 ``` r
+# LOAD LIBRARIES
+library(raster)
+library(sp)
+library(rgdal)
 library(scapesClassification)
+
+# FOR PLOTTING
+library(rasterVis)
+library(gridExtra)
+library(latticeExtra)
 
 # READ RASTER STACK
 grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
@@ -203,10 +214,16 @@ dt <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "s
 # 8-neighbors list
 nbs <- ngbList(rstack)
 
-raster::plot(rstack, axes = FALSE, box = FALSE)
+# PLOT
+p1 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "Bathymetry")
+p2 <- rasterVis::levelplot(rstack[[2]], col.regions = terrain.colors(255), margin = F, main = "Local BPI")
+p3 <- rasterVis::levelplot(rstack[[3]], col.regions = terrain.colors(255), margin = F, main = "Regional BPI")
+p4 <- rasterVis::levelplot(rstack[[4]], col.regions = terrain.colors(255), margin = F, main = "Slopes")
+
+gridExtra::grid.arrange(p1, p2, p3, p4, nrow=2)
 ```
 
-<img src="man/figures/README-rastPlot1-1.png" width="100%" />
+<img src="man/figures/README-step0-1.png" width="100%" />
 
 ### Island Shelf Units
 
@@ -220,7 +237,7 @@ shelves with the numeric value `1000` and island slopes with the numeric
 value `1100`.
 
 By definition, it is possible to consider all cells adjacent to
-landmasses as island shelves. We can (i) use a shapefile to determine
+landmasses as island shelves. We can use (i) a shapefile to determine
 where the islands are located, (ii) the function `anchor.svo` to extract
 anchor cells from spatial vector objects and (iii) the function
 `anchor.cell` to perform the first step of our classification by
@@ -240,11 +257,6 @@ anchorL <- anchor.svo (rstack = rstack,
                        fill_NAs = TRUE, 
                        plot = FALSE)
 
-## INCLUDE ANCHOR POINTS IN A RASTER FOR PLOTTING
-rL          <- rstack[[1]]
-rL[]        <- NA
-rL[anchorL] <- 1
-
 ## SET CELLS ADJACENT TO LAND ANCHOR POINTS AS ISLAND SHELVES (class = 1000)
 classVector <- anchor.cell(dt, 
                            rstack, 
@@ -255,23 +267,31 @@ classVector <- anchor.cell(dt,
                            class2nbs   = TRUE,
                            plot        = FALSE)
 
-## INCLUDE classVector IN A RASTER FOR PLOTTING
-rAC   <- rstack[[1]]
-rAC[] <- NA
-rAC[dt$Cell] <- classVector
+## INCLUDE ANCHOR POINTS and classVector IN A RASTER FOR PLOTTING
+rL   <- rstack[[1]]; rL[]  <- NA; rL[anchorL]  <- 1
+rAC  <- rstack[[1]]; rAC[] <- NA; rAC[dt$Cell] <- classVector
 
 ## PLOT RESULTS
-par(mfrow=c(2,2), mar=c(2,1,2,0))
-raster::plot(rstack[["bathymetry_exm"]], main = "Bathymetry", legend = FALSE, axes = FALSE, box = FALSE)
-raster::plot(rstack[["bathymetry_exm"]], main = "Islands", legend = FALSE, axes = FALSE, box = FALSE)
-raster::plot(island, add = TRUE, border = "red", lwd = 1.5)
-raster::plot(rstack[["bathymetry_exm"]], main = "anchor.svo", legend = FALSE, axes = FALSE, box = FALSE)
-raster::plot(rL, add = TRUE, col = "black", legend = FALSE) # ANCHOR CELLS
-raster::plot(rstack[["bathymetry_exm"]], main = "anchor.cell", legend = FALSE, axes = FALSE, box = FALSE)
-raster::plot(rAC, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
+p1 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "Bathymetry", colorkey = FALSE, scales=list(draw=FALSE))
+p2 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "Shapefile", colorkey = FALSE, scales=list(draw=FALSE)) + 
+  latticeExtra::layer({
+    
+    island <- system.file("extdata", "Azores.shp", package = "scapesClassification")
+    island <- rgdal::readOGR(dsn = island, verbose = F)
+    island <- sp::spTransform(island, "+proj=utm +zone=26 +datum=WGS84 +units=m +no_defs")
+    sp.polygons(island, lwd = 2)
+    
+    })
+
+p3 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "anchor.svo", colorkey = FALSE, scales=list(draw=FALSE)) + 
+  rasterVis::levelplot(rL, col.regions = "black", colorkey = FALSE)
+p4 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "anchor.cell", colorkey = FALSE, scales=list(draw=FALSE)) + 
+  rasterVis::levelplot(rAC, col.regions = "black", colorkey = FALSE)
+
+gridExtra::grid.arrange(p1, p2, p3, p4, nrow=2)
 ```
 
-<img src="man/figures/README-islandshape-1.png" width="100%" />
+<img src="man/figures/README-step1-1.png" width="100%" />
 
   - **`?anchor.svo`** arguments:
       - `only_NAs` determines the function to return only cell numbers
@@ -287,7 +307,7 @@ raster::plot(rAC, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
 The classification of the first step is returned as a class vector
 (`classVector`). All class vectors can be indexed back into the original
 raster considering the the cell numbers stored in the attribute table,
-column `Cell`. In this example we can use the code:
+column `Cell`. In this example we can use the following code:
 
 ``` r
 ## CREATE AN EMPTY RASTER WITH THE SAME PROPERTIES AS THE ORIGINAL RASTER STACK
@@ -300,37 +320,84 @@ column `Cell`. In this example we can use the code:
 ## PLOT OR SAVE RESULTS
 # raster::plot(r2)
 # raster::writeRaster(r2, "step01_ISU.tif")
+
+# IN ALTERNATIVE USE ?cv.2.rast FUNCTION
+# cv.2.rast(rstack, dt$Cell, classVector, writeRaster = "step01_ISU.tif")
 ```
 
-**Step 2**
+**Steps 2 and 3**
 
 In the second step we define that all cells adjacent to island shelf
-cells having a moderate slope have to be considered as island shelf
-cells as well. Note that we want to push this classification to all
-cells neighboring newly classified cells (neighbors of neighbors or
-`nofn`) that respect our conditions. We can do so using the function
+cells having a moderate slope will be considered, as well, as island
+shelf. Note that we want to push this classification to all cells
+neighboring newly classified cells (neighbors of neighbors or `nofn`)
+that respect our conditions. We can do so using the function
 `?cond.4.nofn` to classify all neighbors and `nofn` of island shelf
 cells (`nbs_of = 1000`) as island shelf (`class = 1000`) if they have a
-moderate slope (`conditions = "slope <= 5"`):
+moderate slope (`conditions = "slope <= 5"`).
+
+Additionally, we can consider that if a cell is surrounded by at least 5
+cells classified as island shelf, then it can also be classified as
+island shelf. Again we use the function `?cond.4.nofn`, but this time we
+set the argument `min.border = 0.6` (i.e., at least 60% of the 8 cells
+neighboring the cell in evaluation have to be classified as island
+shelves, `class = 1000`).
 
 ``` r
-
-# STEP 2
-classVector2 <- cond.4.nofn(dt, 
-                            nbs, 
-                            classVector, # class vector as returned from step 1
+# STEP 2, ISU_1000
+classVector2 <- cond.4.nofn(dt, nbs, 
+                            classVector, 
                             nbs_of = 1000, 
                             conditions = "slope <= 5", 
                             class = 1000)
 
+# STEP 3, ISU_1000
+classVector3 <- cond.4.nofn(dt, nbs, 
+                            classVector2, 
+                            nbs_of = 1000, 
+                            conditions = "TRUE", 
+                            class = 1000,
+                            min.border = 0.6)
+
 ## INCLUDE classVector IN A RASTER FOR PLOTTING
-r2   <- rstack[[1]]
-r2[] <- NA
-r2[dt$Cell] <- classVector
+r2 <- rstack[[1]]; r2[] <- NA; r2[dt$Cell] <- classVector2
+r3 <- rstack[[1]]; r3[] <- NA; r3[dt$Cell] <- classVector3
 
 ## PLOT RESULTS
-raster::plot(rstack[["slope_exm"]], legend = FALSE, axes = FALSE, box = FALSE)
-raster::plot(r2, add = TRUE, col = "black", legend = FALSE) # CLASS VECTOR
+p1 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "STEP 2, CLASS = 1000", colorkey = FALSE, scales=list(draw=FALSE)) + 
+  rasterVis::levelplot(r2, col.regions = "black", colorkey = FALSE)
+
+p2 <- rasterVis::levelplot(rstack[[1]], col.regions = terrain.colors(255), margin = F, main = "STEP 3, CLASS = 1000", colorkey = FALSE, scales=list(draw=FALSE)) + 
+  rasterVis::levelplot(r3, col.regions = "black", colorkey = FALSE)
+
+gridExtra::grid.arrange(p1, p2, ncol=2)
 ```
 
-<img src="man/figures/README-step2-1.png" width="100%" />
+<img src="man/figures/README-step23-1.png" width="100%" />
+
+**Note** that at each step our `classVector` is updated, i.e., only
+cells that have not been yet classified in previous steps
+(`dt$Cell[which(is.na(classVector))]`) are considered for
+classification.
+
+**Steps 3 and 4**
+
+Next, we will define island slopes (`class = 1100`). Island slopes are
+contiguous to island shelf cells and to island slopes cells (`nbs_of =
+c(1000, 1100)`). In step 3 we consider that all slopes on island shelf
+units are elevated with respect to the seafloor. We can use the variable
+`regional_bpi` to define this condition (positive values indicate cells
+on regional elevations). Moreover, we want to classify a cell as island
+slope only if its neighborhood is also elevated with respect to the
+seafloor. Let us consider a cell that was classified as island shelf and
+refer to it as `focal` cell and one of its neighboring cells in
+evaluation as `nbs`. We can then consider all the shared neighbors
+between the `focal` and the `nbs` cell to evaluate our condition. In
+this case we could consider that all shared neighbors must have a
+`regional_bpi > 100` in order to classify `nbs` as island slope. This
+type of condition is a *directional neighborhood condition* and in
+`scapesClassification` is flagged by a variable name followed by `{}`
+(`conditions = "regional_bpi{} > 100"`; see `?conditions` for more
+information). Instead of considering that all shared neighbors have to
+respect our condition to proceed with the classification, we can
+consider that the classification proceed if a percentace of shared neig

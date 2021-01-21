@@ -40,6 +40,7 @@
 #'   overwritten.
 #' @param isolationClass logic, return cells meeting isolation conditions
 #'   (\code{isolator cells}) classified as \code{'-1'}.
+#' @param silent logic, progress is not printed on the console.
 #'
 #' @return Classification vector.
 #'
@@ -122,7 +123,8 @@ anchor.seed <- function(attTbl,
                         classVector = NULL,
                         saveRDS = NULL,
                         overWrite = FALSE,
-                        isolationClass = FALSE)
+                        isolationClass = FALSE,
+                        silent = FALSE)
 {
 
   cat("\n")
@@ -542,14 +544,16 @@ anchor.seed <- function(attTbl,
 
 
     ### REINITIALIZE ALGORITHM ##############################################################################
-    flt_ok <- which(eval(cond_filter))
-    n      <- length(flt_ok)
-    p      <- round((1-n/N) * 100, 2)
+    if(!silent){
+      flt_ok <- which(eval(cond_filter))
+      n      <- length(flt_ok)
+      p      <- round((1-n/N) * 100, 2)
 
-    dtime <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
+      dtime <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
 
-    cat("\r", paste0(cnumb, ") ", p, "%"," complete, (", N-n, "/", N, ") cells classified, elapsed time ",
-                     dtime, " mins"))
+      cat("\r", paste0(cnumb, ") ", p, "%"," complete, (", N-n, "/", N, ") cells classified, elapsed time ",
+                       dtime, " mins"))
+    }
 
   }#while
 
@@ -560,7 +564,7 @@ anchor.seed <- function(attTbl,
 
   if(!is.null(saveRDS)) saveRDS(s_classVector, saveRDS)
 
-  cat("\n", paste0("Execution Time: ", round(difftime(Sys.time(), timeStart, units = 'mins') , 2), " minutes" ))
+  if(!silent){cat("\n", paste0("Execution Time: ", round(difftime(Sys.time(), timeStart, units = 'mins') , 2), " minutes" ))}
 
   return(s_classVector)
 
