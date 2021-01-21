@@ -279,5 +279,3 @@ only cell numbers overlapping with the spatial vector data that have
 missing values in rstack. \* `fill_NAs` determines the function to
 return cell numbers of cells adjacent to those overlapping with the
 spatial vector data that have missing values in rstack.
-
-123547896321
