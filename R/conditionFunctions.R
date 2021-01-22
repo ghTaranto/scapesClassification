@@ -15,8 +15,8 @@
 #'   neighbors of the neighbors.
 #' @param conditions character string, the conditions a cell have to meet to be
 #'   classified as indicated by the argument \code{class}. Absolute, focal cell
-#'   and focal neighborhood conditions can be used (see
-#'   \code{\link{conditions}}).
+#'   and focal neighborhood conditions can be used. Condition strings can
+#'   include only one neighborhood condition (see \code{\link{conditions}}).
 #' @param class numeric, the numeric class to attribute to the cells meeting
 #'   conditions.
 #' @param min.border numeric value between 0 and 1. It indicates the minimum
@@ -27,14 +27,14 @@
 #' @param overwrite_class logic, reclassify cells that have already been
 #'   classified.
 #' @param max.iter integer, the maximum number of iterations.
-#' @param fn_perc numeric value between 0 and 1. If a focal neighborhood
-#'   condition is considered, it determines the percentage of cells in the focal
-#'   neighborhood for which the conditions have to be true in order to classify
-#'   the cell being evaluated as indicted by the argument \code{class} (see
-#'   \code{\link{conditions}}).
+#' @param fn_perc numeric value between 0 and 1. If neighborhood conditions are
+#'   considered, it determines the percentage of cells in the neighborhood for
+#'   which the conditions have to be true in order to classify the cell being
+#' evaluated as indicted by the argument \code{class} (see
+#' \code{\link{conditions}}).
 #' @param directional logic, only directional neighbors are considered to test
-#'   focal neighborhood conditions. The argument \code{fn_perc} will also
-#'   consider only directional neighbors (see \code{\link{conditions}}).
+#'   neighborhood conditions. The argument \code{fn_perc} will also consider
+#'   only directional neighbors (see \code{\link{conditions}}).
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function.
@@ -192,7 +192,7 @@ cond.4.nofn <- function(attTbl,
   if (length(v_ab) > 0) {fa = TRUE}
   if (length(v_fc) > 0) {fc = TRUE}
   if (length(v_fn) > 0) {fn = TRUE}
-  if (length(fnAB) > 0) {fnAB = TRUE}
+  if (length(v_fnAB) > 0) {fnAB = TRUE}
 
   ###INITIALIZE ALGORITHM #########################################################################
   itr <- 0
@@ -317,7 +317,9 @@ cond.4.nofn <- function(attTbl,
       ### TEST FOR CELLS MEETING CONDITIONS ########################### while//for//conditions ####
       ev_cond <- eval(cond_parsed)
 
-      if (fn) {
+      if (fn|fnAB) {
+
+      # if (fn|fnAB) {
         ev_cond <-
           sapply(split(ev_cond, fct), function(x)
             sum(x) / length(x), USE.NAMES = F)

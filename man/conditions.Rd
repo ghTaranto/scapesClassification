@@ -10,8 +10,9 @@ conditions(names_attTbl, cond, silent = FALSE)
 \item{names_attTbl}{character vector, the column (i.e. variable) names of the
 attribute table returned by the function \code{\link{attTbl}}.}
 
-\item{cond}{character string, the conditions a cell have to meet to be
-classified by \code{scapesClassification} functions.}
+\item{cond}{character string, a set of conditions used to classify raster
+cells (see \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
+\code{\link{cond.4.all}} and \code{\link{anchor.seed}}).}
 
 \item{silent}{logic, returns only error messages.}
 }
@@ -21,7 +22,8 @@ were found or a message detailing the types of conditions that were
 found.
 }
 \description{
-Check for spelling and syntax errors in \code{conditions}.
+Check for spelling and syntax errors in \code{conditions} and evaluate the
+type of conditions being used.
 }
 \details{
 \cr \strong{Conditions} \cr\cr Conditions are passed to
@@ -29,95 +31,104 @@ Check for spelling and syntax errors in \code{conditions}.
 can consist of combination of arithmetic \code{(+|-|*|/|^|\%\%|\%/\%)},
 relational \code{(>|<|>=|<=|==|!=|\%/\%)} and logic operators \code{(&||)},
 base R functions (e.g., \code{abs(variable_name)}), variables names (i.e.,
-\code{names(attTbl)}) and class vector (referred to as
-\code{"classVector"}). In addition a combination of absolute and relative
-conditions can be used. In order to avoid errors, it should always be
+\code{names(attTbl)}) and class vectors (referred to as
+\code{"classVector"}). \cr\cr A combination of absolute and relative
+conditions can be used, but \emph{\strong{only one neighborhood condition per
+string}} is allowed. In order to avoid errors, it should always be
 possible to evaluate the \code{conditions} as \code{TRUE} or \code{FALSE}
-when substituting variable names with numeric values. The variables
-assessed by the conditions are stored in an attribute table (see
-\code{\link{attTbl}}) or in a class vector named \code{"classVector"}. All
-variables of interest should be addressed in the \code{conditions} argument
-by name. \cr\cr\cr \strong{Evaluation of conditions} \cr\cr The way conditions
-are evaluated depends on both the type of condition and the type of
-function used. \cr\cr \emph{\strong{Class contiguity, NO.}} When class contiguity is
-not being considered (i.e. functions without the argument \code{nbs_of})
-absolute conditions can be used. Their evaluation is vectorized and
-generally takes into account only cells that have not yet been classified
-(i.e., \code{which(is.na(classVector))}), unless the argument
+when substituting variable names with numeric values. All variables of
+interest should be addressed in the \code{conditions} argument by name.
+\cr\cr\cr \strong{Evaluation of conditions} \cr\cr The way conditions are
+evaluated depends on both the type of condition and the type of function
+used. When class contiguity is not being considered (i.e., functions
+without the argument \code{nbs_of}) absolute conditions can be used. Their
+evaluation is vectorized and exclude cells that have already been
+classified (i.e., \code{which(!is.na(classVector))}), unless the argument
 \code{overwrite_class} is \code{TRUE}. The function \code{cond.reclass} can
-evaluate focal neighborhood conditions, but cannot evaluate directional
-neighborhood conditions (see functions \code{\link{cond.4.all}} and
-\code{\link{cond.reclass}}). \cr\cr \emph{\strong{Class contiguity, YES.}} When class
-contiguity is being considered (i.e. functions with the argument
-\code{nbs_of} and \code{anchor.seed}), then both absolute and relative
-conditions can be used. Their evaluation is iterative. At each iteration,
-conditions are evaluated for the 8-neighbors of one of the cells classified
-as \code{nbs_of}. Generally neighbors that have already been classified are
-excluded from the evaluation (i.e., \code{which(is.na(classVector))}),
-unless the argument \code{overwrite_class} is \code{TRUE}. (see functions
+evaluate absolute focal neighborhood conditions, but cannot evaluate
+directional neighborhood conditions (see functions \code{\link{cond.4.all}}
+and \code{\link{cond.reclass}}). \cr\cr When class contiguity is being
+considered (i.e., functions with the argument \code{nbs_of} and
+\code{anchor.seed}), then both absolute and relative conditions can be
+used. Their evaluation is iterative. At each iteration, conditions are
+evaluated for the 8-neighbors of one of the cells classified as
+\code{nbs_of}. Neighbors that have already been classified are excluded
+from the evaluation (i.e., \code{which(!is.na(classVector))}), unless the
+argument \code{overwrite_class} is \code{TRUE} (see functions
 \code{\link{anchor.seed}} and \code{\link{cond.4.nofn}}). Some
 classification functions do not have a \code{condition} argument. These
-functions consider only class contiguity to classify classify cells (see
+functions consider only class contiguity to classify raster cells (see
 functions \code{\link{anchor.cell}}, \code{\link{anchor.svo}},
-\code{\link{cond.reclass}} and \code{\link{classify.all}}). \cr\cr
-\emph{\strong{Absolute conditions.}} This type of conditions applies to all functions
-with a \code{conditions} argument. Absolute conditions compare between
-variables (including \code{"classVector"}) and numeric values. When class
-contiguity is not being considered, all cells meeting absolute conditions
-receive a classification number. When class contiguity is being considered
-all neighbors meeting absolute conditions receive a classification number.
-Examples of valid conditions: \code{"(variable_A > 1 & variable_B != 0)"};
-\code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}. (see
-functions \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
-\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}). \cr\cr \emph{\strong{Focal
-cell conditions.}} This type of conditions applies only to functions
-considering class contiguity and with a \code{conditions} argument. Let us
-refer to the central cell as \code{focal} and to each of the 8-neighbors in
-evaluation as \code{nbs}. Focal cell conditions compare between the values
-stored in \code{nbs} cells with the value stored in the \code{focal} cell.
-This type of conditions is flagged by a variable name followed by square
-brackets (i.e., \code{"variable_name[]"}). The square brackets flag the
-\code{focal} cell. Examples of valid conditions: \code{"variable_A >
-  variable_A[]"}; \code{"(variable_A > variable_A[] & variable_B !=
-  variable_B[]) | variable_C > 1"}.  Note that the last example is a
-combination of absolute and focal cell conditions. (see functions
-\code{\link{anchor.seed}} and \code{\link{cond.4.nofn}}). \cr\cr \emph{\strong{Focal
-neighborhood conditions.}} This type of conditions applies only to the
-functions \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}. Let us
-refer to the central cell as \code{focal}, to each of the 8-neighbors in
-evaluation as \code{nbs} and to the 8-neighbors of each \code{nbs} in
-evaluation as \code{nofn}. Focal neighborhood conditions compare between
-values stored in \code{nbs} cells with values stored in their
-\code{nofn}. The argument \code{fn_perc} determines the percentage of
-comparisons for which the conditions have to be \code{TRUE} in order to
-classify the \code{nbs} cell as indicted by the argument \code{class}. For
-instance, if \code{fn_perc = 1}, then the conditions have to evaluate as
-\code{TRUE} for all comparisons between \code{nbs} and \code{nofn}; if
-\code{fn_perc = 0.5}, then the condition have to evaluate as \code{TRUE}
-for at least four of the eighth comparisons between \code{nbs} and
-\code{nofn}. This type of conditions is flagged by a variable name followed
-by curly brackets (i.e., \code{"variable_name{}"}). The curly brackets flag
-the \code{nbs} cell in evaluation. Examples of valid conditions:
-\code{"variable_A > variable_A{}"}; \code{"(variable_A > variable_A{} &
-  variable_B != variable_B[]) | variable_C > 1"}. Note that the last example
-is a combination of absolute, focal cell and focal neighborhood conditions.
-(see functions \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}).
-\cr\cr \emph{\strong{Directional neighborhood conditions.}} This type of conditions
-applies only to the function \code{\link{cond.4.nofn}}. Directional
-neighborhood conditions are similar to focal neighborhood conditions,
-however \code{nofn} are determined differently. For each \code{nbs} in
-evaluation, \code{nofn} are determined as the shared neighbors between the
-\code{focal} cell and the \code{nbs} cell and include the \code{focal}
-cell. This type of conditions is flagged by a variable name followed by
-curly brackets (i.e., \code{"variable_name{}"}) and by the argument
-\code{directional} set as \code{TRUE}. The curly brackets flag the
-\code{nbs} cell in evaluation. (see function \code{\link{cond.4.nofn}}).
+\code{\link{reclass.nbs}} and \code{\link{classify.all}}). \cr\cr
+Hereinafter the following definitions are adopted (see also the example
+section): \itemize{ \item{\strong{focal cell:} }{cell included in the classes of
+the argument \code{nbs_of} whose neighbors are in evaluation;} \item{\strong{nbs
+cell}: }{one of the neighbors in evaluation;} \item{\strong{focal
+neighborhood:} }{when \emph{absolute focal neighborhood conditions} are used,
+it includes \code{nbs} and its 8 neighbors; when \emph{relative focal
+neighborhood conditions} are used, it only includes the 8 neighbors of
+\code{nbs}.} \item{\strong{directional neighborhood:} }{it consists of the
+intersection set of the \code{focal cell} neighbors with the \code{focal
+  neighborhood}. When \emph{absolute focal neighborhood conditions} are used, it
+includes \code{nbs}, but it does not include the \code{focal cell}; when
+\emph{relative focal neighborhood conditions} are used, it includes the
+\code{focal cell}, but it does not include \code{nbs}.}} \cr \strong{Absolute
+conditions} \cr This type of condition applies to all functions with a
+\code{conditions} argument. It compares between variables (including
+\code{"classVector"}) and numeric values. When class contiguity is not
+considered, all cells meeting absolute conditions receive a classification
+number. When class contiguity is considered, all \code{nbs} meeting
+absolute conditions receive a classification number. \cr\cr \emph{Examples of
+valid conditions:} \code{"variable_A > 1 & variable_B != 0"};
+\code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}. \cr
+\emph{Functions:} \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
+\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}. \cr\cr\cr
+\strong{Absolute focal neighborhood conditions} \cr This type of condition
+applies to the functions \code{\link{cond.4.nofn}} and
+\code{\link{cond.reclass}}. It compares each cell of \code{focal
+  neighborhood} with a numeric value. The argument \code{fn_perc} controls
+the percentage of evaluations that have to be \code{TRUE} in order to
+assign a classification number to \code{nbs}. The function
+\code{\link{cond.4.nofn}} can consider a \code{directional neighborhood}
+instead of a \code{focal neighborhood}. This type of condition is flagged
+by a variable name followed by curly brackets (i.e.,
+\code{"variable_name{}"}), where the curly brackets indicate the
+\code{focal} or \code{directional neighborhood} considered at each
+iteration. \cr\cr \emph{Example of valid conditions:} \code{"variable_A{} > 1 &
+  abs(variable_B) != 0"}. \cr \emph{Functions:} \code{\link{cond.4.nofn}} and
+\code{\link{cond.reclass}}. \cr\cr\cr \strong{Focal cell conditions.} \cr This
+type of condition applies only to functions considering class contiguity
+and with a \code{conditions} argument. It compares the value of \code{nbs}
+with the value of the \code{focal cell}. This type of condition is flagged
+by a variable name followed by square brackets (i.e.,
+\code{"variable_name[]"}), where the square brackets indicate the focal
+cell. \cr\cr \emph{Examples of valid conditions:} \code{"variable_A >
+  variable_A[]"}; \code{"(variable_A > variable_A[] & variable_B{} < 10) |
+  variable_C > 1"}.  Note that the last example is a combination of absolute
+and focal cell conditions. \cr \emph{Functions:} \code{\link{anchor.seed}} and
+\code{\link{cond.4.nofn}}. \cr\cr\cr \strong{Relative focal neighborhood
+conditions.} \cr This type of condition applies only to the functions
+\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}. It compares each
+cell of \code{focal neighborhood} with \code{nbs}. The argument
+\code{fn_perc} controls the percentage of evaluations that have to be
+\code{TRUE} in order to assign a classification number to \code{nbs}. The
+function \code{\link{cond.4.nofn}} can consider a \code{directional
+  neighborhood} instead of a \code{focal neighborhood}. This type of
+condition is flagged by a variable name followed by curly brackets (i.e.,
+\code{"variable_name{}"}), where the curly brackets indicate the
+\code{focal} or \code{directional neighborhood} considered at each
+iteration. \cr\cr \emph{Example of valid conditions:} \code{"variable_A >
+  variable_A{}"}; \code{"(variable_A > variable_A{} & variable_B !=
+  variable_B[]) | variable_C > 1"}. Note that the last example is a
+combination of absolute, focal cell and focal neighborhood conditions. \cr
+\emph{Functions:} \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}
 }
 \examples{
+# EXAMPLES OF VALID AND INVALID CONDITIONS:
+
 names_attTbl <- c("bathymetry", "slope")
 cond <- "bathymetry>10"
 conditions(names_attTbl, cond)
-
 cond <- "classVector != 1"
 conditions(names_attTbl, cond)
 cond <- "bathymetry[]>10 & abs(slope{}) < 5"
@@ -125,7 +136,46 @@ conditions(names_attTbl, cond)
 \donttest{cond <- "thymetry[]>10 & abs(slpe{}) < 5"
 conditions(names_attTbl, cond)
 cond <- "bathymetry[]>10 & | abs(slope{}) < 5"
+conditions(names_attTbl, cond)
+cond <- "bathymetry{}>10 & | abs(slope{}) < 5"
 conditions(names_attTbl, cond)}
+
+
+# EXAMPLES OF FOCAL CELL, NBS CELLS AND NEIGHBORHOODS:
+
+# Matrix m mocking a raster of 3 rows and 4 columns
+m <- matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
+m
+
+# FOCAL CELL
+fc <- 6
+fc
+
+# NBS CELLS
+nbs <- nbg8(3, 4)[[6]]
+nbs
+
+# CELL IN EVALUATION
+nbs1 <- nbs[1]
+nbs1
+
+# FOCAL NEIGHBORHOOD
+# Absolute:
+ab_fn_nbs1 <- c(nbs1, nbg8(3, 4)[[1]])
+ab_fn_nbs1
+
+# Relative:
+r_fn_nbs1  <- c(nbg8(3, 4)[[1]])
+r_fn_nbs1
+
+# DIRECTIONAL FOCAL NEIGHBORHOOD
+# Absolute:
+ab_dfn_nbs1 <- c(nbs1, intersect(c(nbg8(3, 4)[[1]]) , nbg8(3, 4)[[6]]))
+ab_dfn_nbs1
+
+# Relative:
+r_dfn_nbs1  <- c(fc, intersect(c(nbg8(3, 4)[[1]]) , nbg8(3, 4)[[6]]))
+r_dfn_nbs1
 }
 \seealso{
 \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.all]{cond.4.all()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}},

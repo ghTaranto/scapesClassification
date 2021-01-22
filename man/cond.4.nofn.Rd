@@ -35,8 +35,8 @@ neighbors of the neighbors.}
 
 \item{conditions}{character string, the conditions a cell have to meet to be
 classified as indicated by the argument \code{class}. Absolute, focal cell
-and focal neighborhood conditions can be used (see
-\code{\link{conditions}}).}
+and focal neighborhood conditions can be used. Condition strings can
+include only one neighborhood condition (see \code{\link{conditions}}).}
 
 \item{class}{numeric, the numeric class to attribute to the cells meeting
 conditions.}
@@ -52,15 +52,15 @@ classified.}
 
 \item{max.iter}{integer, the maximum number of iterations.}
 
-\item{fn_perc}{numeric value between 0 and 1. If a focal neighborhood
-condition is considered, it determines the percentage of cells in the focal
-neighborhood for which the conditions have to be true in order to classify
-the cell being evaluated as indicted by the argument \code{class} (see
+\item{fn_perc}{numeric value between 0 and 1. If neighborhood conditions are
+considered, it determines the percentage of cells in the neighborhood for
+which the conditions have to be true in order to classify the cell being
+evaluated as indicted by the argument \code{class} (see
 \code{\link{conditions}}).}
 
 \item{directional}{logic, only directional neighbors are considered to test
-focal neighborhood conditions. The argument \code{fn_perc} will also
-consider only directional neighbors (see \code{\link{conditions}}).}
+neighborhood conditions. The argument \code{fn_perc} will also consider
+only directional neighbors (see \code{\link{conditions}}).}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by

@@ -544,8 +544,9 @@ anchor.seed <- function(attTbl,
 
 
     ### REINITIALIZE ALGORITHM ##############################################################################
+    flt_ok <- which(eval(cond_filter))
+
     if(!silent){
-      flt_ok <- which(eval(cond_filter))
       n      <- length(flt_ok)
       p      <- round((1-n/N) * 100, 2)
 
