@@ -61,12 +61,10 @@ cond.4.nofn <- function(attTbl,
                         max.iter = +Inf,
                         fn_perc = 1,
                         directional = T) {
+
   # TEST FOR COLUMN CELL IN attTbl
   if (!("Cell" %in% names(attTbl))){
-    stop(
-      "the attribute table should have one column named 'Cell' with cell numbers
-                                       that indicate the position of each row in the original Raster object"
-    )
+    stop("attribute table mising 'Cell' column. Check ?attTbl.")
   }
 
 
@@ -76,7 +74,100 @@ cond.4.nofn <- function(attTbl,
   }
 
 
-  # CONVERT NBS FORM CELL IDS TO CELL INDECES
+  ## HANDLE CONDITION STRING
+  # REMOVE SPACES AND DOUBLES (&& ||)
+  conditions <- stringr::str_replace_all(conditions, "\\&\\&", "\\&")
+  conditions <- stringr::str_replace_all(conditions, "\\|\\|", "\\|")
+  conditions <- stringr::str_replace_all(conditions, " ", "")
+
+  # TEST FOR CONDITION INTEGRITY
+  conditions(names(attTbl), conditions, silent = TRUE)
+
+  # DECONSTRUCT SRING TO DETECT CONDITION TYPES
+  cVect <- unlist(strsplit(conditions,"\\&|\\|"))
+  cVect <- cVect[cVect != ""]
+
+  vList <- list()
+
+  for(x in seq_along(cVect)){
+
+    v_ab <-
+      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "(?!\\[|\\{)"))]
+    v_fc <-
+      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "\\[\\]"))]
+    v_fn <-
+      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "\\{\\}"))]
+    v_fnAB <- character()
+
+    for (v in v_ab) {
+      cVect[x] <-
+        stringr::str_replace_all(cVect[x], paste0(v, "(?!\\[|\\{)"), paste0("l_ab$", v))
+    }
+
+    for (v in v_fc) {
+      cVect[x] <-
+        stringr::str_replace_all(cVect[x], paste0(v, "\\[\\]"), paste0("l_fc$", v))
+    }
+
+    if(length(v_ab) == 0 & length(v_fn) > 0){
+
+      cnd    <- "l_fnAB$"
+      v_fnAB <- v_fn
+      v_fn   <- character()
+
+      for (v in v_fnAB) {
+        cVect[x] <-
+          stringr::str_replace_all(cVect[x], paste0(v, "\\{\\}"), paste0("l_fnAB$", v))
+      }
+
+    } else {
+
+      for (v in v_fn) {
+        cVect[x] <-
+          stringr::str_replace_all(cVect[x], paste0(v, "\\{\\}"), paste0("l_fn$", v))
+      }
+
+    }
+
+    vList[["v_ab"]]   <- c(vList[["v_ab"]], v_ab)
+    vList[["v_fc"]]   <- c(vList[["v_fc"]], v_fc)
+    vList[["v_fn"]]   <- c(vList[["v_fn"]], v_fn)
+    vList[["v_fnAB"]] <- c(vList[["v_fnAB"]], v_fnAB)
+
+  }
+
+  # RECONSTRUCT CONDITION STRINGS AND VARIABLES
+  ands <- stringr::str_locate_all(conditions, "\\&")[[1]]
+  ors  <- stringr::str_locate_all(conditions, c("\\|"))[[1]]
+
+  lg_op      <- as.data.frame( rbind(ands, ors) )
+  lg_op$type <- c(rep("&", nrow(ands)), rep("|", nrow(ors)))
+  lg_op      <- lg_op[order(lg_op$start),]
+
+  cond_parsed <- character()
+  for(x in seq_along(cVect)){
+
+    cond_parsed <- paste0(cond_parsed, cVect[x])
+
+    if(x <= nrow(lg_op)){
+      cond_parsed <- paste0(cond_parsed, lg_op$type[x])
+    }
+
+  }
+
+  cond_parsed <- parse(text=cond_parsed)
+
+
+  ## OVERWRITE CLASSES
+  if (!overwrite_class | is.na(overwrite_class)) {
+    flt <- parse(text = "is.na(classVector[n_ind])")
+  } else {
+    flt <-
+      parse(text = "(classVector[n_ind] != class | is.na(classVector[n_ind]))")
+  }
+
+
+  ## CONVERT NBS FORM CELL IDS TO CELL INDECES
   fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
   ngbList <- match(unlist(ngbList), attTbl$Cell)
   no_nas  <- !is.na(ngbList)
@@ -87,46 +178,21 @@ cond.4.nofn <- function(attTbl,
 
   rm(fct, no_nas)
 
-  ### PARSE CONDITIONS
-  if (!overwrite_class | is.na(overwrite_class)) {
-    flt <- parse(text = "is.na(classVector[n_ind])")
-  } else {
-    flt <-
-      parse(text = "(classVector[n_ind] != class | is.na(classVector[n_ind]))")
-  }
+  ## CONDITIONS TYPE CONTROLS
+  v_ab   <- vList$v_ab
+  v_fc   <- vList$v_fc
+  v_fn   <- vList$v_fn
+  v_fnAB <- vList$v_fnAB
 
-  v_ab <-
-    names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "(?!\\[|\\{)"))]
-  v_fc <-
-    names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "\\[\\]"))]
-  v_fn <-
-    names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "\\{\\}"))]
+  fa   <- FALSE
+  fc   <- FALSE
+  fn   <- FALSE
+  fnAB <- FALSE
 
-  for (v in v_ab) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0(v, "(?!\\[|\\{)"), paste0("l_ab$", v))
-  }
-  for (v in v_fc) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0(v, "\\[\\]"), paste0("l_fc$", v))
-  }
-  for (v in v_fn) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0(v, "\\{\\}"), paste0("l_fn$", v))
-  }
-
-  cond_parsed <- parse(text = conditions)
-
-  if (length(v_fc) != 0) {
-    fc = TRUE
-  } else{
-    fc = FALSE
-  }
-  if (length(v_fn) != 0) {
-    fn = TRUE
-  } else{
-    fn = FALSE
-  }
+  if (length(v_ab) > 0) {fa = TRUE}
+  if (length(v_fc) > 0) {fc = TRUE}
+  if (length(v_fn) > 0) {fn = TRUE}
+  if (length(fnAB) > 0) {fnAB = TRUE}
 
   ###INITIALIZE ALGORITHM #########################################################################
   itr <- 0
@@ -152,8 +218,6 @@ cond.4.nofn <- function(attTbl,
   classification_t0 <- new_cell_id
   conditions0       <- conditions
 
-  l_ab <- list()
-  l_fn <- list()
 
   ### RUN ALGORITHM #################################################################### while ####
   while (continue & itr <= max.iter) {
@@ -182,14 +246,13 @@ cond.4.nofn <- function(attTbl,
       fct <- 1:length(n_ind)
       if (fn) {
         # IF CONSIDERING FOCAL NEIGHBORHOOD
-
         if (directional) {
           fn_ind <- lapply(ngbList[n_ind], intersect, y = c(c, n_indAll))
         } else {
           fn_ind <- ngbList[n_ind]
         }
 
-        fn_ind0 <- which(!(lengths(fn_ind) == 0))
+        fn_ind0 <- which(lengths(fn_ind) != 0)
 
         if (length(fn_ind0) == 0) {
           next
@@ -207,6 +270,33 @@ cond.4.nofn <- function(attTbl,
         names(l_fn) <- v_fn
       }
 
+      if (fnAB) {
+        # IF CONSIDERING ABSOLUTE CONDITION FOCAL NEIGHBORHOOD
+        fn_ind <- mapply(c, ngbList[n_ind], n_ind, SIMPLIFY=FALSE)
+
+        if (directional) {
+          fn_ind <- lapply(fn_ind, intersect, y = c(n_ind, n_indAll))
+        }
+
+        fn_ind0 <- which(lengths(fn_ind) != 0)
+
+        if (length(fn_ind0) == 0) {
+          next
+        }
+
+        n_ind  <- n_ind[fn_ind0]
+        fn_ind <- fn_ind[fn_ind0]
+
+        fct <-
+          rep(seq_along(lengths(fn_ind)), lengths(fn_ind)) # NUMBER OF FOCAL NEIGHBORS FOR EACH N_IND
+
+        l_fnAB <-
+          lapply(as.list(v_fnAB), function(x)
+            attTbl[[x]][unlist(fn_ind)])
+        names(l_fnAB) <- v_fnAB
+      }
+
+      # FOCAL CELL CONDITION
       if (fc) {
         l_fc <-
           lapply(as.list(v_fc), function(x)
@@ -214,10 +304,13 @@ cond.4.nofn <- function(attTbl,
         names(l_fc) <- v_fc
       }
 
-      l_ab <-
-        lapply(as.list(v_ab), function(x)
-          attTbl[[x]][n_ind][fct])
-      names(l_ab) <- v_ab
+      # ABSOLUTE CONDITION
+      if (fa) {
+        l_ab <-
+          lapply(as.list(v_ab), function(x)
+            attTbl[[x]][n_ind][fct])
+        names(l_ab) <- v_ab
+      }
 
       ##################################################### while//for//if//relative_condition ####
 
