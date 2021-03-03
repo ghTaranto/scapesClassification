@@ -4,7 +4,14 @@
 \alias{cv.2.rast}
 \title{Class Vector To Raster}
 \usage{
-cv.2.rast(r, index, classVector, plot = TRUE, writeRaster = NULL)
+cv.2.rast(
+  r,
+  index,
+  classVector,
+  plot = TRUE,
+  writeRaster = NULL,
+  overWrite = FALSE
+)
 }
 \arguments{
 \item{r}{The \code{Raster*} object on which classification is based (see
@@ -20,6 +27,8 @@ been classified.}
 
 \item{writeRaster}{filename, if a raster name is provided save the
 \code{classVector} as a raster file.}
+
+\item{overWrite}{logic, overwrite existing raster.}
 }
 \value{
 plot or save \code{classVector} as a raster.

@@ -197,7 +197,7 @@ conditions <- function(names_attTbl,
     ))
   tc_spl <- tc_spl[tc_spl != ""]
 
-  tc_spl <- tc_spl[which(!(tc_spl %in% ls("package:base")))]
+  tc_spl <- tc_spl[which(!(tc_spl %in% c("between",ls("package:base"))))]
 
   tc_spl <- tc_spl[which(!(tc_spl %in% c("T", "TRUE", "F", "FALSE")))]
 
@@ -254,11 +254,12 @@ conditions <- function(names_attTbl,
 #' @param plot logic, plot anchor \code{classVector}.
 #' @param writeRaster filename, if a raster name is provided save the
 #'   \code{classVector} as a raster file.
+#' @param overWrite logic, overwrite existing raster.
 #'
 #' @return plot or save \code{classVector} as a raster.
 #'
 #' @export
-cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL){
+cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL, overWrite = FALSE){
 
   r2 <- r[[1]]
   r2[] <- NA
@@ -269,7 +270,7 @@ cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL){
   }
 
   if (!is.null(writeRaster)){
-    raster::writeRaster(r2, writeRaster)
+    raster::writeRaster(r2, writeRaster, overwrite = overWrite)
   }
 
 }
