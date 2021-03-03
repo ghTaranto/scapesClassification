@@ -171,13 +171,16 @@ anchor.seed <- function(attTbl,
 
   if(!is.null(cond.filter)){
 
-    cond.filter <- paste0(cond.filter, " & is.na(s_classVector)" )
+    cond.filter <- paste0(cond.filter, " & is.na(seedVector)" )
 
   } else {
 
-    cond.filter <- "is.na(s_classVector)"
+    cond.filter <- "is.na(seedVector)"
 
   }
+
+  # Add classVector column if not null
+  if(!is.null(classVector)){attTbl$classVector <- classVector}
 
   c_all <- c(cond.seed, cond.growth, cond.isol)
 
@@ -231,11 +234,11 @@ anchor.seed <- function(attTbl,
 
   # CONDITION FILTER (TO APPLY LOCALLY)
   cf <- stringr::str_replace_all(cond_filter, "attTbl", "l_ab")
-  cf <- stringr::str_replace_all(cf, "classVector(?!\\[)", paste0("classVector", "\\[nind\\]"))
+  cf <- stringr::str_replace_all(cf, "seedVector(?!\\[)", paste0("seedVector", "\\[nind\\]"))
 
   # CONDITION FILTER GROWTH, CAN OVERWERITE ISOLATION CLASS
-  cfg<- stringr::str_replace_all(cf, "is.na\\(s_classVector\\[nind\\]\\)",
-                                 "\\(is.na\\(s_classVector\\[nind\\]\\)\\|s_classVector\\[nind\\] == -1\\)")
+  cfg<- stringr::str_replace_all(cf, "is.na\\(seedVector\\[nind\\]\\)",
+                                 "\\(is.na\\(seedVector\\[nind\\]\\)\\|seedVector\\[nind\\] == -1\\)")
 
 
   # PARSE CONDITIONS
@@ -250,7 +253,7 @@ anchor.seed <- function(attTbl,
   ic_true <- !is.null(cond.isol)
 
   ### INITIALIZE VARIABLES ###########################################################################
-  s_classVector <- rep(as.numeric(NA), NROW(attTbl))
+  seedVector <- rep(as.numeric(NA), NROW(attTbl))
 
   flt_ok <- which(eval(cond_filter))
   N      <- length(flt_ok)
@@ -259,7 +262,8 @@ anchor.seed <- function(attTbl,
 
   if(length(flt_ok) == 0){stop("\n No cell meeting filter conditions")}
 
-  while(length(flt_ok) > 0){
+  seeds <- TRUE
+  while(length(flt_ok) > 0 & seeds){
     evaluate <- TRUE #test if any filter cond == T within growth and isolation
     cnumb <- cnumb + 1
 
@@ -269,10 +273,21 @@ anchor.seed <- function(attTbl,
 
     # FOCAL CELL INDEX
     fc_ind <- which( eval(cond_list[["cond.seed"]]) )[1]
+
+    # STOP IF NO SEED CELL
+    if(is.na(fc_ind)){
+      seeds <- FALSE
+
+      if(cnumb == 1){stop("No cell meeting seed conditions")}
+
+      next
+
+    }
+
     fc_ind <- flt_ok[fc_ind]
 
     # CLASSIFY SEED
-    s_classVector[fc_ind] <- cnumb
+    seedVector[fc_ind] <- cnumb
 
     ## INITIALIZE ALGORITHM
     classification_t1 <- fc_ind
@@ -331,7 +346,7 @@ anchor.seed <- function(attTbl,
 
         # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
         nind <- nind[i]
-        s_classVector[ nind ] <- cnumb
+        seedVector[ nind ] <- cnumb
         list_new_cell_ind[[ k ]] <- nind
 
         # CELLS TO BE USED TO TEST FOR ISOLATION CONDITIONS
@@ -467,7 +482,7 @@ anchor.seed <- function(attTbl,
 
             # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
             nind <- nind[i]
-            s_classVector[ nind ] <- -1
+            seedVector[ nind ] <- -1
             list_new_cell_ind[[ k ]] <- nind
 
             # UPDATE FOCAL CELL
@@ -560,14 +575,14 @@ anchor.seed <- function(attTbl,
   }#while
 
   ### FINALIZE FUNCTION #####################################################################################
-  if(!is.null(class))s_classVector[which( s_classVector > 0 )] <- class
+  if(!is.null(class))seedVector[which( seedVector > 0 )] <- class
 
-  if(!isolationClass) s_classVector[s_classVector == -1] <- NA
+  if(!isolationClass) seedVector[seedVector == -1] <- NA
 
-  if(!is.null(saveRDS)) saveRDS(s_classVector, saveRDS)
+  if(!is.null(saveRDS)) saveRDS(seedVector, saveRDS)
 
   if(!silent){cat("\n", paste0("Execution Time: ", round(difftime(Sys.time(), timeStart, units = 'mins') , 2), " minutes" ))}
 
-  return(s_classVector)
+  return(seedVector)
 
 }
