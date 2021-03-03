@@ -26,9 +26,8 @@
 #' @param lag.growth numeric, it defines the lag on which focal cell conditions
 #'   in \code{cond.growth} are evaluated (see \code{\link{conditions}}).
 #' @param cond.isol character string, the conditions to define how one local
-#'   maxima or minima is isolated from another. It cannot be \code{NULL}.
-#'   Absolute and focal cell conditions can be used (see
-#'   \code{\link{conditions}}).
+#'   maxima or minima is isolated from another. It can be \code{NULL}. Absolute
+#'   and focal cell conditions can be used (see \code{\link{conditions}}).
 #' @param lag.isol numeric, it defines the lag on which focal cell conditions in
 #'   \code{cond.isol} are evaluated (see \code{\link{conditions}}).
 #' @param classVector numeric vector, if any of the condition arguments refers
@@ -118,7 +117,7 @@ anchor.seed <- function(attTbl,
                         cond.seed,
                         cond.growth  = NULL,
                         lag.growth = Inf,
-                        cond.isol,
+                        cond.isol = NULL,
                         lag.isol = 1,
                         classVector = NULL,
                         saveRDS = NULL,
@@ -250,6 +249,7 @@ anchor.seed <- function(attTbl,
 
   # TEST CONDITIONS?
   gc_true <- !is.null(cond.growth)
+  ic_true <- !is.null(cond.isol)
 
   ### INITIALIZE VARIABLES ###########################################################################
   s_classVector <- rep(as.numeric(NA), NROW(attTbl))
@@ -410,137 +410,140 @@ anchor.seed <- function(attTbl,
 
 
     ### APPLY ISOLATION CONDITION ###########################################################################
-    for(fc_ind in classification_t1){
+    if(ic_true){
+      for(fc_ind in classification_t1){
 
-      ### INITIALIZE ISOLATION ALGORITHM ####################################################################
-      lag_fc0 <- fc_ind
-      lag_fc  <- list()
+        ### INITIALIZE ISOLATION ALGORITHM ####################################################################
+        lag_fc0 <- fc_ind
+        lag_fc  <- list()
 
-      ciL     <- lag_fc0
+        ciL     <- lag_fc0
 
-      # new_lag_cond      <- T
-      list_new_cell_ind <- list()
+        # new_lag_cond      <- T
+        list_new_cell_ind <- list()
 
-      v    <- v_list$cond.isol
-      cond <- cond_list$cond.isol
+        v    <- v_list$cond.isol
+        cond <- cond_list$cond.isol
 
-      k = 1
-      evaluate <- FALSE
+        k = 1
+        evaluate <- FALSE
 
-      ### START ISOLATION CONDITION #########################################################################
-      while(k > 0){
+        ### START ISOLATION CONDITION #########################################################################
+        while(k > 0){
 
-        ### DEFINE FOCAL CELL NEIGHBORHOOD AND TEST CONDITION ###############################################
-        nind  <- ngbList[[ fc_ind ]]
+          ### DEFINE FOCAL CELL NEIGHBORHOOD AND TEST CONDITION ###############################################
+          nind  <- ngbList[[ fc_ind ]]
 
-        # EVALUATE FILTER
-        if(len_vf){
+          # EVALUATE FILTER
+          if(len_vf){
 
-          l_ab        <- lapply( as.list(vf), function(x) attTbl[[x]][nind] )
-          names(l_ab) <- vf
-
-        }
-
-        i <- which(eval(cf))
-
-        if(length(i) > 0){
-          evaluate = TRUE
-          nind <- nind[i]
-        }
-
-        # EVALUATE ISOLATION
-        if(evaluate){
-
-          fct <- 1:length(nind)
-
-          l_fc <- lapply( as.list(v$v_fc), function(x) rep(attTbl[[x]][ciL], length(nind)) )
-          names(l_fc) <- v$v_fc
-
-          l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
-          names(l_ab) <- v$v_ab
-
-          i <- which(eval(cond))
-
-        }
-
-        ### AT LEAST ONE NEIGHBOUR CELL MEETING ISOLATION CONDITION #########################################
-        if(length(i) != 0){
-
-          # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
-          nind <- nind[i]
-          s_classVector[ nind ] <- -1
-          list_new_cell_ind[[ k ]] <- nind
-
-          # UPDATE FOCAL CELL
-          fc_ind                   <- list_new_cell_ind[[ k ]][1]
-          list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
-
-          # DEFINE NODE CONDITION
-          lag_fc[[k]] <- fc_ind
-
-          # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-          if(k - lag.isol < 1){
-
-            ciL <- lag_fc0
-
-          } else {
-
-            ciL <- lag_fc[[k - lag.isol]]
+            l_ab        <- lapply( as.list(vf), function(x) attTbl[[x]][nind] )
+            names(l_ab) <- vf
 
           }
 
-          # SET NODE LEVEL
-          k <- k + 1
+          i <- which(eval(cf))
 
-          ### NO CELL MEETING ISOLATION CONDITION ###########################################################
-        } else {
+          if(length(i) > 0){
+            evaluate = TRUE
+            nind <- nind[i]
+          }
 
-          # CHECK IF ANY NODE HAS UNEVALUATED CELLS
-          node2eval <- TRUE
-          while( node2eval ){
-            k = k - 1
+          # EVALUATE ISOLATION
+          if(evaluate){
 
-            if(k < 1) {
-              node2eval <- FALSE
-              next
+            fct <- 1:length(nind)
+
+            l_fc <- lapply( as.list(v$v_fc), function(x) rep(attTbl[[x]][ciL], length(nind)) )
+            names(l_fc) <- v$v_fc
+
+            l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
+            names(l_ab) <- v$v_ab
+
+            i <- which(eval(cond))
+
+          }
+
+          ### AT LEAST ONE NEIGHBOUR CELL MEETING ISOLATION CONDITION #########################################
+          if(length(i) != 0){
+
+            # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
+            nind <- nind[i]
+            s_classVector[ nind ] <- -1
+            list_new_cell_ind[[ k ]] <- nind
+
+            # UPDATE FOCAL CELL
+            fc_ind                   <- list_new_cell_ind[[ k ]][1]
+            list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
+
+            # DEFINE NODE CONDITION
+            lag_fc[[k]] <- fc_ind
+
+            # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
+            if(k - lag.isol < 1){
+
+              ciL <- lag_fc0
+
+            } else {
+
+              ciL <- lag_fc[[k - lag.isol]]
+
             }
 
-            if(length(list_new_cell_ind[[ k ]]) != 0) {
+            # SET NODE LEVEL
+            k <- k + 1
 
-              # UPDATE FOCAL CELL FROM LOWER LEVEL NODES
-              fc_ind                   <- list_new_cell_ind[[ k ]][1]
-              list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
+            ### NO CELL MEETING ISOLATION CONDITION ###########################################################
+          } else {
 
-              node2eval <- FALSE
+            # CHECK IF ANY NODE HAS UNEVALUATED CELLS
+            node2eval <- TRUE
+            while( node2eval ){
+              k = k - 1
 
-              # UPDATE LOWER LEVEL NODE CONDITION
-              lag_fc[[k]] <- fc_ind
-
-              # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-              if(k - lag.isol < 1){
-
-                ciL <- lag_fc0
-
-              } else {
-
-                ciL <- lag_fc[[k - lag.isol]]
-
+              if(k < 1) {
+                node2eval <- FALSE
+                next
               }
 
-              # SET NODE LEVEL
-              k <- k + 1
+              if(length(list_new_cell_ind[[ k ]]) != 0) {
 
-            } # if(length(list_new_cell_ind[[ k ]]) != 0)
+                # UPDATE FOCAL CELL FROM LOWER LEVEL NODES
+                fc_ind                   <- list_new_cell_ind[[ k ]][1]
+                list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
 
-          } # while( node2eval )
+                node2eval <- FALSE
 
-        } # else of if(length(i) != 0)
+                # UPDATE LOWER LEVEL NODE CONDITION
+                lag_fc[[k]] <- fc_ind
 
-        evaluate <- FALSE
+                # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
+                if(k - lag.isol < 1){
 
-      } # while(k > 0 & ic_true)
+                  ciL <- lag_fc0
 
-    } #for(i_ind in classification_t0)
+                } else {
+
+                  ciL <- lag_fc[[k - lag.isol]]
+
+                }
+
+                # SET NODE LEVEL
+                k <- k + 1
+
+              } # if(length(list_new_cell_ind[[ k ]]) != 0)
+
+            } # while( node2eval )
+
+          } # else of if(length(i) != 0)
+
+          evaluate <- FALSE
+
+        } # while(k > 0 & ic_true)
+
+      } #for(i_ind in classification_t0)
+
+    } #ic_true
 
 
     ### REINITIALIZE ALGORITHM ##############################################################################

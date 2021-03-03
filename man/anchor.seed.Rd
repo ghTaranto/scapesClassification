@@ -12,7 +12,7 @@ anchor.seed(
   cond.seed,
   cond.growth = NULL,
   lag.growth = Inf,
-  cond.isol,
+  cond.isol = NULL,
   lag.isol = 1,
   classVector = NULL,
   saveRDS = NULL,
@@ -51,9 +51,8 @@ conditions can be used (see \code{\link{conditions}}).}
 in \code{cond.growth} are evaluated (see \code{\link{conditions}}).}
 
 \item{cond.isol}{character string, the conditions to define how one local
-maxima or minima is isolated from another. It cannot be \code{NULL}.
-Absolute and focal cell conditions can be used (see
-\code{\link{conditions}}).}
+maxima or minima is isolated from another. It can be \code{NULL}. Absolute
+and focal cell conditions can be used (see \code{\link{conditions}}).}
 
 \item{lag.isol}{numeric, it defines the lag on which focal cell conditions in
 \code{cond.isol} are evaluated (see \code{\link{conditions}}).}
