@@ -181,11 +181,9 @@ anchor.seed <- function(attTbl,
 
   c_all <- c(cond.seed, cond.growth, cond.isol)
 
-  if(is.null(cond.growth)){
-    ind_nms <- c(TRUE, FALSE, TRUE)
-  } else {
-    ind_nms  <- c(TRUE, TRUE, TRUE)
-  }
+  ind_nms <- c(TRUE, FALSE, FALSE)
+  if(!is.null(cond.growth)){ind_nms[2] <- TRUE}
+  if(!is.null(cond.isol))  {ind_nms[3] <- TRUE}
 
   c_nms <- c("cond.seed", "cond.growth", "cond.isol")[ind_nms]
 
