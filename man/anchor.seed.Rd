@@ -11,7 +11,7 @@ anchor.seed(
   class = NULL,
   cond.filter = NULL,
   cond.seed,
-  sort.seed = FALSE,
+  sort.seed = NULL,
   sort.col = NULL,
   cond.growth = NULL,
   lag.growth = Inf,
