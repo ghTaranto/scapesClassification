@@ -11,6 +11,8 @@ anchor.seed(
   class = NULL,
   cond.filter = NULL,
   cond.seed,
+  sort.seed = FALSE,
+  sort.col = NULL,
   cond.growth = NULL,
   lag.growth = Inf,
   cond.isol = NULL,
@@ -46,6 +48,13 @@ used (see \code{\link{conditions}}).}
 minima. The condition should be similar to \code{"variable_x ==
   max(variable_x)"} or \code{"variable_x == min(variable_x)"}. It cannot be
 \code{NULL}.}
+
+\item{sort.seed}{character, sort seeds based on column values. If
+\code{"max"} seeds are evaluated from the maximum to the minimum. If
+\code{"min"} seeds are evaluated from the minimum to the maximum.}
+
+\item{sort.col}{character, the column name in the \code{attTbl} on which the
+sorting in based on.}
 
 \item{cond.growth}{character string, the conditions to define a buffer around
 local maxima or minima. It can be \code{NULL}. Absolute and focal cell

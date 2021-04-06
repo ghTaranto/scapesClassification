@@ -22,6 +22,11 @@
 #'   minima. The condition should be similar to \code{"variable_x ==
 #'   max(variable_x)"} or \code{"variable_x == min(variable_x)"}. It cannot be
 #'   \code{NULL}.
+#' @param sort.seed character, sort seeds based on column values. If
+#'   \code{"max"} seeds are evaluated from the maximum to the minimum. If
+#'   \code{"min"} seeds are evaluated from the minimum to the maximum.
+#' @param sort.col character, the column name in the \code{attTbl} on which the
+#'   sorting in based on.
 #' @param cond.growth character string, the conditions to define a buffer around
 #'   local maxima or minima. It can be \code{NULL}. Absolute and focal cell
 #'   conditions can be used (see \code{\link{conditions}}).
@@ -118,6 +123,8 @@ anchor.seed <- function(attTbl,
                         class = NULL,
                         cond.filter = NULL,
                         cond.seed,
+                        sort.seed = FALSE,
+                        sort.col = NULL,
                         cond.growth  = NULL,
                         lag.growth = Inf,
                         cond.isol = NULL,
@@ -277,10 +284,10 @@ anchor.seed <- function(attTbl,
     names(l_ab) <- v$v_ab
 
     # FOCAL CELL INDEX
-    fc_ind <- which( eval(cond_list[["cond.seed"]]) )[1]
+    fc_ind <- which( eval(cond_list[["cond.seed"]]) )
 
     # STOP IF NO SEED CELL
-    if(is.na(fc_ind)){
+    if(length(fc_ind) == 0){
       seeds <- FALSE
 
       if(cnumb == 1){stop("No cell meeting seed conditions")}
@@ -290,6 +297,22 @@ anchor.seed <- function(attTbl,
     }
 
     fc_ind <- flt_ok[fc_ind]
+
+    if(!is.null(sort.seed)){
+
+      srt <- attTbl[[sort.col]][fc_ind]
+
+      if(sort.seed == "max"){
+        fc_ind <- fc_ind[match(max(srt), srt)][1]
+      } else if(sort.seed == "min") {
+        fc_ind <- fc_ind[match(min(srt), srt)][1]
+      }
+
+    } else {
+
+      fc_ind <- fc_ind[1]
+
+    }
 
     # CLASSIFY SEED
     seedVector[fc_ind] <- cnumb
