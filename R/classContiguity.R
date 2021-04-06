@@ -6,6 +6,8 @@
 #'   \code{\link{attTbl}}.
 #' @param ngbList list, it has to contain the list of 8-neighbors of each cell
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
+#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#'   in the attribute table (see \code{\link{ngbList}}).
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
 #' @param nbs_of numeric or numeric vector, if a cell classified as \code{class}
@@ -36,21 +38,25 @@
 
 reclass.nbs  <- function(attTbl,
                          ngbList,
+                         nbsIndex = FALSE,
                          classVector,
                          nbs_of,
                          class,
                          reclass,
                          reclass_all = TRUE) {
+
+  if(!nbsIndex){
   # CONVERT NBS FORM CELL IDS TO CELL INDECES
-  fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
-  ngbList <- match(unlist(ngbList), attTbl$Cell)
-  no_nas  <- !is.na(ngbList)
-  ngbList <- ngbList[no_nas]
-  fct     <- fct[no_nas]
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
 
-  ngbList <- split(ngbList, fct)
+    ngbList <- split(ngbList, fct)
 
-  rm(fct, no_nas)
+    rm(fct, no_nas)
+  }
 
   # INITIALIZE ALGORITHM
   ind   <- which(classVector %in% class)
@@ -105,6 +111,8 @@ reclass.nbs  <- function(attTbl,
 #'   \code{\link{attTbl}}.
 #' @param ngbList list, it has to contain the list of 8-neighbors of each cell
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
+#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#'   in the attribute table (see \code{\link{ngbList}}).
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
 #'
@@ -124,18 +132,21 @@ reclass.nbs  <- function(attTbl,
 
 classify.all  <- function(attTbl,
                           ngbList,
+                          nbsIndex = FALSE,
                           classVector){
 
+  if(!nbsIndex){
   # CONVERT NBS FORM CELL IDS TO CELL INDECES
-  fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
-  ngbList <- match(unlist(ngbList), attTbl$Cell)
-  no_nas  <- !is.na(ngbList)
-  ngbList <- ngbList[no_nas]
-  fct     <- fct[no_nas]
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
 
-  ngbList <- split(ngbList, fct)
+    ngbList <- split(ngbList, fct)
 
-  rm(fct, no_nas)
+    rm(fct, no_nas)
+  }
 
 
   # INITIALIZE ALGORITHM, CONSIDER ONLY UNCLASSIFIED CELLS WITH SOME NEIGHBOURING CELL WITH CLASS

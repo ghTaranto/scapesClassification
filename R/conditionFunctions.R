@@ -7,6 +7,8 @@
 #'   \code{\link{attTbl}}.
 #' @param ngbList list, it has to contain the list of 8-neighbors of each cell
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
+#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#'   in the attribute table (see \code{\link{ngbList}}).
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
 #' @param nbs_of numeric or numeric vector, indicates the neighbors of the
@@ -52,6 +54,7 @@
 
 cond.4.nofn <- function(attTbl,
                         ngbList,
+                        nbsIndex = FALSE,
                         classVector,
                         nbs_of,
                         conditions,
@@ -168,15 +171,17 @@ cond.4.nofn <- function(attTbl,
 
 
   ## CONVERT NBS FORM CELL IDS TO CELL INDECES
-  fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
-  ngbList <- match(unlist(ngbList), attTbl$Cell)
-  no_nas  <- !is.na(ngbList)
-  ngbList <- ngbList[no_nas]
-  fct     <- fct[no_nas]
+  if(!nbsIndex){
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
 
-  ngbList <- split(ngbList, fct)
+    ngbList <- split(ngbList, fct)
 
-  rm(fct, no_nas)
+    rm(fct, no_nas)
+  }
 
   ## CONDITIONS TYPE CONTROLS
   v_ab   <- vList$v_ab
@@ -393,6 +398,8 @@ cond.4.nofn <- function(attTbl,
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}). If conditions do not
 #'   include focal neighborohood conditions this argument can be \code{NULL}
 #'   (see \code{\link{conditions}}).
+#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#'   in the attribute table (see \code{\link{ngbList}}).
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
 #' @param conditions character string, the conditions a cell have to meet to be
@@ -422,6 +429,7 @@ cond.4.nofn <- function(attTbl,
 
 cond.reclass <- function(attTbl,
                          ngbList = NULL,
+                         nbsIndex = FALSE,
                          classVector,
                          conditions,
                          class,
@@ -469,15 +477,17 @@ cond.reclass <- function(attTbl,
   }
 
   # CONVERT NBS FORM CELL IDS TO CELL INDECES
-  fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
-  ngbList <- match(unlist(ngbList), attTbl$Cell)
-  no_nas  <- !is.na(ngbList)
-  ngbList <- ngbList[no_nas]
-  fct     <- fct[no_nas]
+  if(!nbsIndex){
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
 
-  ngbList <- split(ngbList, fct)
+    ngbList <- split(ngbList, fct)
 
-  rm(fct, no_nas)
+    rm(fct, no_nas)
+  }
 
   ###INITIALIZE ALGORITHM #########################################################################
   new_cell_id       <- which(classVector %in% class)

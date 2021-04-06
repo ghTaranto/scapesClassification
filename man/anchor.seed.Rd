@@ -7,6 +7,7 @@
 anchor.seed(
   attTbl,
   ngbList,
+  nbsIndex = FALSE,
   class = NULL,
   cond.filter = NULL,
   cond.seed,
@@ -27,6 +28,9 @@ anchor.seed(
 
 \item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
 in \code{attTbl$Cell} (see \code{\link{ngbList}}).}
+
+\item{nbsIndex}{logic, \code{ngbList} contain the neighbors index position
+in the attribute table (see \code{\link{ngbList}}).}
 
 \item{class}{numeric, the numeric class to attribute to local minima or
 maxima. If \code{NULL} then each local minima or maxima is classified with

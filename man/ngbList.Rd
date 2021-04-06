@@ -4,18 +4,24 @@
 \alias{ngbList}
 \title{Eight Neighbors for Complete Cases}
 \usage{
-ngbList(rstack)
+ngbList(rstack, index = FALSE, attTbl = NULL)
 }
 \arguments{
 \item{rstack}{\code{Raster*} object.}
+
+\item{index}{Return neighbor list as index position in the attribute table.}
+
+\item{attTbl}{data.frame, the attribute table returned by the function
+\code{\link{attTbl}}. It is required only if the argument \code{index =
+  TRUE}}
 }
 \value{
 List of integer vectors.
 }
 \description{
-Return the 8-neighbors, as cell numbers, of cells on a \code{Raster*} object
-with complete cases, i.e., raster cells having a value for every layer in the
-stack.
+Return the 8-neighbors, as cell numbers (or index), of cells on a
+\code{Raster*} object with complete cases, i.e., raster cells having a value
+for every layer in the stack.
 }
 \details{
 The names of the list correspond to focal cell numbers

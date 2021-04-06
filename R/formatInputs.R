@@ -49,11 +49,15 @@ attTbl <- function(rstack, var_names = NULL){
 
 #' Eight Neighbors for Complete Cases
 #'
-#' Return the 8-neighbors, as cell numbers, of cells on a \code{Raster*} object
-#' with complete cases, i.e., raster cells having a value for every layer in the
-#' stack.
+#' Return the 8-neighbors, as cell numbers (or index), of cells on a
+#' \code{Raster*} object with complete cases, i.e., raster cells having a value
+#' for every layer in the stack.
 #'
 #' @param rstack \code{Raster*} object.
+#' @param index Return neighbor list as index position in the attribute table.
+#' @param attTbl data.frame, the attribute table returned by the function
+#'   \code{\link{attTbl}}. It is required only if the argument \code{index =
+#'   TRUE}
 #'
 #' @return List of integer vectors.
 #'
@@ -83,12 +87,24 @@ attTbl <- function(rstack, var_names = NULL){
 #' matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
 
 
-ngbList <- function(rstack){
+ngbList <- function(rstack, index = FALSE, attTbl = NULL){
 
   ind <- which( stats::complete.cases( as.data.frame(raster::values(rstack)) ) )
   nbs <- nbg8(raster::nrow(rstack[[1]]), raster::ncol(rstack[[1]]))
 
   nbs <- nbs[ind]
+
+  # CONVERT nbs FORM CELL IDS TO CELL INDECES
+  if(index){
+    fct    <- rep(seq_along(lengths(nbs)), lengths(nbs))
+    nbs    <- match(unlist(nbs), attTbl$Cell)
+    no_nas <- !is.na(nbs)
+    nbs    <- nbs[no_nas]
+    fct    <- fct[no_nas]
+
+    nbs    <- split(nbs, fct)
+  }
+
 
   return(nbs)
 

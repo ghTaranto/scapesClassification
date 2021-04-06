@@ -7,6 +7,7 @@
 cond.reclass(
   attTbl,
   ngbList = NULL,
+  nbsIndex = FALSE,
   classVector,
   conditions,
   class,
@@ -22,6 +23,9 @@ cond.reclass(
 in \code{attTbl$Cell} (see \code{\link{ngbList}}). If conditions do not
 include focal neighborohood conditions this argument can be \code{NULL}
 (see \code{\link{conditions}}).}
+
+\item{nbsIndex}{logic, \code{ngbList} contain the neighbors index position
+in the attribute table (see \code{\link{ngbList}}).}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table
 that have already been classified.}

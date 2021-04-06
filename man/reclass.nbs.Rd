@@ -7,6 +7,7 @@
 reclass.nbs(
   attTbl,
   ngbList,
+  nbsIndex = FALSE,
   classVector,
   nbs_of,
   class,
@@ -20,6 +21,9 @@ reclass.nbs(
 
 \item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
 in \code{attTbl$Cell} (see \code{\link{ngbList}}).}
+
+\item{nbsIndex}{logic, \code{ngbList} contain the neighbors index position
+in the attribute table (see \code{\link{ngbList}}).}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table
 that have already been classified.}

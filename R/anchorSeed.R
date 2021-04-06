@@ -8,6 +8,8 @@
 #'   \code{\link{attTbl}}.
 #' @param ngbList list, it has to contain the list of 8-neighbors of each cell
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
+#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#'   in the attribute table (see \code{\link{ngbList}}).
 #' @param class numeric, the numeric class to attribute to local minima or
 #'   maxima. If \code{NULL} then each local minima or maxima is classified with
 #'   a different number starting from one. Buffers have the same classification
@@ -112,6 +114,7 @@
 
 anchor.seed <- function(attTbl,
                         ngbList,
+                        nbsIndex = FALSE,
                         class = NULL,
                         cond.filter = NULL,
                         cond.seed,
@@ -159,15 +162,17 @@ anchor.seed <- function(attTbl,
   }
 
   # CONVERT ngbList FORM CELL IDS TO CELL INDECES
-  fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
-  ngbList <- match(unlist(ngbList), attTbl$Cell)
-  no_nas  <- !is.na(ngbList)
-  ngbList <- ngbList[no_nas]
-  fct     <- fct[no_nas]
+  if(!nbsIndex){
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
 
-  ngbList <- split(ngbList, fct)
+    ngbList <- split(ngbList, fct)
 
-  rm(fct, no_nas)
+    rm(fct, no_nas)
+  }
 
   if(!is.null(cond.filter)){
 
