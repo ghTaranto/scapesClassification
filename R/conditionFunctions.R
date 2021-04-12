@@ -527,13 +527,13 @@ cond.reclass <- function(attTbl,
 
     if(length(ev_cond) == 0){next}
 
-    if (fn) {
+    if (fn & length(ev_cond) > 0) {
       rc <- sum(ev_cond) / length(n_ind) >= fn_perc
     } else {
       rc <- ev_cond
     }
 
-    if (rc) {
+    if (rc & length(ev_cond) > 0) {
       classVector[c] <- reclass
     }
 
