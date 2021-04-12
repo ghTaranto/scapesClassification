@@ -599,7 +599,7 @@ anchor.seed <- function(attTbl,
       # cat("\r", paste0(cnumb, ") ", p, "%"," complete, (", N-n, "/", N, ") cells classified, elapsed time ",
       #                  dtime, " mins"))
 
-      cat("\r", paste0("Seeds Identified: ", cnumb, ", (", N-n, "/", N, ") cells classified, elapsed time ",
+      cat("\r", paste0("Seeds Identified: ", cnumb, ", elapsed time ",
                        dtime, " mins"))
     }
 
