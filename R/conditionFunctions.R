@@ -523,14 +523,15 @@ cond.reclass <- function(attTbl,
 
     ### TEST FOR CELLS MEETING CONDITIONS ########################### while//for//conditions ####
     ev_cond <- eval(cond_parsed)
+    ev_cond <- ev_cond[!is.na(ev_cond)]
 
-    if (fn) {
+    if (fn & length(ev_cond) > 0) {
       rc <- sum(ev_cond) / length(n_ind) >= fn_perc
     } else {
       rc <- ev_cond
     }
 
-    if (rc) {
+    if (rc & length(ev_cond) > 0) {
       classVector[c] <- reclass
     }
 
