@@ -216,7 +216,7 @@ conditions <- function(names_attTbl,
   c_eval <- stringr::str_replace_all(cond, paste(c("classVector", names_attTbl), collapse = "|"), "1")
   c_eval <- stringr::str_replace_all(c_eval, "\\[|\\]|\\{|\\}", "")
 
-  c_eval <- try(eval(parse(text = c_eval)), silent = T)
+  c_eval <- try(eval(parse(text = c_eval)), silent = TRUE)
 
   if(class(c_eval) == "try-error"){
 
@@ -235,8 +235,11 @@ conditions <- function(names_attTbl,
     verify_types <- c(abs_cond, fc_cond, fn_cond, cv_cond)
     cond_types <- c("'absolute'", "'focal cell'", "'neighborhood'", "'class vector'")
 
-    print(paste0("No error was found (", paste(cond_types[verify_types], collapse = ", "), " conditions detected)."))
 
+    detc_cond <- cond_types[verify_types]
+    if(length(detc_cond) == 0){detc_cond <- "unknown"}
+
+    print(paste0("No error was found (", paste(detc_cond, collapse = ", "), " condition type(S) detected)."))
   }
 }
 
