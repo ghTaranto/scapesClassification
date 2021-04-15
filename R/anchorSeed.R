@@ -212,7 +212,7 @@ anchor.seed <- function(attTbl,
     v_list[[ nm ]] <- list()
 
     v_list[[ nm ]][["v_ab"]] <-
-      names(attTbl)[stringr::str_detect(c_all[cond], paste0(names(attTbl), "(?!\\[|\\{)"))]
+      names(attTbl)[stringr::str_detect(c_all[cond], paste0("\\b", names(attTbl), "(?!\\[|\\{)", "\\b"))]
 
     v_list[[ nm ]][["v_fc"]] <-
       names(attTbl)[stringr::str_detect(c_all[cond], paste0(names(attTbl), "\\[\\]"))]
@@ -224,7 +224,7 @@ anchor.seed <- function(attTbl,
     l <- v_list[[cond]]
 
     for(v in l$v_ab){cond_list[[cond]] <-
-      stringr::str_replace_all(cond_list[[cond]], paste0(v, "(?!\\[|\\{)"), paste0("l_ab$", v))}
+      stringr::str_replace_all(cond_list[[cond]], paste0("\\b", v, "(?!\\[|\\{)", "\\b"), paste0("l_ab$", v))}
 
     for(v in l$v_fc){cond_list[[cond]] <-
       stringr::str_replace_all(cond_list[[cond]], paste0(v, "\\[\\]" ), paste0("l_fc$", v))}

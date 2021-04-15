@@ -438,13 +438,13 @@ cond.reclass <- function(attTbl,
 
   ### PARSE CONDITIONS
   v_ab <-
-    names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "(?!\\[|\\{)"))]
+    names(attTbl)[stringr::str_detect(conditions, paste0("\\b", names(attTbl), "(?!\\[|\\{)", "\\b"))]
   v_fn <-
     names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "\\{\\}"))]
 
   for (v in v_ab) {
     conditions <-
-      stringr::str_replace_all(conditions, paste0(v, "(?!\\[|\\{)"), paste0("l_ab$", v))
+      stringr::str_replace_all(conditions, paste0("\\b", v, "(?!\\[|\\{)", "\\b"), paste0("l_ab$", v))
   }
   for (v in v_fn) {
     conditions <-
@@ -588,10 +588,10 @@ cond.4.all <- function(attTbl,
   }
 
   v_ab <-
-    names(attTbl)[stringr::str_detect(conditions, names(attTbl))]
+    names(attTbl)[stringr::str_detect(conditions, paste0("\\b", names(attTbl), "\\b"))]
   for (v in v_ab) {
     conditions <-
-      stringr::str_replace_all(conditions, v, paste0("attTbl$", v))
+      stringr::str_replace_all(conditions, paste0("\\b", v, "\\b"), paste0("attTbl$", v))
   }
 
   classVector[which(eval(parse(text = conditions)))] <- class
