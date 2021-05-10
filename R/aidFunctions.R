@@ -213,7 +213,7 @@ conditions <- function(names_attTbl,
     )
   }
 
-  c_eval <- stringr::str_replace_all(cond, paste(c("classVector", names_attTbl), collapse = "|"), "1")
+  c_eval <- stringr::str_replace_all(cond, paste(c("classVector", names_attTbl), collapse = "\\b|\\b"), "1")
   c_eval <- stringr::str_replace_all(c_eval, "\\[|\\]|\\{|\\}", "")
 
   c_eval <- try(eval(parse(text = c_eval)), silent = TRUE)
