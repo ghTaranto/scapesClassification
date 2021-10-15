@@ -49,7 +49,7 @@ attTbl <- function(rstack, var_names = NULL){
 
 #' Eight Neighbors for Complete Cases
 #'
-#' Return the 8-neighbors, as cell numbers (or as indices indicating the row of
+#' Return the 8-neighbors, as cell numbers (or as indices pointing to the rows of
 #' the 8-neighbor cells in the attribute table, \code{\link{attTbl}} ), of cells
 #' on a \code{Raster*} object with complete cases, i.e., raster cells having a
 #' value for every layer in the stack.

@@ -2,23 +2,39 @@
 % Please edit documentation in R/objectFunctions.R
 \name{obj.border}
 \alias{obj.border}
-\title{Units' Border}
+\title{Geomorphic Units' Borders}
 \usage{
 obj.border(group, ngbList, silent = FALSE)
 }
 \arguments{
-\item{group}{named list,}
+\item{group}{named list, each element represents a geomorphic unit. Each unit
+is identified by the indices pointing to the raster cells in the attribute
+table that compose that unit (see \code{\link{attTbl}}).}
 
-\item{silent}{}
+\item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
+in \code{attTbl$Cell} (see \code{\link{attTbl}}). This list has to be
+generated setting the argument of the function \code{\link{ngbList}}
+\code{index = TRUE} (see \code{\link{ngbList}}).}
+
+\item{silent}{logic, progress bar is not printed on the console.}
 }
 \value{
-
+The function returns a named list. Each element of the list
+represents a geomorphic unit as identified by the list's names, while the
+values of each element of the list consist of indices. These indices point
+to the rows in the attribute table that correspond to the raster cells
+comprising the borders. The actual raster cells comprising borders can be
+extracted from the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+\code{\link{attTbl}}).
 }
 \description{
-Identify the border of geomorphic units. It takes as input a list of elements each representing a single unit.
-Each element can consist of the raster cell numbers composing the geomorphic unit or the indices of the raster cells
-in the attribure table (see \code{\link{attTbl}})
+Takes as input a list of elements representing geomorphic units and identify
+the border of each unit.
 }
-\details{
-elements represent the
+\note{
+Note that \code{group} has to be a named list whose names correspond to
+geomorphic unit-IDs.
+}
+\seealso{
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}
 }

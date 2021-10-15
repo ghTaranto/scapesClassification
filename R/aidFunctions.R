@@ -126,7 +126,7 @@
 #' conditions(names_attTbl, cond)
 #' cond <- "bathymetry[]>10 & abs(slope{}) < 5"
 #' conditions(names_attTbl, cond)
-#' \donttest{cond <- "thymetry[]>10 & abs(slpe{}) < 5"
+#' \dontrun{cond <- "thymetry[]>10 & abs(slpe{}) < 5"
 #' conditions(names_attTbl, cond)
 #' cond <- "bathymetry[]>10 & | abs(slope{}) < 5"
 #' conditions(names_attTbl, cond)
