@@ -1,11 +1,17 @@
 
+  - [scapesClassification](#scapesclassification)
+      - [Installation](#installation)
+      - [Why `scapesClassification`?](#why-scapesclassification)
+      - [Implementation](#implementation)
+          - [1.Format inputs](#1format-inputs)
+          - [2.Set anchor cells](#2set-anchor-cells)
+          - [3.Classify raster cells](#3classify-raster-cells)
+      - [Geomorphic Management Units](#geomorphic-management-units)
+          - [Island Shelf Units](#island-shelf-units)
+          - [High Relief Units](#high-relief-units)
+          - [Reclassify Cells](#reclassify-cells)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-AAAAAAAA
-
-# :toc:
-
-**TOC**
 
 # scapesClassification
 
@@ -13,7 +19,7 @@ AAAAAAAA
 
 <!-- badges: end -->
 
-Classification AAAAA of seascapes or landscapes using environmental and
+Classification of seascapes or landscapes using environmental and
 geographic data stored as `Raster*` objects. The classification is
 implemented using a stepwise procedure. At each step a portion of the
 “scape” is classified based on user defined conditions, local spatial

@@ -1,5 +1,7 @@
 ---
-output: github_document
+output: 
+  github_document:
+    toc: TRUE
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -13,19 +15,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-AAAAAAAA
-
-
-:toc:
-=======
-__TOC__
 
 # scapesClassification
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-Classification  AAAAA of seascapes or landscapes using environmental and geographic data stored as `Raster*` objects. The classification is implemented using a stepwise procedure. At each step a portion of the “scape” is classified based on user defined conditions, local spatial statistics and/or spatial contiguity between classes. The portion of “scape” classified can be considered in the next classification step. User defined conditions can be absolute, relative to the focal cell or relative to the focal neighbourhood.
+Classification of seascapes or landscapes using environmental and geographic data stored as `Raster*` objects. The classification is implemented using a stepwise procedure. At each step a portion of the “scape” is classified based on user defined conditions, local spatial statistics and/or spatial contiguity between classes. The portion of “scape” classified can be considered in the next classification step. User defined conditions can be absolute, relative to the focal cell or relative to the focal neighbourhood.
 
 
 ## Installation
