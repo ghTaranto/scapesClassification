@@ -3,7 +3,11 @@
 
 AAAAAAAA
 
+<<<<<<< HEAD
 :toc:
+=======
+**TOC**
+>>>>>>> 0302119728c36522fd56dc6c913a44a3b4a0fc7d
 
 # scapesClassification
 
