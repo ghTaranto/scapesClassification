@@ -1,13 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+AAAAAAAA
+
+:toc:
+
 # scapesClassification
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-Classification of seascapes or landscapes using environmental and
+Classification AAAAA of seascapes or landscapes using environmental and
 geographic data stored as `Raster*` objects. The classification is
 implemented using a stepwise procedure. At each step a portion of the
 “scape” is classified based on user defined conditions, local spatial
@@ -437,14 +441,14 @@ We can now continue with the classification of ISUs:
 
 ``` r
 # STEP 2, ISU (class = 1000)
-classVector2 <- cond.4.nofn(dt, nbs, 
+classVector2 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
                             classVector, 
                             nbs_of = 1000, 
                             conditions = "slope <= 5", 
                             class = 1000)
 
 # STEP 3, ISU (class = 1000)
-classVector3 <- cond.4.nofn(dt, nbs, 
+classVector3 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
                             classVector2, 
                             nbs_of = 1000, 
                             conditions = "TRUE", 
@@ -452,8 +456,7 @@ classVector3 <- cond.4.nofn(dt, nbs,
                             min.border = 0.6)
 
 # STEP 4, ISU (class = 1100)
-classVector4 <- cond.4.nofn(dt, 
-                            nbs, 
+classVector4 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
                             classVector3, 
                             nbs_of =c(1000, 1100), 
                             conditions = "regional_bpi{} > 100", 
@@ -462,15 +465,14 @@ classVector4 <- cond.4.nofn(dt,
                             directional = TRUE)
 
 # STEP 5, ISU (class = 1100)
-classVector5 <- cond.4.nofn(dt, 
-                           nbs, 
-                           classVector4, 
-                           nbs_of = c(1000, 1100), 
-                           conditions = "bathymetry < bathymetry{} - 10 & local_bpi > 0", 
-                           class = 1100,
-                           min.border = 0.2, 
-                           fn_perc = 0.6, 
-                           directional = TRUE)
+classVector5 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
+                            classVector4, 
+                            nbs_of = c(1000, 1100), 
+                            conditions = "bathymetry < bathymetry{} - 10 & local_bpi > 0", 
+                            class = 1100,
+                            min.border = 0.2, 
+                            fn_perc = 0.6, 
+                            directional = TRUE)
 
 ## INCLUDE classVector IN A RASTER FOR PLOTTING
 r2 <- rstack[[1]]; r2[] <- NA; r2[dt$Cell] <- classVector2
@@ -603,8 +605,7 @@ classVector6 <- anchor.cell(dt,
                             plot = FALSE)
 
 # STEP 7, HRU (class = 2100)
-classVector7 <- cond.4.nofn(dt, 
-                            nbs, 
+classVector7 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
                             classVector6, 
                             nbs_of = c(2000, 2100), 
                             conditions = "regional_bpi{} > 100", 
@@ -613,8 +614,7 @@ classVector7 <- cond.4.nofn(dt,
                             directional = TRUE)
 
 # STEP 8, HRU (class = 2100)
-classVector8 <- cond.4.nofn(dt, 
-                            nbs, 
+classVector8 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
                             classVector7, 
                             nbs_of = c(2000, 2100), 
                             conditions = "bathymetry < bathymetry{} - 10 & local_bpi > 0", 
@@ -624,13 +624,12 @@ classVector8 <- cond.4.nofn(dt,
                             directional = TRUE)
 
 # STEP 9, HRU (class = 2100)
-classVector9 <- cond.4.nofn(dt, 
-                           nbs, 
-                           classVector8, 
-                           nbs_of = c(2000, 2100), 
-                           conditions = "TRUE", 
-                           class = 2100,
-                           min.border = 0.6) 
+classVector9 <- cond.4.nofn(dt, nbs, nbsIndex = FALSE,
+                            classVector8, 
+                            nbs_of = c(2000, 2100), 
+                            conditions = "TRUE", 
+                            class = 2100,
+                            min.border = 0.6) 
 
 ## INCLUDE classVector IN A RASTER FOR PLOTTING
 r2 <- rstack[[1]]; r2[] <- NA; r2[dt$Cell] <- classVector6
@@ -666,16 +665,14 @@ slopes as moderate (`class = 2100`) and steep (`class = 2200`). See
 
 ``` r
 # STEP 10, RECLASSIFY STEEP SLOPES ON ISUs (class = 1200)
-classVector10 <- cond.reclass(dt,
-                              nbs,
+classVector10 <- cond.reclass(dt, nbs, nbsIndex = FALSE,
                               classVector9,
                               conditions = "slope >= 10",
                               class = 1100,
                               reclass = 1200)
 
 # STEP 10, RECLASSIFY STEEP SLOPES ON HRUs (class = 2200)
-classVector11 <- cond.reclass(dt,
-                              nbs,
+classVector11 <- cond.reclass(dt, nbs, nbsIndex = FALSE,
                               classVector10,
                               conditions = "slope >= 10",
                               class = 2100,
