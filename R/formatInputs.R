@@ -39,7 +39,17 @@ attTbl <- function(rstack, var_names = NULL){
   dt <- dt[stats::complete.cases(dt),]
 
   if( !is.null(var_names) ) {
-    names(dt)[names(dt) %in% names(rstack)] <- var_names
+
+    if( length(var_names) != length(names(dt)) -1 ){
+
+      stop("var_names length should be equal to the number of layers in rstack")
+
+    } else {
+
+      names(dt)[names(dt) != "Cell"] <- var_names
+
+    }
+
   }
 
   return(dt)
