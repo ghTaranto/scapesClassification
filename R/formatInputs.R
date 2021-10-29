@@ -62,19 +62,21 @@ attTbl <- function(rstack, var_names = NULL){
 #'
 #' The function \code{ngbList} returns the list of 8-neighbors for all the cells
 #' of \code{rstack} with complete cases (i.e., cells without any missing value).
-#' Neighbors are identified by cell numbers or by row numbers in the attribute
-#' table (see \code{\link{attTbl}}) if the argument \code{rNumb = TRUE}. \cr\cr
-#' The list of 8-neighbors is named. When \code{rNumb = FALSE}, names identify
-#' the cell number for which the neighborhood was computed. When \code{rNumb =
-#' TRUE}, names refers to row indices. For instance, the name \code{"6"} can be
-#' used to call the neighborhood of cell number 6 when \code{rNumb = FALSE}.
-#' However, when \code{rNumb = TRUE}, the name \code{"6"} can be used to call
-#' the neighborhood of the raster cell stored in the 6th row of the attribute
-#' table \code{attTbl}.\cr\cr When the argument \code{rNumb = TRUE}, only
-#' neighbors with complete cases are considered, i.e. if a neighbor position
-#' correspond to a raster cell with one or more missing values it is not
-#' considered. Therefore, if a cell has all neighboring cells with missing
-#' values, the 8-neighbor vector of that cell will have zero-length.
+#' Neighbors are identified by their cell numbers if the argument \code{rNumb =
+#' FALSE} or by their positions in the attribute table (i.e. row numbers) if the
+#' argument \code{rNumb = TRUE} and the argument \code{attTbl != NULL} (see
+#' \code{\link{attTbl}}). \cr\cr The list of 8-neighbors is named. When
+#' \code{rNumb = FALSE}, names identify the cell number for which the
+#' neighborhood was computed. When \code{rNumb = TRUE}, names refers to row
+#' indices. For instance, the name \code{"6"} can be used to call the
+#' neighborhood of cell number 6 when \code{rNumb = FALSE}. However, when
+#' \code{rNumb = TRUE}, the name \code{"6"} can be used to call the neighborhood
+#' of the raster cell stored in the 6th row of the attribute table
+#' \code{attTbl}.\cr\cr When the argument \code{rNumb = TRUE}, only neighbors
+#' with complete cases are considered, i.e. if a neighbor position correspond to
+#' a raster cell with one or more missing values it is not considered.
+#' Therefore, if a cell has all neighboring cells with missing values, the
+#' 8-neighbor vector of that cell will have zero-length.
 #'
 #' @param rstack \code{Raster*} object.
 #' @param rNumb logic, the 8-neighbors of each cell are identified by their row
