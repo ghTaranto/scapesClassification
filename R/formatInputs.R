@@ -78,17 +78,21 @@ attTbl <- function(rstack, var_names = NULL){
 #'
 #' @param rstack \code{Raster*} object.
 #' @param rNumb logic, the 8-neighbors of each cell are identified by their row
-#'   number in the attribute table. For instance, if cell 3 is located in row 2
-#'   it will be identified by the number 2.
+#'   number in the attribute table (indicated by the argument \code{attTbl}).
+#'   For instance, if cell 3 is located in row 2 it will be identified by the
+#'   number 2.
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}. It is required only if the argument \code{rNumb =
 #'   TRUE}
 #'
 #' @return Named list of integer vectors.
 #'
-#' @details The names of the list correspond to focal cell numbers
+#' @details The names of the list correspond to focal cells
 #'   (\code{as.character}), the integer vectors within the list contain the
-#'   8-neighbors of each focal cell.
+#'   8-neighbors of each focal cell. When the argument \code{rNumb = FALSE},
+#'   both focal cells and neighbors are identified by cell numbers. When the
+#'   argument \code{rNumb = TRUE}, both focal cells and neighbors are identified
+#'   by row numbers.
 #'
 #' @seealso [nbg8()], [attTbl()]
 #'

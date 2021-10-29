@@ -10,8 +10,9 @@ ngbList(rstack, rNumb = FALSE, attTbl = NULL)
 \item{rstack}{\code{Raster*} object.}
 
 \item{rNumb}{logic, the 8-neighbors of each cell are identified by their row
-number in the attribute table. For instance, if cell 3 is located in row 2
-it will be identified by the number 2.}
+number in the attribute table (indicated by the argument \code{attTbl}).
+For instance, if cell 3 is located in row 2 it will be identified by the
+number 2.}
 
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}. It is required only if the argument \code{rNumb =
@@ -38,9 +39,12 @@ considered. Therefore, if a cell has all neighboring cells with missing
 values, the 8-neighbor vector of that cell will have zero-length.
 }
 \details{
-The names of the list correspond to focal cell numbers
+The names of the list correspond to focal cells
 (\code{as.character}), the integer vectors within the list contain the
-8-neighbors of each focal cell.
+8-neighbors of each focal cell. When the argument \code{rNumb = FALSE},
+both focal cells and neighbors are identified by cell numbers. When the
+argument \code{rNumb = TRUE}, both focal cells and neighbors are identified
+by row numbers.
 }
 \note{
 There is a correspondence between the indices of the attribute table
