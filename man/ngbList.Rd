@@ -4,25 +4,38 @@
 \alias{ngbList}
 \title{Eight Neighbors for Complete Cases}
 \usage{
-ngbList(rstack, index = FALSE, attTbl = NULL)
+ngbList(rstack, rNumb = FALSE, attTbl = NULL)
 }
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{index}{Return neighbor list as index position in the attribute table.}
+\item{rNumb}{logic, the 8-neighbors of each cell are identified by their row
+number in the attribute table. For instance, if cell 3 is located in row 2
+it will be identified by the number 2.}
 
 \item{attTbl}{data.frame, the attribute table returned by the function
-\code{\link{attTbl}}. It is required only if the argument \code{index =
+\code{\link{attTbl}}. It is required only if the argument \code{rNumb =
   TRUE}}
 }
 \value{
-List of integer vectors.
+Named list of integer vectors.
 }
 \description{
-Return the 8-neighbors, as cell numbers (or as indices pointing to the rows of
-the 8-neighbor cells in the attribute table, \code{\link{attTbl}} ), of cells
-on a \code{Raster*} object with complete cases, i.e., raster cells having a
-value for every layer in the stack.
+The function \code{ngbList} returns the list of 8-neighbors for all the cells
+of \code{rstack} with complete cases (i.e., cells without any missing value).
+Neighbors are identified by cell numbers or by row numbers in the attribute
+table (see \code{\link{attTbl}}) if the argument \code{rNumb = TRUE}. \cr\cr
+The list of 8-neighbors is named. When \code{rNumb = FALSE}, names identify
+the cell number for which the neighborhood was computed. When \code{rNumb =
+TRUE}, names refers to row indices. For instance, the name \code{"6"} can be
+used to call the neighborhood of cell number 6 when \code{rNumb = FALSE}.
+However, when \code{rNumb = TRUE}, the name \code{"6"} can be used to call
+the neighborhood of the raster cell stored in the 6th row of the attribute
+table \code{attTbl}.\cr\cr When the argument \code{rNumb = TRUE}, only
+neighbors with complete cases are considered, i.e. if a neighbor position
+correspond to a raster cell with one or more missing values it is not
+considered. Therefore, if a cell has all neighboring cells with missing
+values, the 8-neighbor vector of that cell will have zero-length.
 }
 \details{
 The names of the list correspond to focal cell numbers
