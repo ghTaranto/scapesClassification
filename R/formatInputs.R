@@ -127,6 +127,7 @@ ngbList <- function(rstack, rNumb = FALSE, attTbl = NULL){
 
   # CONVERT nbs FORM CELL IDS TO CELL INDECES
   if(rNumb){
+    if(is.null(attTbl)){stop("When the argument rNumb = TRUE, an attribute table must be provided")}
     fct    <- rep(seq_along(lengths(nbs)), lengths(nbs))
     nbs    <- match(unlist(nbs), attTbl$Cell)
     no_nas <- !is.na(nbs)
