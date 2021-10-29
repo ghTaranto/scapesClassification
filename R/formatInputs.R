@@ -37,6 +37,7 @@ attTbl <- function(rstack, var_names = NULL){
 
   dt <- data.frame(Cell=1:raster::ncell(rstack), raster::values(rstack))
   dt <- dt[stats::complete.cases(dt),]
+  row.names(dt) <- NULL
 
   if( !is.null(var_names) ) {
 
