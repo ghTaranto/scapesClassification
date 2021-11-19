@@ -246,23 +246,27 @@ conditions <- function(names_attTbl,
 
 #' Class Vector To Raster
 #'
-#' Index a class vector into a raster.
+#' Transform a class vector into a raster.
 #'
-#' @param r The \code{Raster*} object on which classification is based (see
-#'   \code{\link{attTbl}}).
-#' @param index The cell numbers of complete cases, i.e., raster cells having a
-#'   value for every layer in the stack (see \code{\link{attTbl}}).
-#' @param classVector numeric vector, defines the raster cell that have already
-#'   been classified.
+#' @param r A \code{Raster*} object on which the values of \code{classVector}
+#'   are assigned at the raster cell numbers indicated by \code{index}. To all
+#'   remaining raster cells are assigned \code{NA values}.
+#' @param index The cell numbers to which each element of \code{classVector}
+#'   correspond. If \code{classVector} was computed with
+#'   \code{scapesClassificaton} functions and with an attribute table
+#'   \code{\link{attTbl}}, this argument correspond to the column
+#'   \code{attTbl$Cell} of the attribute table.
+#' @param classVector numeric vector, the values to be assigned at the raster
+#'   cell numbers indicated by \code{index}.
 #' @param plot logic, plot anchor \code{classVector}.
 #' @param writeRaster filename, if a raster name is provided save the
 #'   \code{classVector} as a raster file.
 #' @param overWrite logic, overwrite existing raster.
 #'
-#' @return plot or save \code{classVector} as a raster.
+#' @return The \code{classVector} transformed into a raster.
 #'
 #' @export
-cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL, overWrite = FALSE){
+cv.2.rast <- function(r, index, classVector, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
 
   r2 <- r[[1]]
   r2[] <- NA
@@ -275,6 +279,8 @@ cv.2.rast <- function(r, index, classVector, plot = TRUE, writeRaster = NULL, ov
   if (!is.null(writeRaster)){
     raster::writeRaster(r2, writeRaster, overwrite = overWrite)
   }
+
+  return(r2)
 
 }
 

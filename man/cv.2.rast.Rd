@@ -8,20 +8,24 @@ cv.2.rast(
   r,
   index,
   classVector,
-  plot = TRUE,
+  plot = FALSE,
   writeRaster = NULL,
   overWrite = FALSE
 )
 }
 \arguments{
-\item{r}{The \code{Raster*} object on which classification is based (see
-\code{\link{attTbl}}).}
+\item{r}{A \code{Raster*} object on which the values of \code{classVector}
+are assigned at the raster cell numbers indicated by \code{index}. To all
+remaining raster cells are assigned \code{NA values}.}
 
-\item{index}{The cell numbers of complete cases, i.e., raster cells having a
-value for every layer in the stack (see \code{\link{attTbl}}).}
+\item{index}{The cell numbers to which each element of \code{classVector}
+correspond. If \code{classVector} was computed with
+\code{scapesClassificaton} functions and with an attribute table
+\code{\link{attTbl}}, this argument correspond to the column
+\code{attTbl$Cell} of the attribute table.}
 
-\item{classVector}{numeric vector, defines the raster cell that have already
-been classified.}
+\item{classVector}{numeric vector, the values to be assigned at the raster
+cell numbers indicated by \code{index}.}
 
 \item{plot}{logic, plot anchor \code{classVector}.}
 
@@ -31,8 +35,8 @@ been classified.}
 \item{overWrite}{logic, overwrite existing raster.}
 }
 \value{
-plot or save \code{classVector} as a raster.
+The \code{classVector} transformed into a raster.
 }
 \description{
-Index a class vector into a raster.
+Transform a class vector into a raster.
 }
