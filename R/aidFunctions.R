@@ -177,7 +177,7 @@ conditions <- function(names_attTbl,
   match_pattern <-
     paste0(paste(names_attTbl, collapse = "|"), "|classVector|([0-9]+)")
 
-
+  # CHECK FOR DOUBLE FOCAL NEIGHBORHOOD CONDITION
   doubleFNcond <- stringr::str_replace_all(cond, "\\&\\&", "\\&")
   doubleFNcond <- stringr::str_replace_all(doubleFNcond, "\\|\\|", "\\|")
   doubleFNcond <- stringr::str_replace_all(doubleFNcond, " ", "")
@@ -190,10 +190,11 @@ conditions <- function(names_attTbl,
 
   if(sum(doubleFNcond, na.rm = TRUE) > 1){stop("Only one 'neighborhood' condition allowed.")}
 
+  # CHECK FOR SPELLING ERRORS
   tc_spl <-
     unlist(strsplit(
       cond,
-      ",| |\\(|\\+|\\*|>|<|=|-|\\)|\\||\\&|\t|\\{|\\||\\!|\\^|\\%|\\{|\\}"
+      ",| |\\(|\\+|\\*|>|<|=|-|\\)|\\||\\&|\t|\\{|\\||\\!|\\^|\\%|\\{|\\}|\\%in\\%"
     ))
   tc_spl <- tc_spl[tc_spl != ""]
 
@@ -213,6 +214,7 @@ conditions <- function(names_attTbl,
     )
   }
 
+  # CHECK FOR SYNTAX ERRORS
   c_eval <- stringr::str_replace_all(cond, paste(c("classVector", names_attTbl), collapse = "\\b|\\b"), "1")
   c_eval <- stringr::str_replace_all(c_eval, "\\[|\\]|\\{|\\}", "")
 
@@ -233,16 +235,15 @@ conditions <- function(names_attTbl,
     cv_cond  <- stringr::str_detect(cond, "classVector")
 
     verify_types <- c(abs_cond, fc_cond, fn_cond, cv_cond)
-    cond_types <- c("'absolute'", "'focal cell'", "'neighborhood'", "'class vector'")
+    cond_types <- c("'Absolute'", "'Focal cell'", "'Focal neighborhood'", "'Class vector'")
 
 
     detc_cond <- cond_types[verify_types]
     if(length(detc_cond) == 0){detc_cond <- "unknown"}
 
-    print(paste0("No error was found (", paste(detc_cond, collapse = ", "), " condition type(S) detected)."))
+    print(paste0(paste0(detc_cond, collapse = " AND "), " condition type(s) detected)."))
   }
 }
-
 
 #' Class Vector To Raster
 #'
