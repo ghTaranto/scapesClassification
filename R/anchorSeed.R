@@ -235,7 +235,7 @@ anchor.seed <- function(attTbl,
   # CONDITION FILTER (TO APPLY GLOBALLY)
   cond_filter <- cond.filter
 
-  vf <- names(attTbl)[stringr::str_detect(cond_filter, names(attTbl))]
+  vf <- names(attTbl)[stringr::str_detect(cond_filter, paste0("\\b", names(attTbl), "\\b"))]
   for(v in vf){cond_filter <-
     stringr::str_replace_all(cond_filter, v, paste0("attTbl$", v))
   }
