@@ -3,10 +3,7 @@ title: "scapesClassification"
 subtitle: "An R-package for the classification of seascapes, landscapes and other geographic spaces represented as raster surfaces based on user-defined conditions" 
 author: "Gerald H. Taranto^[OKEANOS-Azores University, Azores Deep Sea Research Group (@AzoresDeepSea), 9901‐862 Horta, Portugal. Email: gh.taranto@gmail.com]"
 date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
-output: 
-  html_document:
-    keep_md: true
-
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
