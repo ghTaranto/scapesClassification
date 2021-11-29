@@ -3,7 +3,9 @@ title: "scapesClassification"
 subtitle: "An R-package for the classification of seascapes, landscapes and other geographic spaces represented as raster surfaces based on user-defined conditions" 
 author: "Gerald H. Taranto^[OKEANOS-Azores University, Azores Deep Sea Research Group (@AzoresDeepSea), 9901‐862 Horta, Portugal. Email: gh.taranto@gmail.com]"
 date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 
 ---
 
@@ -101,32 +103,3 @@ m@map %>%
 ```
 _FIGURE 1 - Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression._
 
-
-
-
-
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
