@@ -2,6 +2,8 @@ pandoc: 2.7.3
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
-  articles/scapesClassification_01_ISU_: scapesClassification_01_ISU_.html
-last_built: 2021-11-29T17:43Z
+  articles/scapesClassification_01_ISU: scapesClassification_01_ISU.html
+  articles/scapesClassification_02_RU: scapesClassification_02_RU.html
+  articles/scapesClassification_03_RU: scapesClassification_03_RU.html
+last_built: 2021-12-01T13:48Z
 
