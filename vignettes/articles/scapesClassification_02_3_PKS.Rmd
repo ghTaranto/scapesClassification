@@ -1,0 +1,269 @@
+---
+title: "Local maxima on gridded data"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Local maxima on gridded data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+# Relief Unit (RU)
+
+In the previous article we identified the first geomorphic management unit (GMU) ([island shelf unit (ISU)](scapesClassification_02_2_ISU.html)). We can now continue with a second GMU, the relief unit (RU). The RU comprises features that rise above the seafloor such as seamounts or ridges. In this article we will identify [local peaks](scapesClassification_02_3_PKS.html#figure2). Local peak will then be used in the next article to classify prominent seamounts, banks and ridges as individual raster objects ([independent objects on raster surfaces](scapesClassification_02_4_OBJ.html)).
+
+# Load data and libraries
+
+We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html) and [island shelf unit (ISU)](scapesClassification_02_2_ISU.html):
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
+# LOAD LIBRARIES
+library(raster)
+library(scapesClassification)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- stack(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+
+# LOAD ISU CLASSIFICATION
+ISU <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "ISU_Cells\\.RDS")
+
+ISU <- readRDS(ISU)
+```
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- raster(hs[grepl("hillshade\\.grd", hs)])
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+
+### ISU class vector
+
+Class vectors can be added to the attribute table and used as filters. We will add the ISU class vector to the attribute table and use it to exclude ISU cells from the relief unit (i.e., a raster cell cannot be both an ISU and an RU cell). 
+
+```{r ISU_filter, message=FALSE, warning=FALSE}
+# ISU FILTER
+atbl$ISU <- ISU
+```
+
+# Peak search areas (PSAs)
+
+The strategy we will use to find local peaks will be to identify discrete areas where local peaks are likely located. The shallowest cell within each discrete area will be classified as a peak. The peak search area (PSAs) can be considered as a filter highlighting these areas ([Figure 1](#figure1)). 
+
+We can use the function `cond.4.all()` to identify what cells are included in the PSA. PSA cells will have the following characteristics:
+
+a) non-ISU cells
+b) local_bpi > 100
+c) geomorphon class "summits" OR "ridges"
+
+```{r PSA_filter, message=FALSE, warning=FALSE}
+# PSA CLASS VECTOR
+atbl$PSA <- cond.4.all(atbl, 
+                       conditions = "is.na(ISU) & 
+                                     local_bpi > 100 &
+                                     (gmorph == 2 | gmorph == 3)", # geomorphon classes 2 (summits) OR 3 (ridges)
+                       class = 1)
+```
+
+### Remove small PSAs
+
+Our focus is set on large and prominent features, thus, we will exclude small peak search areas (i.e., search areas associated with small elevations) ([Figure 1](#figure1)). This can be achieved by treating discrete peak search areas as individual objects, each characterized by a unique ID and by a certain number of raster cells.
+
+The function `anchor.seed()` can assign unique IDs to non-contiguous areas. Details about how the function works are available as function documentation (`?anchor.seed`) and in the implementation section.
+
+```{r psa_object, message=FALSE, warning=FALSE, collapse = TRUE}
+# PSA OBJECTS
+atbl$PSA_obj <- anchor.seed(
+  
+  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+                            
+  # `class = NULL` -> A NEW ID IS GENERATED AT EACH ITERATION
+  class = NULL,
+                            
+  # WITHIN PEAK SEARCH AREAS
+  cond.filter = "PSA == 1", 
+  
+  # ITERATION START:
+  # ASSIGN AN ID TO A PSA CELL
+  cond.seed = "PSA == 1",
+                            
+  # ASSIGN THE SAME ID TO ALL CONNECTED PSA CELLS
+  cond.growth = "PSA == 1"
+                            
+  # ITERATION END
+)
+
+# THERE ARE 88 DISCRETE PSAs 
+length(unique(atbl$PSA_obj))
+```
+
+The R package [`data.table`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html) provides an easy syntax for manipulating tabular data. We will use it to manipulate raster objects stored in the attribute table. In this case, we can define that PSA-objects with less than 5 cells are small. 
+
+```{r data_table, message=FALSE, warning=FALSE, collapse = TRUE}
+# CONVERT "atbl" INTO A DATA TABLE
+library(data.table)
+atbl <- as.data.table(atbl)
+
+# COUNT HOW MANY CELLS HAS EACH "PSA_obj"
+atbl[!is.na(PSA_obj), number_of_cell := .N, by = "PSA_obj"]
+
+# IDs WITH LESS THAN 5 CELLS
+atbl[!duplicated(PSA_obj) & number_of_cell < 5, PSA_obj]
+
+# IDs WITH LESS THAN 5 CELLS ARE MOVED TO THE COLUMN PSA5
+atbl[number_of_cell <= 5, PSA5 := 1]
+
+# IDs WITH LESS THAN 5 CELLS ARE REMOVED FROM THE COLUMN PSA
+atbl[number_of_cell <= 5, PSA := NA]
+```
+
+The classification vectors `atbl$PSA`, `atbl$PSA5` and `atbl$ISU` are converted into raster layers using the function `cv.2.rast()` (e.g., PSA raster: `PSA <- cv.2.rast(rstack, atbl$Cell, atbl$PSA)`) and are plotted in [Figure 1](#figure1). 
+
+<a id="figure1"></a>
+```{r psa_object_plot, message=FALSE, warning=FALSE, echo=FALSE}
+psa5_plot <- cv.2.rast(rstack, atbl$Cell, atbl$PSA5)
+psa5_plot <- rasterToPolygons(psa5_plot, dissolve = TRUE)
+psa5_plot$dummy <- 1
+
+psa_plot <- cv.2.rast(rstack, atbl$Cell, atbl$PSA)
+psa_plot <- rasterToPolygons(psa_plot, dissolve = TRUE)
+psa_plot$dummy <- 1
+
+isu <- atbl$ISU
+isu[!is.na(isu)] <- 1
+isu <- cv.2.rast(rstack, atbl$Cell, isu)
+isu <- rasterToPolygons(isu, dissolve = TRUE)
+isu$dummy <- 1
+
+
+m<- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) + 
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+  
+  mapview(as.factor(rstack[[2]]), layer.name = "geomorphon_class", method = "ngb", col.regions = gm_col, at=0:10, legend = FALSE, alpha.regions = 0) +
+  
+  mapview(isu, col.regions = "#582C4D", alpha.regions = 0.5, layer.name = "ISU", label = "Island shelf unit",  popup = NULL) +
+  
+  mapview(psa5_plot, layer.name = "PSAs5", col.regions = "red", legend = TRUE, alpha.regions = 0.7,  popup = NULL, 
+          label = "PSAs5: 'number_of_cell < 5'") + 
+  
+  mapview(psa_plot, layer.name = "PSAs", col.regions = "white", legend = TRUE, alpha.regions = 0.7,  popup = NULL,
+          label = "PSAs: 'local_bpi > 100 & is.na(ISU) & (gmorph == 2 | gmorph == 3)'")
+
+m@map %>% 
+  hideGroup(c("ISU")) %>%
+  addLayersControl(overlayGroups = c("PSAs", "PSAs5", "ISU"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+_Figure 1 - PSAs, peak search areas; PSAs5, peak search areas with less than 5 raster cells excluded from the PSA filter; ISU, island shelf unit._
+
+# Local peaks
+
+We will use the function `anchor.seed()` to find local peaks within discrete peak search areas (PSAs) ([Figure 2](#figure2)). Details about how the function works are available as function documentation (`?anchor.seed`) and in the implementation section.
+
+Here we will use it to identify local peaks. `anchor.seed()` implements an iterative algorithm that: 
+
+a. Identify search areas. Peak search areas are stored in `atbl$PSA` and are passed to the function as: `cond.filter = "PSA == 1"`;
+
+b. Identify peak cell. A peak correspond to the shallowest raster cell within an individual PSA (`cond.seed = "bathymetry == max(bathymetry)"`);
+
+c. Identify non-peak cells. Non-peak cells are cells contiguous and continuous to a peak and deeper than it (`cond.isol = "bathymetry < bathymetry[]"`). These cells area assigned to an isolation buffer. Note that the tag `[]` refers to a focal cell condition;
+
+d. The peak and the isolation buffer identified in one iteration are ignored in all successive iterations. The function stops when all cells meeting the conditions of point (a) are either classified as peak or as isolation buffer.  
+
+```{r pks, message=FALSE, warning=FALSE}
+# LOCAL PEAKS
+atbl$PKS <- anchor.seed(
+  
+  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+  class = 1,
+                        
+  # DEFINE PEAK SEARCH AREAS (PSAs)
+  cond.filter = "PSA == 1",
+                        
+  # IDENTIFY A PEAK CELL IN EACH PSA
+  cond.seed = "bathymetry == max(bathymetry)",
+                        
+  # ISOLATION BUFFER ('cells contiguous 
+  #                    and continuous to 
+  #                    a peak'           < 'bathymetry of peak cell[]')
+  cond.isol =          "bathymetry       <  bathymetry[]",
+  
+  # FOCAL CELL LAG IS INFINITE THEREFORE THE TAG '[]' REFERS TO THE SEED CELL ('PEAK CELL[]')
+  lag.isol = Inf, 
+  
+  # ISOLATION BUFFER IS NOT PROVIDED AS AN OUTPUT
+  isolationClass = FALSE
+  
+)
+```
+
+The class vector `atbl$PKS` is converted into raster layers using the function `cv.2.rast()` and plotted in [Figure 2](#figure2).
+
+<a id="figure2"></a>
+```{r pks_plot, message=FALSE, warning=FALSE, echo=FALSE}
+pks_plot <- cv.2.rast(rstack, atbl$Cell, atbl$PKS)
+pks_plot <- rasterToPolygons(pks_plot, dissolve = TRUE)
+pks_plot$dummy <- 1
+
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, 
+             legend = FALSE, label = FALSE) + 
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry_", col.regions = palRYB, 
+          legend = FALSE, alpha.regions = 0.5) + 
+  mapview(psa_plot, layer.name = "PSA", col.regions = "white", alpha.regions = 0.6, 
+          label = "PSA: 'local_bpi > 100 & is.na(ISU) & (gmorph == 2 | gmorph == 3)'", popup = NULL) + 
+  mapview(pks_plot, layer.name = "PEAKS", col.regions = "black", 
+          label = "Peaks: 'bathymetry == max(bathymetry)'", 
+          alpha.regions = 1,  popup = NULL)
+
+m@map %>% 
+  addLayersControl(overlayGroups = c("PSA", "PEAKS"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+_Figure 2 - Peaks and peak search areas. Note that there is a peak within each peak search area. In background are provided depth values; because of reprojection displayed and original depth values are slightly different._
+
+## Peak class vector
+
+The class vector `atbl$PKS` can be saved as an `*.RDS` file and used in the following classification steps.
+
+```{r classVect_PKS, message=FALSE, warning=FALSE, collapse = TRUE}
+# PEAK CELLS
+unique(atbl$PKS)
+
+# atbl$PKS == 1,  Peak cells
+# atbl$PKS == NA, Non-peak cells
+
+# SAVE `atbl$PKS`
+# saveRDS(atbl$PKS, "Peak_Cells.RDS")
+```

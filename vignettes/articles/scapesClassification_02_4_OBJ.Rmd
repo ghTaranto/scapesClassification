@@ -1,0 +1,399 @@
+---
+title: "Independent objects on raster surfaces"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Independent objects on raster surfaces}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+# Relief Unit (RU)
+
+In the previous article we identified a set of local peaks within our study area ([local maxima on gridded data](scapesClassification_02_3_PKS.html)). In this article we will classify prominent seamounts, banks and ridges as individual raster objects ([Figure 2](#figure2)).
+
+# Load data and libraries
+
+We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html), [island shelf unit (ISU)](scapesClassification_02_2_ISU.html) and [local maxima on gridded data](scapesClassification_02_3_PKS.html):
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
+# LOAD LIBRARIES
+library(raster)
+library(scapesClassification)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- stack(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+
+# LOAD ISU CLASSIFICATION
+ISU <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "ISU_Cells\\.RDS")
+
+ISU <- readRDS(ISU)
+
+# LOAD PEAK CLASSIFICATION
+PKS <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "Peak_Cells\\.RDS")
+
+PKS <- readRDS(PKS)
+```
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- raster(hs[grepl("hillshade\\.grd", hs)])
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+### ISU and peak class vectors
+
+Class vectors can be added to the attribute table and used as filters. We will add the ISU and the PEAK class vectors to the attribute table. 
+
+```{r ISU_filter, message=FALSE, warning=FALSE}
+# ISU FILTER
+atbl$ISU <- ISU
+
+# PEAK FILTER
+atbl$PKS <- PKS
+```
+
+# Raster objects
+
+The the different semounts, banks and ridges existing in the study area will be identified as individual raster objects, each characterized by a unique ID. In a first phase, a set of strict conditions will be used to identify large and tall peak areas; each of these areas will be considered as an independent object ([Figure 1](#figure1)). In a second phase, the border of each object will be expanded based on a more permissive set of conditions ([Figure 2](#figure2))
+
+## RU-objects: core cells
+
+In this example the core of RU-objects will be defined by prominent peak areas. Prominent peak areas (PPAs) are areas contiguous and continuous to a peak cell characterized by high BPI values (`"regional_bpi > 400"` OR `"local_bpi > 200"`). We will also consider that peak areas are not within the island shelf unit (`is.na(atbl$ISU)`) and include only cells of the geomorphon classes "summit" (2), "ridge" (3) or "shoulder" (4) (geomophon classes identifying the top part of an elevated feature). We can use the function `cond.4.nofn()` to evaluate if these conditions are true around local peaks (`atbl$PKS`).
+
+```{r ru_core_nofn, message=FALSE, warning=FALSE}
+# PROMINENT PEAK AREAS (PPA)
+PPA <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+                       
+                   # `atbl$PKS` class vector
+                   classVector = atbl$PKS, 
+                       
+                   # prominent peak area class
+                   class       = 1,
+                   
+                   # evaluate cells adjacent to PPA cells
+                   nbs_of      = 1, 
+                       
+                   # condition string
+                   conditions  = "(regional_bpi > 400 | local_bpi > 200) & 
+                                  gmorph %in% c(2:4) &
+                                  is.na(ISU)" 
+                       )
+```
+
+We will then use the function `anchor.seed()` to assign a unique ID to discrete prominent peak area. Each of these areas will be considered as a relief unit object (RU-object) ([Figure 1](#figure1)). 
+
+```{r ru_core_seed, message=FALSE, warning=FALSE, collapse = TRUE}
+# RU-OBJECTS
+
+atbl$RU_obj <- anchor.seed(
+  
+  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+  
+  # `class = NULL` -> A NEW ID IS GENERATED AT EACH ITERATION
+  class = NULL,
+  
+  # CLASSVECTOR IDENTIFYING PEAK PROMINENT AREAS
+  classVector = PPA,
+  
+  # WITHIN PROMINENT PEAK CELLS
+  cond.filter = "classVector == 1",
+  
+  # ITERATION START:
+  # ASSIGN AN ID TO A PROMINENT PEAK CELL
+  cond.seed   = "classVector == 1",
+  
+  # ASSIGN THE SAME ID TO ALL CONNECTED PROMINENT PEAK CELLS
+  cond.growth = "classVector == 1",
+  
+  # IDs ARE ALLOCATED FIRST TO THE SHALLOWEST AVAILABLE CELL WITHIN PROMINENT PEAK CELLS, STARTS FROM 1 AND INCREASE SEQUENTIALLY
+  sort.seed = "max", sort.col = "bathymetry"
+  
+  # ITERATION END
+  )
+```
+
+### Remove small objects
+
+Our focus is set on large and prominent features, thus, we will exclude RU-objects characterized by small PPAs ([Figure 1](#figure1)). We will define that RU-object with less than 5 cells are small. We will use the R package [`data.table`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html) to manipulate the RU-objects stored in the attribute table. 
+
+```{r ru_core_small, message=FALSE, warning=FALSE, collapse = TRUE}
+# CONVERT "atbl" INTO A DATA TABLE
+library(data.table)
+atbl <- as.data.table(atbl)
+
+# COUNT HOW MANY CELLS HAS EACH "RU_obj"
+atbl[!is.na(RU_obj), number_of_cell := .N, by = "RU_obj"]  
+  
+# IDs WITH LESS THAN 5 CELLS ARE MOVED TO THE COLUMN RU_obj5
+atbl[number_of_cell <= 5, RU_obj5 := 1]
+
+# IDs WITH LESS THAN 5 CELLS ARE REMOVED FROM THE COLUMN RU_obj
+atbl[number_of_cell <= 5, RU_obj := NA]
+```
+
+The classification vectors `PPA`, `RU_obj5` and `RU_obj` are converted into raster layers using the function `cv.2.rast()` and are plotted in [Figure 1](#figure1). 
+
+<a id="figure1"></a>
+```{r ru_core_plot, message=FALSE, warning=FALSE, echo=FALSE}
+library(leafpop)
+
+PPA_plot <- cv.2.rast(rstack, atbl$Cell, PPA)
+PPA_plot <- rasterToPolygons(PPA_plot, dissolve = TRUE)
+PPA_plot$dummy <- 1
+
+RU_obj5_small <- cv.2.rast(rstack, atbl$Cell, atbl$RU_obj5)
+RU_obj5_small <- rasterToPolygons(RU_obj5_small, dissolve = TRUE)
+RU_obj5_small$dummy <- 1
+
+RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_obj)
+RU_obj_plot <- rasterToPolygons(RU_obj_plot, dissolve = TRUE)
+
+# POPUP TABLE
+names(RU_obj_plot) <- "RU_obj_ID"
+
+pupTbl <- atbl
+pupTbl[!is.na(RU_obj),
+
+       ':=' (ncell = .N,
+             minDepth_m = round(max(bathymetry), 2),
+             maxDepth_m = round(min(bathymetry), 2),
+             area_m2 = 500 * .N),
+
+       by = "RU_obj"]
+
+pupTbl_stat <- pupTbl[!duplicated(RU_obj) & !is.na(RU_obj)]
+ind <- match(RU_obj_plot@data$RU_obj_ID, pupTbl_stat$RU_obj)
+
+RU_obj_plot@data$ncell      <- pupTbl_stat$ncell[ind]
+RU_obj_plot@data$minDepth_m <- pupTbl_stat$minDepth_m[ind]
+RU_obj_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m[ind]
+RU_obj_plot@data$area_m2    <- pupTbl_stat$area_m2[ind]
+
+# plot
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) +
+
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+
+  mapview(PPA_plot, layer.name = "PPA", alpha.regions = 0.8, legend = FALSE, popup = NULL) +
+
+  mapview(RU_obj5_small, layer.name = "RU_obj5", col.regions = "red", alpha.regions = 0.8, legend = FALSE, popup = NULL,
+          label = "RU-object (ncell < 5)") +
+
+  mapview(RU_obj_plot, layer.name = "RU_obj", alpha.regions = 0.8, legend = FALSE, zcol = "RU_obj_ID",
+          popup = popupTable(RU_obj_plot, feature.id = FALSE, row.numbers = FALSE))
+
+m@map %>%
+  hideGroup(c("PPA")) %>%
+  addLayersControl(overlayGroups = c("PPA", "RU_obj5", "RU_obj"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+_Figure 1 - PPA, prominent peak areas; RU_obj5, small prominent peak areas; RU_obj, relief unit objects (clickable layer)._
+
+
+## RU-objects: refine borders
+
+The RU-objects of the previous section were identified using strict rules. This granted discontinuity among different peak prominent areas. In turn, this discontinuity allowed to treated each non-continuous peak prominent area as an independent RU-object. We can now consider a set of more permissive rules to expand the borders of individual RU-units.
+
+We can consider that the missing cells will have the same characteristics as [ISU slope cells](scapesClassification_02_2_ISU.html#isu---slope-cells). We can combine the three sets of conditions used to identify ISU slope cells into a single string using the `OR` operator (`|`): `"(regional_bpi>100|local_bpi>100|sd_bat{}>150)"`. 
+
+We can apply these conditions to a single RU-object using the function `cond.4.nofn()` with its argument `nbs_of` and `class` set equal to the RU-ID. 
+
+```{r refine_exmpl1, message=FALSE, warning=FALSE, eval=FALSE}
+# APPLY CONDITIONS TO OBJECT 5
+# cond.4.nofn(atbl, nbs, nbsIndex = T, 
+#                       
+#             classVector = atbl$RU_obj, 
+#                         
+#             conditions  = "(regional_bpi>100|local_bpi>100|sd_bat{}>150)", 
+#                        
+#             fn_perc     = 1, 
+#             min.border  = 0.2,
+#                        
+#             # CONDITIONS APPLIED TO NEIGHBORS OF OBJECT 5
+#             class       = 5, 
+#             nbs_of      = 5,
+#                        
+# )
+```
+
+The conditions can be applied to all RU-objects using a for loop. 
+
+```{r refine_exmpl2, message=FALSE, warning=FALSE, eval=FALSE}
+# APPLY CONDITIONS TO ALL OBJECTS
+# RU_IDs <- unique(atbl$RU_obj)
+# RU_IDs <- sort(RU_IDs[!is.na(RU_IDs)])
+# 
+# for(i in RU_IDs){
+#   
+#   cond.4.nofn(atbl, nbs, nbsIndex = T, 
+#               
+#               classVector = atbl$RU_obj, 
+#               
+#               conditions  = "(regional_bpi>100|local_bpi>100|sd_bat{}>150)", 
+#               
+#               fn_perc     = 1, 
+#               min.border  = 0.2,
+#               
+#               # CONDITIONS APPLIED TO NEIGHBORS OF OBJECT i
+#               class       = i, 
+#               nbs_of      = i,
+#               
+#   )
+#   
+# }
+```
+
+In this case, we will include the for loop into a while loop and we will use the function `cond.4.nofn()` with the argument `max.iter = 1`. This will grant a homogeneous growth of all the different RU-objects:
+
+a. At each iteration of the while loop, we run the for loop. 
+
+b. The for loop considers, one at the time, all the RU-objects. 
+
+c. For each RU-object, only cells directly neighboring the RU-object (`max.iter = 1`) are evaluated against the conditions and classified as part of the object if conditions are true.
+
+```{r refine_ru_obj, message=FALSE, warning=FALSE, collapse=TRUE}
+# REFINE RU-OBJECTS
+RU_IDs <- unique(atbl$RU_obj)
+RU_IDs <- sort(RU_IDs[!is.na(RU_IDs)])
+
+atbl$RU_obj2 <- atbl$RU_obj
+
+ITR <- 0
+while (ITR<15) {
+  
+  # APPLY CONDITIONS TO ALL OBJECTS
+  for(i in RU_IDs){
+    
+    
+    # STEP 1: EXPAND RU BOUNDARIES
+    atbl$RU_obj2 <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+                                
+                                classVector = atbl$RU_obj2,
+                                
+                                conditions  = "(regional_bpi>100|local_bpi>100|sd_bat{}>150)", 
+                                
+                                fn_perc     = 1, 
+                                min.border  = 0.2,
+                                
+                                # CONDITIONS ARE EVALUATED ONLY FOR THE DIRECT NEIGHBOURS OF OBJECT i
+                                max.iter    = 1, 
+                                
+                                # CONDITIONS APPLIED TO NEIGHBORS OF OBJECT i
+                                class       = i,
+                                nbs_of      = i)
+    
+    
+  }
+  
+  ITR <- ITR + 1L
+  
+}
+```
+
+The class vectors `atbl$PKS` and `atbl$RU_obj2` are converted into raster layers using the function `cv.2.rast()` and are plotted in [Figure 2](#figure2). 
+
+<a id="figure2"></a>
+```{r refine_ru_obj_plot, message=FALSE, warning=FALSE, echo=FALSE}
+RU_obj2_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_obj2)
+RU_obj2_plot <- rasterToPolygons(RU_obj2_plot, dissolve = TRUE)
+
+pks_plot <- cv.2.rast(rstack, atbl$Cell, atbl$PKS)
+pks_plot <- rasterToPolygons(pks_plot, dissolve = TRUE)
+pks_plot$dummy <- 1
+
+
+# POPUP TABLE
+names(RU_obj2_plot) <- "RU_obj2_ID"
+
+pupTbl <- atbl
+pupTbl[!is.na(RU_obj2), 
+       
+       ':=' (ncell = .N,
+             minDepth_m = round(max(bathymetry), 2),
+             maxDepth_m = round(min(bathymetry), 2),
+             area_m2 = 500 * .N), 
+       
+       by = "RU_obj2"]
+
+pupTbl_stat <- pupTbl[!duplicated(RU_obj2) & !is.na(RU_obj2)]
+ind <- match(RU_obj2_plot@data$RU_obj2_ID, pupTbl_stat$RU_obj2)
+
+RU_obj2_plot@data$ncell      <- pupTbl_stat$ncell[ind]
+RU_obj2_plot@data$minDepth_m <- pupTbl_stat$minDepth_m[ind]
+RU_obj2_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m[ind]
+RU_obj2_plot@data$area_m2    <- pupTbl_stat$area_m2[ind]
+
+
+# plot
+rm(m)
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) +
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "depth", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) + 
+  
+  mapview(rstack[["local_bpi_exm"]], layer.name = "local_BPI", col.regions = palRYB, legend = FALSE, alpha.regions = 0.0) +
+  
+  mapview(rstack[["regional_bpi_exm"]], layer.name = "regional_BPI", col.regions = palRYB, legend = FALSE, alpha.regions = 0.0) +
+  
+  mapview(rstack[["sd_bat_exm"]], layer.name = "SD_bat", col.regions = palRYB, legend = FALSE, alpha.regions = 0.0) + 
+  
+  mapview(RU_obj2_plot, layer.name = "RU_obj2", alpha.regions = 0.8, legend = FALSE, zcol = "RU_obj2_ID",
+          popup = popupTable(RU_obj2_plot, feature.id = FALSE, row.numbers = FALSE)) +
+  
+  mapview(pks_plot, layer.name = "Peaks", col.regions = "black", label = "Peaks", alpha.regions = 1, popup = FALSE)
+
+m@map %>% 
+  addLayersControl(overlayGroups = c("Peaks", "RU_obj2"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+_Figure 2 - Peak, identified in the [local maxima on gridded data](scapesClassification_02_3_PKS.html) article; RU_obj2, relief unit objects with refined borders (clickable layer)._
+
+## RU-objects: class vectors
+
+The class vectors `atbl$RU_obj` and `atbl$RU_obj2` can be saved as `*.RDS` files.
+
+```{r classVect_PKS, message=FALSE, warning=FALSE, collapse = TRUE}
+# PEAK CELLS
+length(unique(atbl$RU_obj))
+
+# There are 19 RU-objects
+
+# SAVE `atbl$RU_obj`
+# saveRDS(atbl$RU_obj, "RU_obj.RDS")
+
+# SAVE `atbl$RU_obj2`
+# saveRDS(atbl$RU_obj2, "RU_obj2.RDS")
+```
+
