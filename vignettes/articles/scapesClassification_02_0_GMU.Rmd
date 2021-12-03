@@ -24,3 +24,214 @@ The GMU-classification will be presented in four separate articles:
 3. [Local maxima on gridded data](scapesClassification_02_3_PKS.html); 
 
 4. [Independent objects on raster surfaces](scapesClassification_02_4_OBJ.html). 
+
+
+
+```{r loadLD, message=FALSE, warning=FALSE, include=FALSE}
+# LOAD LIBRARIES
+library(raster)
+library(scapesClassification)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- stack(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+
+# LOAD ISU CLASSIFICATION
+ISU <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "ISU_Cells\\.RDS")
+
+ISU <- readRDS(ISU)
+
+# LOAD PEAK CLASSIFICATION
+PKS <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "Peak_Cells\\.RDS")
+
+PKS <- readRDS(PKS)
+
+# LOAD RU_OBJECT CLASSIFICATION
+RU_OBJ <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "RU_obj\\.RDS")
+
+RU_OBJ <- readRDS(RU_OBJ)
+
+RU_OBJ2 <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "RU_obj2\\.RDS")
+
+RU_OBJ2 <- readRDS(RU_OBJ2)
+
+
+# LOAD PLOT LIBRARIES
+library(mapview)
+library(leaflet)
+library(leafem)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- raster(hs[grepl("hillshade\\.grd", hs)])
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+
+# Island shelf unit (ISU)
+```{r ISU_slope_map, message=FALSE, warning=FALSE, echo=FALSE}
+# ISU
+ISU_shelf <- ISU
+ISU_shelf[ISU_shelf %in% 1:3] <- 1
+ISU_shelf[ISU_shelf %in% 4:6] <- NA
+
+ISU_slope <- ISU
+ISU_slope[ISU_slope %in% 1:3] <- NA
+ISU_slope[ISU_slope %in% 4:6] <- 1
+
+ISU_shelf <- cv.2.rast(rstack,atbl$Cell, ISU_shelf)
+ISU_shelf <- rasterToPolygons(ISU_shelf, dissolve = TRUE)
+
+ISU_slope <- cv.2.rast(rstack,atbl$Cell, ISU_slope)
+ISU_slope <- rasterToPolygons(ISU_slope, dissolve = TRUE)
+
+ISU_shelf$dummy <- 1
+ISU_slope$dummy <- 1
+
+
+m <-
+  mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, layer.name = "hillshade", legend = FALSE, label = FALSE) + 
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry(m)", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+  
+  mapview(ISU_shelf, alpha.regions = 1, col.regions = "#02343F", layer.name = "ISU-Shelf", popup = NULL, 
+          label = "ISU-Shelf") +
+  
+  mapview(ISU_slope, alpha.regions = 0.8, layer.name = "ISU-Slope", col.regions = "#F0EDCC", popup = NULL, 
+          label = "ISU-Slope")
+  
+
+m@map %>% 
+  hideGroup(c("hillshade", "bathymetry(m)")) %>% 
+  addLayersControl(overlayGroups = c("hillshade", "bathymetry(m)", "ISU-Shelf", "ISU-Slope"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+Figure 1 - Island shelf unit. Computed in [island shelf unit (ISU)](scapesClassification_02_2_ISU.html). 
+
+
+# Local peaks
+```{r peaks_map, message=FALSE, warning=FALSE, echo=FALSE}
+pks_plot <- cv.2.rast(rstack, atbl$Cell, PKS)
+pks_plot <- rasterToPolygons(pks_plot, dissolve = TRUE)
+pks_plot$dummy <- 1
+
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, 
+             legend = FALSE, label = FALSE) + 
+  mapview(rstack[["bathymetry_exm"]], layer.name = "Bathymetry(m)", col.regions = palRYB, 
+          legend = FALSE, alpha.regions = 0.5) + 
+  mapview(pks_plot, layer.name = "Local peaks", col.regions = "black", label = "Local peaks", 
+          alpha.regions = 1,  popup = NULL)
+
+m@map %>% 
+  addLayersControl(overlayGroups = c("Local peaks"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+Figure 2 - Local peaks. Computed in [local maxima on gridded data](scapesClassification_02_3_PKS.html).
+
+# RU-objects
+```{r RU_obj, message=FALSE, warning=FALSE, echo=FALSE}
+library(data.table)
+library(leafpop)
+
+atbl <- as.data.table(atbl)
+
+atbl$RU_OBJ  <- RU_OBJ
+atbl$RU_OBJ2 <- RU_OBJ2
+
+# POPUP TABLES
+pupTbl <- atbl
+
+pupTbl[!is.na(RU_OBJ),
+       
+       ':=' (ncell = .N,
+             minDepth_m = round(max(bathymetry), 2),
+             maxDepth_m = round(min(bathymetry), 2),
+             avgDepth_m = round(mean(bathymetry), 2),
+             area_m2 = 500 * .N),
+       
+       by = "RU_OBJ"]
+
+pupTbl[!is.na(RU_OBJ2),
+       
+       ':=' (ncell_2 = .N,
+             minDepth_m_2 = round(max(bathymetry), 2),
+             maxDepth_m_2 = round(min(bathymetry), 2),
+             avgDepth_m_2 = round(mean(bathymetry), 2),
+             area_m2_2 = 500 * .N),
+       
+       by = "RU_OBJ2"]
+
+
+pupTbl_stat  <- pupTbl[!duplicated(RU_OBJ) & !is.na(RU_OBJ)]
+
+# RU-objects
+RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, RU_OBJ)
+RU_obj_plot <- rasterToPolygons(RU_obj_plot, dissolve = TRUE)
+
+RU_obj2_plot <- cv.2.rast(rstack, atbl$Cell, RU_OBJ2)
+RU_obj2_plot <- rasterToPolygons(RU_obj2_plot, dissolve = TRUE)
+
+
+# POLYGON TABLES
+names(RU_obj_plot)  <- "RU_obj_ID"
+names(RU_obj2_plot) <- "RU_obj_ID"
+
+ind <- match(RU_obj_plot@data$RU_obj_ID, pupTbl_stat$RU_OBJ)
+
+RU_obj_plot@data$ncell      <- pupTbl_stat$ncell[ind]
+RU_obj_plot@data$minDepth_m <- pupTbl_stat$minDepth_m[ind]
+RU_obj_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m[ind]
+RU_obj_plot@data$avgDepth_m <- pupTbl_stat$avgDepth_m[ind]
+RU_obj_plot@data$area_m2    <- pupTbl_stat$area_m2[ind]
+
+RU_obj2_plot@data$ncell      <- pupTbl_stat$ncell_2[ind]
+RU_obj2_plot@data$minDepth_m <- pupTbl_stat$minDepth_m_2[ind]
+RU_obj2_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m_2[ind]
+RU_obj2_plot@data$avgDepth_m <- pupTbl_stat$avgDepth_m_2[ind]
+RU_obj2_plot@data$area_m2    <- pupTbl_stat$area_m2_2[ind]
+
+
+# plot
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) +
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+
+  mapview(RU_obj_plot, layer.name = "RU-object, core", alpha.regions = 0.8, legend = FALSE, zcol = "RU_obj_ID",
+          popup = popupTable(RU_obj_plot, feature.id = FALSE, row.numbers = FALSE)) + 
+  
+  mapview(RU_obj2_plot, layer.name = "RU-object, all", alpha.regions = 0.8, legend = FALSE, zcol = "RU_obj_ID",
+          popup = popupTable(RU_obj2_plot, feature.id = FALSE, row.numbers = FALSE)) + 
+  
+  mapview(pks_plot, layer.name = "Local peaks", col.regions = "black", label = "Local peaks", 
+          alpha.regions = 1,  popup = NULL)
+
+m@map %>%
+  hideGroup(c("RU-object, all", "Local peaks")) %>%
+  addLayersControl(overlayGroups = c("Local peaks", "RU-object, core", "RU-object, all"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+Figure 3 - Relief unit objects, clickable layers. Computed in [independent objects on raster surfaces](scapesClassification_02_4_OBJ.html). 

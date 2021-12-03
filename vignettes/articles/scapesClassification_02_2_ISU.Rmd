@@ -350,6 +350,10 @@ rSL3$dummy <- 1
 
 mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"))
 m <-
+  mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) + 
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+  
   mapview(rSL1, alpha.regions = 0.8, col.regions = "#BFB5AF", layer.name = "Slope1 cell", popup = NULL, 
         label = "(regional_bpi > 100 & bathymetry{} > bathymetry) | regional_bpi > 300") +
   
@@ -368,11 +372,11 @@ m <-
   mapview(rSC2, alpha.regions = 0.8, 
           col.regions = "#A0522D", layer.name = "Hole cell", popup = NULL, label = "ISU shelf cell (hole cell)") + 
   
-  mapview(rstack[["regional_bpi_exm"]], layer.name = "Regional_BPI", col.regions = palBYR, legend = FALSE, alpha.regions = 0.3) + 
+  mapview(rstack[["regional_bpi_exm"]], layer.name = "Regional_BPI", col.regions = palBYR, legend = FALSE, alpha.regions = 0.0) + 
   
-  mapview(rstack[["local_bpi_exm"]], layer.name = "Local_BPI", col.regions = palBYR, legend = FALSE, alpha.regions = 0.2) + 
+  mapview(rstack[["local_bpi_exm"]], layer.name = "Local_BPI", col.regions = palBYR, legend = FALSE, alpha.regions = 0.0) + 
  
-  mapview(rstack[["sd_bat_exm"]], layer.name = "SD_bathymetry", col.regions = palYGB, legend = FALSE, alpha.regions = 0.1)
+  mapview(rstack[["sd_bat_exm"]], layer.name = "SD_bathymetry", col.regions = palYGB, legend = FALSE, alpha.regions = 0.0)
 
 m@map %>% 
   hideGroup(c("Anchor cell", "Flat cell", "Hole cell")) %>% 
