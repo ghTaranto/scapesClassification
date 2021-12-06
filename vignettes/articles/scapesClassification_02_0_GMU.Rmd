@@ -19,7 +19,7 @@ The GMU-classification will be presented in four separate articles:
 
 1. [Format input data](scapesClassification_02_1_DATA.html); 
 
-2. [Island shelf unit (ISU)](scapesClassification_02_2_ISU.html)
+2. [Island shelf unit (ISU)](scapesClassification_02_2_ISU.html);
 
 3. [Local maxima on gridded data](scapesClassification_02_3_PKS.html); 
 
@@ -158,67 +158,66 @@ library(leafpop)
 
 atbl <- as.data.table(atbl)
 
-atbl$RU_OBJ  <- RU_OBJ
-atbl$RU_OBJ2 <- RU_OBJ2
+# add vectors to atbl
+atbl$RU_obj <- RU_OBJ
+atbl$RU_obj2 <- RU_OBJ2
 
-# POPUP TABLES
-pupTbl <- atbl
-
-pupTbl[!is.na(RU_OBJ),
-       
-       ':=' (ncell = .N,
-             minDepth_m = round(max(bathymetry), 2),
-             maxDepth_m = round(min(bathymetry), 2),
-             avgDepth_m = round(mean(bathymetry), 2),
-             area_m2 = 500 * .N),
-       
-       by = "RU_OBJ"]
-
-pupTbl[!is.na(RU_OBJ2),
-       
-       ':=' (ncell_2 = .N,
-             minDepth_m_2 = round(max(bathymetry), 2),
-             maxDepth_m_2 = round(min(bathymetry), 2),
-             avgDepth_m_2 = round(mean(bathymetry), 2),
-             area_m2_2 = 500 * .N),
-       
-       by = "RU_OBJ2"]
-
-
-pupTbl_stat  <- pupTbl[!duplicated(RU_OBJ) & !is.na(RU_OBJ)]
-
-# RU-objects
-RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, RU_OBJ)
+# convert vectors to polygons
+RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_obj)
 RU_obj_plot <- rasterToPolygons(RU_obj_plot, dissolve = TRUE)
 
-RU_obj2_plot <- cv.2.rast(rstack, atbl$Cell, RU_OBJ2)
+RU_obj2_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_obj2)
 RU_obj2_plot <- rasterToPolygons(RU_obj2_plot, dissolve = TRUE)
 
+# POPUP TABLE
 
-# POLYGON TABLES
-names(RU_obj_plot)  <- "RU_obj_ID"
+# RU_obj
+RU_OBJ_STAT <- atbl[!is.na(RU_obj), .(N_cell=.N, 
+                                      mBPI=median(regional_bpi), 
+                                      minDepth=max(bathymetry), 
+                                      maxDepth=min(bathymetry), 
+                                      avgDepth=mean(bathymetry), 
+                                      area=.N*0.25), 
+                    by = "RU_obj"][order(RU_obj)]
+
+
+names(RU_obj_plot) <- "RU_obj_ID"
+
+ind <- match(RU_obj_plot@data$RU_obj_ID, RU_OBJ_STAT$RU_obj)
+
+RU_obj_plot@data$N_cell     <- RU_OBJ_STAT$N_cell[ind]
+RU_obj_plot@data$minDepth_m <- round(RU_OBJ_STAT$minDepth[ind], 2)
+RU_obj_plot@data$maxDepth_m <- round(RU_OBJ_STAT$maxDepth[ind], 2)
+RU_obj_plot@data$avgDepth_m <- round(RU_OBJ_STAT$avgDepth[ind], 2)
+RU_obj_plot@data$area_km2   <- RU_OBJ_STAT$area[ind]
+RU_obj_plot@data$median_RBPI<- RU_OBJ_STAT$mBPI[ind]
+
+
+# RU_obj2
+RU_OBJ_STAT2 <- atbl[!is.na(RU_obj2), .(N_cell=.N, 
+                                      mBPI=median(regional_bpi), 
+                                      minDepth=max(bathymetry), 
+                                      maxDepth=min(bathymetry), 
+                                      avgDepth=mean(bathymetry), 
+                                      area=.N*0.25), 
+                    by = "RU_obj2"][order(RU_obj2)]
+
+
 names(RU_obj2_plot) <- "RU_obj_ID"
 
-ind <- match(RU_obj_plot@data$RU_obj_ID, pupTbl_stat$RU_OBJ)
+ind <- match(RU_obj2_plot@data$RU_obj_ID, RU_OBJ_STAT2$RU_obj)
 
-RU_obj_plot@data$ncell      <- pupTbl_stat$ncell[ind]
-RU_obj_plot@data$minDepth_m <- pupTbl_stat$minDepth_m[ind]
-RU_obj_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m[ind]
-RU_obj_plot@data$avgDepth_m <- pupTbl_stat$avgDepth_m[ind]
-RU_obj_plot@data$area_m2    <- pupTbl_stat$area_m2[ind]
+RU_obj2_plot@data$N_cell     <- RU_OBJ_STAT2$N_cell[ind]
+RU_obj2_plot@data$minDepth_m <- round(RU_OBJ_STAT2$minDepth[ind], 2)
+RU_obj2_plot@data$maxDepth_m <- round(RU_OBJ_STAT2$maxDepth[ind], 2)
+RU_obj2_plot@data$avgDepth_m <- round(RU_OBJ_STAT2$avgDepth[ind], 2)
+RU_obj2_plot@data$area_km2   <- RU_OBJ_STAT2$area[ind]
+RU_obj2_plot@data$median_RBPI<- RU_OBJ_STAT2$mBPI[ind]
 
-RU_obj2_plot@data$ncell      <- pupTbl_stat$ncell_2[ind]
-RU_obj2_plot@data$minDepth_m <- pupTbl_stat$minDepth_m_2[ind]
-RU_obj2_plot@data$maxDepth_m <- pupTbl_stat$maxDepth_m_2[ind]
-RU_obj2_plot@data$avgDepth_m <- pupTbl_stat$avgDepth_m_2[ind]
-RU_obj2_plot@data$area_m2    <- pupTbl_stat$area_m2_2[ind]
-
-
-# plot
 m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, legend = FALSE, label = FALSE) +
   
   mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
-
+  
   mapview(RU_obj_plot, layer.name = "RU-object, core", alpha.regions = 0.8, legend = FALSE, zcol = "RU_obj_ID",
           popup = popupTable(RU_obj_plot, feature.id = FALSE, row.numbers = FALSE)) + 
   
