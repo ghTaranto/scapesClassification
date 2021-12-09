@@ -13,11 +13,7 @@ vignette: >
 knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
-# Relief Unit (RU)
-
-In the previous article we identified a set of local peaks within our study area ([local maxima on gridded data](scapesClassification_02_3_PKS.html)). In this article we will classify prominent seamounts, banks and ridges as individual raster objects ([Figure 2](#figure2)).
-
-# Load data and libraries
+## 1 Load data and libraries
 
 We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html), [island shelf unit (ISU)](scapesClassification_02_2_ISU.html) and [local maxima on gridded data](scapesClassification_02_3_PKS.html):
 
@@ -72,7 +68,7 @@ palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
 gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
 ```
 
-### ISU and peak class vectors
+#### ISU and peak class vectors
 
 In order to be able to take into account previous classification steps, we add the ISU and the peak class vectors to the attribute table.
 
@@ -84,11 +80,14 @@ atbl$ISU <- ISU
 atbl$PKS <- PKS
 ```
 
-# Raster objects
+## 2 Relief Unit (RU)
+
+In the previous article we identified a set of local peaks within our study area ([local maxima on gridded data](scapesClassification_02_3_PKS.html)). In this article we will classify prominent seamounts, banks and ridges as individual raster objects ([Figure 2](#figure2)).
+## Raster objects
 
 The the different seamounts, banks and ridges existing in the study area will be identified as individual raster objects, each characterized by a unique ID (or class). In a first phase, we will identify the core cells of independent RU-objects ([Figure 1](#figure1)). In a second phase, we will refine the borders of RU-objects ([Figure 2](#figure2)). 
 
-## RU-objects: core cells
+## 2.1 RU-objects: core cells
 
 The core of a prominent RU-object can be defined by areas contiguous and continuous to a peak with high BPI values (`local_bpi > 100`). We can use the function `cond.4.nofn()` to evaluate if these conditions exists around the peak cells found in the previous section (Core_ST1, [Figure 1](#figure1)). 
 
@@ -131,7 +130,7 @@ atbl$RU_core <- cond.4.nofn(atbl, nbs, nbsIndex = T,
 
 The condition `bathymetry > bathymetry[]` evaluates whether the bathymetry of the cell in evaluation is greater than the bathymetry of the focal cell (`[]`) or not.  See `?conditions` and focal cell conditions for more information. 
 
-#### Cores as raster objects
+## 2.1 Cores as raster objects
 
 We can now consider each non-continuous core area as an independent RU-object. The function `anchor.seed()` can assign unique IDs to non-contiguous areas (RU_obj, [Figure 1](#figure1)). Details about how the function works are available as function documentation (`?anchor.seed`) and in the implementation section.
 
@@ -260,10 +259,10 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-_Figure 1 - Core_ST1, core cell type1; Core_ST2, core cell type2; Rm_IDs, RU_obj removed because of their little relevance at the scale of our study; RU_obj, relief unit objects (clickable layer)._
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Core_ST1, core cell type1; Core_ST2, core cell type2; Rm_IDs, RU_obj removed because of their little relevance at the scale of our study; RU_obj, relief unit objects (clickable layer).</span></div>
 
 
-## RU-objects: refine borders
+## 2.2 RU-objects: refine borders
 
 The set of rules of the previous section mostly aimed at defining the summit areas of RU-objects. We can now consider a second set of rules to include the non-summit areas of each RU-object ([Figure 2](#figure2)).
 
@@ -441,9 +440,9 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-_Figure 2 - RU_obj2, relief unit objects with refined borders (clickable layer)._
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** RU_obj2, relief unit objects with refined borders (clickable layer).</span></div>
 
-## RU-objects: class vectors
+## 2.3 RU-objects: class vectors
 
 The class vectors `atbl$RU_obj` and `atbl$RU_obj2` can be saved as `*.RDS` files.
 

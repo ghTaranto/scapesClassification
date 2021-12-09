@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
-# Study case and input data
+## Study case and input data
 Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge ([Figure 1](#figure1)). Geomorphic management units (GMUs) will be identified using a [`RasterStack`](https://rspatial.org/raster/spatial/4-rasterdata.html#rasterstack-and-rasterbrick) of six layers that includes bathymetry, bathymetric derivatives ([Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm)) and the geomorphons of the area ([Jasiewicz and Stepinski, 2013](https://www.sciencedirect.com/science/article/pii/S0169555X12005028#!)):
   
 * **Bathymetry:** depth values;
@@ -77,10 +77,9 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-_FIGURE 1 - Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression._
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**FIGURE 1 -** Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression.</span></div>
 
-
-# Format input data
+## Format input data
 The classification process in [scapesClassification](https://github.com/ghTaranto/scapesClassification) begins with the computation of two objects:
 
 __Attribute table:__ the raster object converted into a `data.frame`. Attribute tables include only raster cells having no missing values. Function `attTbl()`.

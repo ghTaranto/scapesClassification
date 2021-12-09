@@ -25,7 +25,7 @@ The GMU-classification will be presented in four separate articles:
 
 4. [Independent objects on raster surfaces](scapesClassification_02_4_OBJ.html). 
 
-
+<br />
 
 ```{r loadLD, message=FALSE, warning=FALSE, include=FALSE}
 # LOAD LIBRARIES
@@ -89,7 +89,7 @@ gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b
 ```
 
 
-# Island shelf unit (ISU)
+## Island shelf unit (ISU)
 ```{r ISU_slope_map, message=FALSE, warning=FALSE, echo=FALSE}
 # ISU
 ISU_shelf <- ISU
@@ -128,10 +128,10 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-Figure 1 - Island shelf unit. Computed in [island shelf unit (ISU)](scapesClassification_02_2_ISU.html). 
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Island shelf unit. Computed in [island shelf unit (ISU)](scapesClassification_02_2_ISU.html).</span></div>
 
 
-# Local peaks
+## Local peaks
 ```{r peaks_map, message=FALSE, warning=FALSE, echo=FALSE}
 pks_plot <- cv.2.rast(rstack, atbl$Cell, PKS)
 pks_plot <- rasterToPolygons(pks_plot, dissolve = TRUE)
@@ -149,9 +149,9 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-Figure 2 - Local peaks. Computed in [local maxima on gridded data](scapesClassification_02_3_PKS.html).
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** Local peaks. Computed in [local maxima on gridded data](scapesClassification_02_3_PKS.html).</span></div>
 
-# RU-objects
+## RU-objects
 ```{r RU_obj, message=FALSE, warning=FALSE, echo=FALSE}
 library(data.table)
 library(leafpop)
@@ -233,4 +233,4 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-Figure 3 - Relief unit objects, clickable layers. Computed in [independent objects on raster surfaces](scapesClassification_02_4_OBJ.html). 
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** Relief unit objects, clickable layers. Computed in [independent objects on raster surfaces](scapesClassification_02_4_OBJ.html).</span></div>
