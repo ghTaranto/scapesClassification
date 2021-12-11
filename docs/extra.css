@@ -1,0 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&family=Roboto:wght@300;500&family=Varela+Round&display=swap");
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  line-height: 1.8em;
+  font-size: large;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  margin-top: 0px;
+  margin: 0 0 0.4em 0;
+  color: #cfad89;
+}
+
+.navbar {
+  background-color: #1088a0 !important;
+}
+
+/* The "default" hyperlinks */
+a:hover {
+  color: #818792;
+}
+a {
+  color: #1088a0;
+}
+
+.navbar-brand {
+  color: #fff !important;
+}
+
+.navbar-nav > li > a {
+  color: white;
+}
+
+.nav > li > a:focus,
+.nav > li > a:hover {
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+.navbar-nav > li > a {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: white;
+  font-family: "Verdena Round", sans-serif;
+  font-size: 1.1em;
+}
+
+.nav .open > a,
+.nav .open > a:focus,
+.nav .open > a:hover {
+  background-color: transparent;
+  border-color: #337ab7;
+}
+
+a:active,
+a:hover {
+  text-decoration: underline !important;
+}
+
+/* navbar version number */
+.nav-text.text-muted {
+  color: #fff !important;
+  background-color: #cfad89 !important;
+  border-radius: 20%;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-family: "Varela Round", sans-serif;
+  font-size: 110%;
+}
+
+.legend {
+  font-size: 80%;
+  color: #818792;
+}
+
+h4.author {
+  font-family: "Varela Round", sans-serif;
+  font-size: 0.8em;
+  color: #818792;
+  font-weight: normal;
+}
+
+h4.date {
+  font-family: "Varela Round", sans-serif;
+  font-size: 0.8em;
+  color: #818792;
+  font-weight: normal;
+  margin-bottom: 1.5em;
+}
