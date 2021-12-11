@@ -1,0 +1,76 @@
+destination: docs
+
+title: scapesClassification
+
+url: https://ghtaranto.github.io/scapesClassification/
+
+template:
+  bslib:
+    primary: "#1088a0"
+    navbar-bg: "#1088a0"
+    navbar-light-color: "#fff"
+    dropdown-link-hover-bg: "#78b2c4"
+
+reference:
+  - title: Format inputs
+    contents:
+      - "`attTbl`"
+      - "`ngbList`"
+      - "`nbg8`"
+  - title: Helper functions
+    contents:
+      - "`conditions`"
+      - "`cv.2.rast`"
+  - title: Raster object functions
+    contents:
+      - "`obj.border`"
+      - "`obj.nbs`"
+  - title: Classification functions
+  - subtitle: Anchor cells
+    contents:
+      - "`anchor.svo`"
+      - "`anchor.cell`"
+      - "`cond.4.all`"
+  - subtitle: Seed cells
+    contents:
+      - "`anchor.seed`"
+  - subtitle: User conditions
+    contents:
+      - "`cond.4.nofn`"
+      - "`cond.reclass`"
+      - "`cond.4.all`"
+  - subtitle: Class contiguity and continuity
+    contents:
+      - "`reclass.nbs`"
+      - "`classify.all`"
+
+navbar:
+  type: light
+  structure:
+    left:
+      - intro
+      - reference
+      - workex
+      - tutorials
+      - news
+    right: github
+  components:
+    reference:
+      text: Reference
+      href: reference/index.html
+    workex:
+      text: Working example
+      menu:
+        - text: Geomorphic management units (GMUs)
+        - text: 0. Overview
+          href: articles/scapesClassification_02_0_GMU.html
+        - text: 1. Format input data
+          href: articles/scapesClassification_02_1_DATA.html
+        - text: 2. Island shelf unit (ISU)
+          href: articles/scapesClassification_02_2_ISU.html
+        - text: 3. Local maxima on gridded data
+          href: articles/scapesClassification_02_3_PKS.html
+        - text: 4. Independent objects on raster surfaces
+          href: articles/scapesClassification_02_4_OBJ.html
+        - text: 5. Raster object manipulation
+          href: articles/scapesClassification_02_5_OBJ2.html

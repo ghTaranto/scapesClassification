@@ -81,7 +81,7 @@ m@map %>%
 
 We can start our GMUs classification with the island shelf unit (ISU). The ISU comprises two main elements: _(i)_ __island shelves__ (i.e., relatively flat areas surrounding islands) and _(ii_) __slopes__ (i.e., areas that connect island shelves to the seafloor).
 
-## 2.1 ISU - Anchor cells
+### 2.1 ISU - Anchor cells
 Anchor cells are raster cells that can be easily assigned to a class because of some distinctive attribute(s). For example, cells ___'adjacent to an island'___ by definition are _'island shelf cells'_. We can derive this initial set of _'ISU-anchor cells'_ using the functions:
 
 __`anchor.svo()`:__ returns a vector of cell numbers extracted at the locations of a spatial vector object. In this example, _'land cells'_ are defined as: _(i)_ raster cells extracted at island locations that are not complete cases (arg. `ONLY_NA = T`); _(ii)_ cells adjacent to cells of point _(i)_ that are not complete cases either (arg. `fill_NAs = T`) ([Figure 2](#figure2)). 
@@ -167,7 +167,7 @@ m@map %>%
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** **Anchor cell:** raster cells adjacent to a 'land cell'. **Land cell**: raster cells extracted at the locations of the 'island shapefile' that are not complete cases and all adjacent cells that are not complete cases either. **Complete cases**: raster cells having no missing values in no layer of the stack ([Figure 1](#figure1)); note that no overlap exists between "land cell" and "complete cases". **Island shapefile**: the shapefile of Faial, Pico and São Jorge Islands.</span></div>
 
 
-## 2.2 ISU - Island shelf cells
+### 2.2 ISU - Island shelf cells
 In the previous section we identified the portion of ‘island shelves’ that is adjacent to an island. Another useful property is that ‘island shelves’ ___tend to be flat___. This property is shared by several classes (e.g., flat tops or abyssal plains), but it can still define ‘island shelves’ if considered in the context of class contiguity and continuity. 
 
 We will use the following set of rules to identify the _'island shelf cells'_: 
@@ -264,7 +264,7 @@ m@map %>%
 ```
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **Anchor cell:** raster cells adjacent to a 'land cell'. **Flat cell:** raster cells with slopes < 5º respecting class contiguity and continuity with island shelf cells. **Hole cell:** raster cell whose 60% of neighboruring cells are classified as island shelf cells. **Slope:** slope values. Because of reprojection (resampling) displayed and original values might be slightly different.</span></div>
 
-## 2.3 ISU - Slope cells
+### 2.3 ISU - Slope cells
 We can identify _'slope cells'_ using the function `cond.4.nofn()` to evaluate three sets of conditions. All sets of conditions will take into account class contiguity and continuity. 
 
 ___Slope1 cell.___ In the first set of conditions we consider that in regions adjacent to island shelves, _'slope cells'_ tend to have positive BPI values (`regional_bpi > 100`) (_'Slope1 cell'_, [Figure 4](#figure4)). 
@@ -388,7 +388,7 @@ m@map %>%
 ```
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** Island shelf units (ISUs) identified by slope and island shelf cells. In background are provided BPI and SD bathymetry values; because of reprojection displayed and original values are slightly different.</span></div>
 
-## 2.4 ISU - Class vector
+### 2.4 ISU - Class vector
 
 The class vector `slope3` includes all ISU-cells ([Figure 4](#figure4)). It can be saved as an `*.RDS` file and used in the following classification steps.
 
