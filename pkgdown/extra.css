@@ -30,20 +30,51 @@ h6,
   background-color: #1088a0 !important;
 }
 
+/* Vesrsion */
+.label {
+  padding: 0.3em 0.3em 0.3em;
+  font-size: 110%;
+  font-weight: 500;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.label-default {
+  background-color: #78b2c4;
+}
+
 /* The "default" hyperlinks */
 a:hover {
   color: #818792;
+  text-decoration: underline;
 }
 a {
   color: #1088a0;
 }
 
-.navbar-brand {
-  color: #fff !important;
+a:active {
+  text-decoration: underline;
 }
 
+/* Navigation bar hyperlinks */
+.navbar-link {
+  color: #fff;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+  font-weight: 300;
+}
+
+.navbar-link:hover {
+  color: #fff;
+}
+
+/* Navigation bar hyperlinks */
 .navbar-nav > li > a {
+  padding-top: 15px;
+  padding-bottom: 15px;
   color: white;
+  font-weight: 300;
+  font-size: 1.1em;
 }
 
 .nav > li > a:focus,
@@ -52,39 +83,80 @@ a {
   background-color: transparent;
 }
 
-.navbar-nav > li > a {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  color: white;
-  font-family: "Verdena Round", sans-serif;
-  font-size: 1.1em;
+.nav > .active > a,
+.nav > .active > a:focus,
+.nav > .active > a:hover {
+  text-decoration: underline;
+  background-color: transparent;
 }
 
 .nav .open > a,
 .nav .open > a:focus,
 .nav .open > a:hover {
   background-color: transparent;
-  border-color: #337ab7;
-}
-
-a:active,
-a:hover {
   text-decoration: underline !important;
+  border-color: #1088a0;
 }
 
-/* navbar version number */
-.nav-text.text-muted {
-  color: #fff !important;
-  background-color: #cfad89 !important;
-  border-radius: 20%;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  font-family: "Varela Round", sans-serif;
-  font-size: 110%;
+/* TOC */
+nav[data-toggle="toc"] .nav > li > a {
+  font-size: 0.9em;
+  font-weight: 300;
 }
 
+nav[data-toggle="toc"] .nav > .active > a,
+nav[data-toggle="toc"] .nav > .active:hover > a,
+nav[data-toggle="toc"] .nav > .active:focus > a {
+  font-size: inherit;
+  font-weight: 300;
+  border-left: 2px solid #818792;
+  color: #818792;
+  text-decoration: none;
+}
+
+nav[data-toggle="toc"] .nav .nav > .active > a,
+nav[data-toggle="toc"] .nav .nav > .active:hover > a,
+nav[data-toggle="toc"] .nav .nav > .active:focus > a {
+  padding-left: 15px;
+  font-weight: 300;
+  font-size: 1.35rem;
+  color: #818792;
+  text-decoration: none;
+}
+
+nav[data-toggle="toc"] .nav .nav > li > a {
+  font-weight: 300;
+}
+
+/* dropdown menu */
+.dropdown-header {
+  font-size: 1.1em;
+  color: #1088a0;
+  font-weight: 500;
+}
+
+.dropdown-menu > li > a {
+  font-weight: 300;
+}
+
+.dropdown-menu > li > a:focus,
+.dropdown-menu > li > a:hover {
+  color: #fff;
+  text-decoration: none;
+  background-color: #78b2c4;
+}
+
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:focus,
+.dropdown-menu > .active > a:hover {
+  color: #fff;
+  text-decoration: none;
+  background-color: #78b2c4;
+  outline: 0;
+  font-weight: 300;
+}
+
+/* custom classes */
 .legend {
   font-size: 80%;
   color: #818792;

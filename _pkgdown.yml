@@ -6,7 +6,6 @@ url: https://ghtaranto.github.io/scapesClassification/
 
 template:
   bslib:
-    navbar-bg: "#1088a0"
     navbar-light-color: "#fff"
     dropdown-link-hover-bg: "#78b2c4"
 
@@ -48,15 +47,22 @@ navbar:
   structure:
     left:
       - intro
-      - reference
+      - impl
       - workex
+      - reference
       - tutorials
       - news
     right: github
   components:
     reference:
-      text: Reference
+      text: Functions
       href: reference/index.html
+    impl:
+      text: Implementation
+      menu:
+        - text: Geomorphic management units (GMUs)
+        - text: 0. Overview
+          href: articles/scapesClassification_02_0_GMU.html
     workex:
       text: Working example
       menu:
@@ -73,3 +79,6 @@ navbar:
           href: articles/scapesClassification_02_4_OBJ.html
         - text: 5. Raster object manipulation
           href: articles/scapesClassification_02_5_OBJ2.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/ghTaranto/scapesClassification
