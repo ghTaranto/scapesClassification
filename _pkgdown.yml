@@ -6,7 +6,8 @@ url: https://ghtaranto.github.io/scapesClassification/
 
 template:
   bslib:
-    navbar-light-color: "#fff"
+    navbar-light-color: "#1088a0"
+    navbar-dark-color: "#1088a0"
     dropdown-link-hover-bg: "#78b2c4"
 
 reference:

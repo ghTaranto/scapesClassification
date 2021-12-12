@@ -36,6 +36,7 @@ h6,
   font-size: 110%;
   font-weight: 500;
   color: #fff;
+
   border-radius: 50%;
 }
 
@@ -128,22 +129,31 @@ nav[data-toggle="toc"] .nav .nav > li > a {
   font-weight: 300;
 }
 
+/* toggler button - small window size */
+.navbar-toggle {
+  background-color: #78b2c4;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 29' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(207, 173, 137)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+  padding: 9px 5px;
+}
+
 /* dropdown menu */
 .dropdown-header {
   font-size: 1.1em;
-  color: #1088a0;
+  color: #cfad89;
   font-weight: 500;
+  background: white;
 }
 
 .dropdown-menu > li > a {
   font-weight: 300;
+  background: white;
 }
 
 .dropdown-menu > li > a:focus,
 .dropdown-menu > li > a:hover {
   color: #fff;
   text-decoration: none;
-  background-color: #78b2c4;
+  background-color: #cfc1af;
 }
 
 .dropdown-menu > .active > a,
