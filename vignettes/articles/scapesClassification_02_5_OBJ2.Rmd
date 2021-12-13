@@ -1,10 +1,10 @@
 ---
-title: "Raster object manipulation"
+title: "5.Borders of raster object"
 author: "Gerald H. Taranto"
 date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Raster object manipulation}
+  %\VignetteIndexEntry{5.Borders of raster object}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,9 +13,263 @@ vignette: >
 knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
-# RU-objects
+## 5.1 Load data and libraries
 
-In the previous article we identified a set of relief unit objects (RU-objects) ([independent objects on raster 
+We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html) and [independent objects on raster surfaces](scapesClassification_02_4_OBJ.html):
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse=TRUE}
+# LOAD LIBRARIES
+library(raster)
+library(scapesClassification)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- stack(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+
+# LOAD RU-OBJECTS
+RU_OBJ <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                     pattern = "RU_obj2\\.RDS")
+
+RU_OBJ <- readRDS(RU_OBJ)
+```
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+library(leafpop)
+library(kableExtra)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- raster(hs[grepl("hillshade\\.grd", hs)])
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+### RU-object class vector
+
+We will add the RU_object class vector to the attribute table. 
+
+```{r RU_obj_classvector, message=FALSE, warning=FALSE}
+# RU_OBJECT CLASS VECTOR
+atbl$RU_OBJ <- RU_OBJ
+```
+
+## 5.2 Border and shared border
+
+**Border of a raster object:** 
+- computed by the function `obj.border()`;
+- consists of all the object cells that have at least one neighboring cell that do not belong to the object. 
+
+**Shared border of a raster object:** 
+- computed by the function `obj.nbs()`; 
+- consists of all the object cells that have at least one neighboring cell that belongs to anther raster object. 
+
+```{r ru_borders, message=FALSE, warning=FALSE, collapse=TRUE}
+# BORDERS
+OBJ_BORDER <- obj.border(split(1:NROW(atbl), atbl$RU_OBJ), nbs, silent = TRUE)
+
+# SHARED BORDERS
+OBJ_NBS    <- obj.nbs(OBJ_BORDER, nbs, silent = TRUE)
 
 
+# LENGTH OF BORDER OF UNIT 1
+length(OBJ_BORDER$`1`)
 
+# NEIGHBOR UNITS OF UNIT 1
+names(OBJ_NBS$`1`)
+
+# LENGTH SHARED BORDER
+length(unique(unlist( OBJ_NBS$`1` )))
+```
+
+Note that the values returned by the functions `obj.border()` and `obj.nbs()` are indices of the attribute table. They can be converted into raster cell numbers as `atbl$Cell[indices]`. For example let's convert the border and the shared border of the `RU_ID1` into raster layers and plot them in [Figure 1](#figure1). 
+
+```{r ru_borders_id1, message=FALSE, warning=FALSE}
+# EMPTY RASTER TEMPLATES
+rBord     <- rstack[[1]]
+rSharBord <- rstack[[1]]
+
+rBord[]    <- NA
+rSharBord[]<- NA
+
+
+# BORDER OF OBJ_1
+cell_number <- atbl$Cell[OBJ_BORDER$`1`]
+
+rBord[ cell_number ] <- 1
+
+
+# SHARED BORDER OF OBJ_1
+cell_number <- atbl$Cell[ unique(unlist(OBJ_NBS$`1`)) ]
+
+rSharBord[ cell_number ] <- 1
+```
+
+<a id="figure1"></a>
+```{r ru_id1, message=FALSE, warning=FALSE, echo=FALSE}
+# RU_ID1
+rID_1  <- rstack[[1]]
+rID_1[]<- NA
+rID_1[ atbl$Cell[which(RU_OBJ == 1)] ] <- 1 
+
+# RU_OBJ
+RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_OBJ)
+RU_obj_plot <- rasterToPolygons(RU_obj_plot, dissolve = TRUE)
+names(RU_obj_plot) <- "RU_obj_ID"
+
+# RAST TO POLYGONS
+rID_1_p <- rasterToPolygons(rID_1, dissolve = TRUE)
+rBord_p <- rasterToPolygons(rBord, dissolve = TRUE)
+rSharBord_p <- rasterToPolygons(rSharBord, dissolve = TRUE)
+
+rID_1_p$dummy <- 1
+rBord_p$dummy <- 1
+rSharBord_p$dummy <- 1
+
+# ID 4 FOR NEXT PLOT
+rID_4  <- rstack[[1]]
+rID_4[]<- NA
+rID_4[ atbl$Cell[which(RU_OBJ == 4)] ] <- 1 
+rID_4  <- rasterToPolygons(rID_4, dissolve = TRUE)
+rID_4$dummy <- 1
+
+# PLOT
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, layer.name = "hillshade", legend = FALSE, label = FALSE) + 
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry_(m)", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+  
+  mapview(RU_obj_plot, layer.name = "RU_OBJ", alpha.regions = 0.6, legend = FALSE, zcol = "RU_obj_ID", popup = FALSE) +
+  
+  mapview(rID_1_p, layer.name = "RU_ID1", alpha.regions = 1, col.regions = "red", popup = FALSE) + 
+  
+  mapview(rBord_p, layer.name = "BORDER", alpha.regions = 1, col.regions = "gray50", popup = FALSE, label = "") +
+  
+  mapview(rSharBord_p, layer.name = "SHARED_BORDER", alpha.regions = 1, col.regions = "black", popup = FALSE, label = "")
+
+m@map %>%
+  addLayersControl(overlayGroups = c("RU_OBJ", "RU_ID1", "BORDER", "SHARED_BORDER"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** RU_ID1, RU-object 1; BORDER, border of RU-object 1; SHARED_BORDER, shared border of RU-object 1; RU_OBJ, all RU-objects.</span></div>
+
+## 5.3 Handle raster objects
+
+It is possible to handle raster objects on an individual basis. As an example we can identify and merge objects completely surrounded by other objects. These objects will be characterized by a shared border/border ratio equal to 1.
+
+```{r ru_stat, message=FALSE, warning=FALSE, collapse=TRUE}
+library(data.table)
+atbl <- as.data.table(atbl)
+
+# Number of cells per each object
+RU_OBJ_STAT <- atbl[!is.na(RU_OBJ), .(N_cell=.N), by = "RU_OBJ"][order(RU_OBJ)]
+
+# Border length per each object
+RU_OBJ_STAT[, BORDER_N := lengths(OBJ_BORDER)]
+
+# Shared border length per each object
+RU_OBJ_STAT$SHARED_N <- sapply(OBJ_NBS, function(x){ length(unique( unlist(x) )) })
+
+# Border shared border ratio
+RU_OBJ_STAT[, bsb_ratio := round(SHARED_N / BORDER_N, 2)]
+```
+
+```{r ru_stat_kable, message=FALSE, warning=FALSE, echo=FALSE}
+RU_OBJ_STAT %>%
+  kbl() %>%
+  kable_paper("hover") %>%
+  scroll_box(width = "500px", height = "200px")
+```
+
+We can see that the only object having `bsb_ratio = 1` is unit 4. We can decide to merge this unit to the neighbor with which it shares the largest border. This information was computed by the function `obj.nbs()` and stored in the object `OBJ_NBS`.
+
+```{r ru_4_nbs, message=FALSE, warning=FALSE, collapse=TRUE}
+# RU_ID_4 has two neighbors 
+length(OBJ_NBS[["4"]])
+
+# The neighbors are RU 1 and 3
+names(OBJ_NBS[["4"]])
+
+# The unit with the largest neighbor is unit 3
+lengths(OBJ_NBS[["4"]])
+```
+
+The merge can be easily performed using the attribute table, and the individual borders of `RU_ID4` can be converted into raster layers and plotted ([Figure 2](#figure2))
+```{r ru_4_nbs_MERGE, message=FALSE, warning=FALSE, collapse=TRUE}
+# MERGE `RU_ID4` TO `RU_ID3` 
+atbl[which(RU_OBJ == 4), RU_OBJ := 3]
+
+#######################################################################
+
+# EMPTY RASTER TEMPLATES
+rBORD1 <- rstack[[1]]
+rBORD3 <- rstack[[1]]
+
+rBORD1[] <- NA
+rBORD3[] <- NA
+
+
+# BORDER OF `RU_ID4` WITH `RU_ID1`
+cell_number <- atbl$Cell[ OBJ_NBS[["4"]][["1"]] ]
+
+rBORD1[ cell_number ] <- 1
+
+
+# BORDER OF `RU_ID4` WITH `RU_ID3`
+cell_number <- atbl$Cell[ OBJ_NBS[["4"]][["3"]] ]
+
+rBORD3[ cell_number ] <- 1
+```
+
+<a id="figure2"></a>
+```{r ru_id4_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# RU_OBJ
+RU_obj_plot <- cv.2.rast(rstack, atbl$Cell, atbl$RU_OBJ)
+RU_obj_plot <- rasterToPolygons(RU_obj_plot, dissolve = TRUE)
+names(RU_obj_plot) <- "RU_obj_ID"
+
+# RAST TO POLYGONS
+rBORD1 <- rasterToPolygons(rBORD1, dissolve = TRUE)
+rBORD3 <- rasterToPolygons(rBORD3, dissolve = TRUE)
+
+rBORD1$dummy <- 1
+rBORD3$dummy <- 1
+
+# PLOT
+m <- mapview(hs, col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, layer.name = "hillshade", legend = FALSE, label = FALSE) + 
+  
+  mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry_(m)", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
+  
+  mapview(RU_obj_plot, layer.name = "MERGED", alpha.regions = 0.6, legend = FALSE, zcol = "RU_obj_ID", popup = FALSE) +
+  
+  mapview(rID_4, layer.name = "RU_ID4", alpha.regions = 1, col.regions = "red", popup = FALSE, label = "4") + 
+  
+  mapview(rBORD1, layer.name = "BORDER_ID1", alpha.regions = 1, col.regions = "gray50", popup = FALSE, label = "") +
+  
+  mapview(rBORD3, layer.name = "BORDER_ID3", alpha.regions = 1, col.regions = "green", popup = FALSE, label = "")
+
+m@map %>%
+  hideGroup(c("MERGED")) %>%
+  addLayersControl(overlayGroups = c("MERGED", "RU_ID4", "BORDER_ID1", "BORDER_ID3"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** RU_ID4, RU-object 4; BORDER_ID1, border between RU-objects 4 and 1; BORDER_ID3, border between RU-objects 4 and 3; MERGED, RU-objects with objects 4 and 3 merged.</span></div>

@@ -15,7 +15,7 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 
 The following articles explain how to use how to use [scapesClassification](https://github.com/ghTaranto/scapesClassification) to classify marine seafloor structures, hereafter referred to as geomorphic management units (GMUs). 
 
-The GMU-classification will be presented in four separate articles:
+The GMU-classification will be presented in five separate articles:
 
 1. [Format input data](scapesClassification_02_1_DATA.html); 
 
@@ -23,7 +23,9 @@ The GMU-classification will be presented in four separate articles:
 
 3. [Local maxima on gridded data](scapesClassification_02_3_PKS.html); 
 
-4. [Independent objects on raster surfaces](scapesClassification_02_4_OBJ.html). 
+4. [Independent objects on raster surfaces](scapesClassification_02_4_OBJ.html);
+
+5. [Borders of raster objects](scapesClassification_02_5_OBJ2.html).
 
 <br />
 
@@ -115,10 +117,10 @@ m <-
   
   mapview(rstack[["bathymetry_exm"]], layer.name = "bathymetry(m)", col.regions = palRYB, legend = FALSE, alpha.regions = 0.5) +
   
-  mapview(ISU_shelf, alpha.regions = 1, col.regions = "#02343F", layer.name = "ISU-Shelf", popup = NULL, 
+  mapview(ISU_shelf, alpha.regions = 1, col.regions = "#1088a0", layer.name = "ISU-Shelf", popup = NULL, 
           label = "ISU-Shelf") +
   
-  mapview(ISU_slope, alpha.regions = 0.8, layer.name = "ISU-Slope", col.regions = "#F0EDCC", popup = NULL, 
+  mapview(ISU_slope, alpha.regions = 0.8, layer.name = "ISU-Slope", col.regions = "#cfc1af", popup = NULL, 
           label = "ISU-Slope")
   
 

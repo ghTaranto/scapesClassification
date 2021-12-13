@@ -7,6 +7,10 @@ body {
   font-size: large;
 }
 
+strong {
+  font-weight: 500;
+}
+
 h1,
 h2,
 h3,
@@ -23,6 +27,12 @@ h6,
   font-weight: 600;
   margin-top: 0px;
   margin: 0 0 0.4em 0;
+}
+
+h1,
+h2,
+.h1,
+.h2 {
   color: #cfad89;
 }
 

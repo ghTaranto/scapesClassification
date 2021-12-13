@@ -1,10 +1,10 @@
 ---
-title: "Independent objects on raster surfaces"
+title: "4.Independent objects on raster surfaces"
 author: "Gerald H. Taranto"
 date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Independent objects on raster surfaces}
+  %\VignetteIndexEntry{4.Independent objects on raster surfaces}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,9 @@ vignette: >
 knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
-## 1 Load data and libraries
+In this article we will classify prominent seamounts, banks and ridges as individual raster objects ([Figure 2](#figure2)) each characterized by a unique ID (or class). In a first phase, we will identify the core cells of independent relief unit objects (RU-objects) ([Figure 1](#figure1)). In a second phase, we will refine their borders ([Figure 2](#figure2)). 
+
+## 4.1 Load data and libraries
 
 We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html), [island shelf unit (ISU)](scapesClassification_02_2_ISU.html) and [local maxima on gridded data](scapesClassification_02_3_PKS.html):
 
@@ -68,7 +70,7 @@ palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
 gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
 ```
 
-#### ISU and peak class vectors
+### ISU and peak class vectors
 
 In order to be able to take into account previous classification steps, we add the ISU and the peak class vectors to the attribute table.
 
@@ -80,14 +82,7 @@ atbl$ISU <- ISU
 atbl$PKS <- PKS
 ```
 
-## 2 Relief Unit (RU)
-
-In the previous article we identified a set of local peaks within our study area ([local maxima on gridded data](scapesClassification_02_3_PKS.html)). In this article we will classify prominent seamounts, banks and ridges as individual raster objects ([Figure 2](#figure2)).
-## Raster objects
-
-The the different seamounts, banks and ridges existing in the study area will be identified as individual raster objects, each characterized by a unique ID (or class). In a first phase, we will identify the core cells of independent RU-objects ([Figure 1](#figure1)). In a second phase, we will refine the borders of RU-objects ([Figure 2](#figure2)). 
-
-## 2.1 RU-objects: core cells
+## 4.2 RU-objects: core cells
 
 The core of a prominent RU-object can be defined by areas contiguous and continuous to a peak with high BPI values (`local_bpi > 100`). We can use the function `cond.4.nofn()` to evaluate if these conditions exists around the peak cells found in the previous section (Core_ST1, [Figure 1](#figure1)). 
 
@@ -130,7 +125,7 @@ atbl$RU_core <- cond.4.nofn(atbl, nbs, nbsIndex = T,
 
 The condition `bathymetry > bathymetry[]` evaluates whether the bathymetry of the cell in evaluation is greater than the bathymetry of the focal cell (`[]`) or not.  See `?conditions` and focal cell conditions for more information. 
 
-## 2.1 Cores as raster objects
+### Cores as raster objects
 
 We can now consider each non-continuous core area as an independent RU-object. The function `anchor.seed()` can assign unique IDs to non-contiguous areas (RU_obj, [Figure 1](#figure1)). Details about how the function works are available as function documentation (`?anchor.seed`) and in the implementation section.
 
@@ -160,7 +155,7 @@ atbl$RU_obj <- anchor.seed(
 )
 ```
 
-#### Remove small objects
+### Remove small objects
 
 Our focus is set on large and prominent features, thus, we will exclude RU-objects characterized by core areas only having a few cells or by a low relevance at the scale of the study area. This can be achieved by removing objects with less than 10 cells `OR` with a median regional BPI value < 100 (Rm_IDs, [Figure 1](#figure1)). 
 
@@ -262,13 +257,13 @@ m@map %>%
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Core_ST1, core cell type1; Core_ST2, core cell type2; Rm_IDs, RU_obj removed because of their little relevance at the scale of our study; RU_obj, relief unit objects (clickable layer).</span></div>
 
 
-## 2.2 RU-objects: refine borders
+## 4.3 RU-objects: refine borders
 
 The set of rules of the previous section mostly aimed at defining the summit areas of RU-objects. We can now consider a second set of rules to include the non-summit areas of each RU-object ([Figure 2](#figure2)).
 
 We will use the same sets of rules we used to define [ISU-slopes](scapesClassification_02_2_ISU.html#isu---slope-cells). These rules can be combined into a single string using the `OR` operator (`|`): `"(regional_bpi>100|local_bpi>100|sd_bat>150)"`. Again we will take into account class contiguity and continuity using the function `cond.4.nofn()`. 
 
-#### RU-object class vector
+### RU-object class vector
 
 The class vector `atbl$RU_obj` present `r sum(!is.na(unique(atbl$RU_obj)))` unique values. Each value correspond to an RU-object. So if we would like to apply the above set of conditions to the RU-object number 5 we could do:
 ```{r refine_exmpl1, message=FALSE, warning=FALSE, eval=FALSE}
@@ -316,7 +311,7 @@ If we would like to apply the same set of conditions conditions to all RU-object
 
 At each iteration of the loop, the conditions are applied to an RU-object using the function `cond.4.nofn()`. Once all adjacent and continuous cells respecting the conditions are included into the RU-object, the loop moves into the next iteration. Note that this implementation do not allow for a homogeneous growth of all the different objects. In fact, only when one object stops to grow, the next object is considered. At times, it could be more useful to have objects growing in a more homogeneous way. In hte next section we will show how this can be achieved while we will compute the new borders of RU-objects. 
 
-#### Homogeneous growth 
+### Homogeneous growth 
 
 In order to grant a homogeneous growth of all the different RU-objects we will use the function `cond.4.nofn()` with the argument `max.iter=1`, a for loop and a while loop: 
 
@@ -370,7 +365,7 @@ while (ITR<15) {
 }
 ```
 
-#### Fill classification holes
+### Fill classification holes
 
 Finally, we will assume that if a raster cell is surrounded by an RU-object, then it is part of that object. We define a cell as surrounded if 60% of its neighbors belong to the RU-object. 
 
@@ -442,7 +437,7 @@ m@map %>%
 ```
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** RU_obj2, relief unit objects with refined borders (clickable layer).</span></div>
 
-## 2.3 RU-objects: class vectors
+## 4.4 RU-objects: class vectors
 
 The class vectors `atbl$RU_obj` and `atbl$RU_obj2` can be saved as `*.RDS` files.
 
