@@ -19,7 +19,7 @@ In the previous article we identified the first geomorphic management unit (GMU)
 
 We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html) and [island shelf unit (ISU)](scapesClassification_02_2_ISU.html):
 
-```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
 # LOAD LIBRARIES
 library(raster)
 library(scapesClassification)

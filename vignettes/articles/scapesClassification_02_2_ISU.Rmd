@@ -19,7 +19,7 @@ We can start our GMUs classification with the island shelf unit (ISU). The ISU c
 
 First, We will load the required libraries and data into the workspace. These steps were explained in the [previous article](scapesClassification_02_1_DATA.html): 
 
-```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
 # LOAD LIBRARIES
 library(raster)
 library(scapesClassification)

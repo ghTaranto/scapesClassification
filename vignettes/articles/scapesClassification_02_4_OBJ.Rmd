@@ -19,7 +19,7 @@ In this article we will classify prominent seamounts, banks and ridges as indivi
 
 We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html), [island shelf unit (ISU)](scapesClassification_02_2_ISU.html) and [local maxima on gridded data](scapesClassification_02_3_PKS.html):
 
-```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
 # LOAD LIBRARIES
 library(raster)
 library(scapesClassification)

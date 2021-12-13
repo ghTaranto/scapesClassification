@@ -17,7 +17,7 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 
 We will start by loading the required libraries and data into the workspace. These steps were explained in the previous articles: [format input data](scapesClassification_02_1_DATA.html) and [independent objects on raster surfaces](scapesClassification_02_4_OBJ.html):
 
-```{r loadLD, message=FALSE, warning=FALSE, collapse=TRUE}
+```{r loadLD, message=FALSE, warning=FALSE, collapse=TRUE, class.source = 'fold-hide'}
 # LOAD LIBRARIES
 library(raster)
 library(scapesClassification)
