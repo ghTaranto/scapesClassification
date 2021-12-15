@@ -1,0 +1,143 @@
+---
+title: "1.Raster surfaces"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+resource_files:
+  - man/figures/cells2.png
+vignette: >
+  %\VignetteIndexEntry{1.Raster surfaces}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+[`Raster*`](https://rspatial.org/raster/spatial/4-rasterdata.html) objects are central to `(scapes)Classifications`. They define the area over which classifications are performed and provide the spatial data users deem important to build their classification rules. These data can be categorical, continuous or derive from previous classifications. 
+
+Classification rules evaluate to true or false. Raster cells are classified when classification rules are true. Users can not only determine what rules to implement and what data to use, but also what pool of raster cells have to be evaluated at each time and in what order. 
+
+## Focal, test cell and neighborhoods
+Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. `cell value > threshold`) or when we evaluate at what locations a shapefile overlap our raster. 
+
+In other cases it can be more fruitful to perform targeted evaluations. For instance, we might want to evaluate classification rules only for cells at specific positions on the raster surface. Imagine we have a raster cell that has already been classified and we want to evaluate if its neighboring cells belong to the same class based on some rule. 
+
+
+let's consider that we have an island shapefile form which we can derive what raster cells represent land positions (see [working example](https://ghtaranto.github.io/scapesClassification/articles/scapesClassification_02_2_ISU.html)). 
+
+
+```{r rast_matrix, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE}
+library(gifski)
+library(ggplot2)
+library(reshape2)
+
+fc_tc <- function(FC){
+  
+  m  <- matrix(1:49,nrow = 7, ncol = 7, byrow = TRUE)
+  # FC <- 25
+  
+  r   <- raster::raster(m)
+  r[] <- NA
+  
+  FCN <- scapesClassification::nbg8(7,7)[[as.character(FC)]] 
+  
+  # ORDER PLOTS
+  f <- "forestgreen"
+  r <- "firebrick"
+  
+  ord <- c(5,8,7,6,4,1,2,3)
+  cls <- c(f,f,f,r,r,r,r,r)
+  FCN <- FCN[ord]
+  
+  for(i in 1:length(FCN)){
+    
+    r   <- raster::raster(m)
+    r[] <- NA
+    
+    TC <- FCN[i]
+    
+    r[ FC ]  <- 0
+    r[ TC ]  <- 1
+    
+    r_long <- melt(raster::as.matrix(r))
+    
+    r_long$label <- as.character(NA)
+    r_long$label[which(r_long$value == 0)] <- "FC"
+    r_long$label[which(r_long$value == 1)] <- "TC"
+    r_long$value <- as.factor(r_long$value)
+    
+    tc_cord <- r_long[which(r_long$value == 1), c("Var1", "Var2")]
+    
+    x0 <- tc_cord$Var1 - 1.5
+    x1 <- tc_cord$Var1 + 1.5
+    y0 <- tc_cord$Var2 - 1.5
+    y1 <- tc_cord$Var2 + 1.5
+    
+    if(i == 1){
+      r_long$pts <- "transparent"
+    } else {
+      r_long$pts <- pts
+    }
+    
+    p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+      geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+      coord_fixed(ratio=1) + 
+      geom_text(aes(label=label), color = "white", family=c("serif"), size=9) + 
+      scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+      geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) + 
+      geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+      geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+      theme_void()
+    
+    print(p)
+    
+    pts <- r_long$pts
+    pts[which(r_long$value==1)] <- cls[i]
+  }
+  
+  r_long$value[which(r_long$value == 1)] <- NA
+  r_long$value[which(r_long$pts == f | r_long$value == 0)] <- 1
+  
+  r_long$pts <- pts
+  r_long$label[which(r_long$label == "TC")] <- NA
+  
+  p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+    geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+    coord_fixed(ratio=1) + 
+    geom_text(aes(label=label), color = "white", family=c("serif"), size=9) +
+    scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+    geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) +
+    # geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+    geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+    theme_void()
+  
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+}
+
+gifski::save_gif(fc_tc(25), "fc_tc.gif", delay = 0.7, width = 800, 
+         height = 800, progress = FALSE, loop = 5)
+```
+
+```{r gif, message=FALSE, warning=FALSE, echo=FALSE, out.width="600px", fig.align='center'}
+knitr::include_graphics("fc_tc.gif")
+```
+
+
+The most basic information all rasters have is the position of each raster cell in space, and how individual cells spatially relate with each other. This information is of key importance 
+
+
+`(scapes)Classifications` are performed on raster surfaces. Rasters are made up of a matrix of pixels (also called cells), each corresponding to a specific geographic location.
+
+`(scapes)Classifications` proceed classifying raster cells based on sets of classification rules that evaluate to true or false.  These conditions can be :
+
+* The value of the raster cell;
+
+* Value comparisons among the cell being tested and its neighborhood;  
+
+* Spatial relationships between classes. 

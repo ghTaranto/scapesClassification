@@ -61,9 +61,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li class="dropdown-header">Geomorphic management units (GMUs)</li>
+<li class="dropdown-header">Implementation</li>
     <li>
-      <a href="articles/scapesClassification_02_0_GMU.html">0. Overview</a>
+      <a href="articles/scapesClassification_01_1_FormatInputs.html">1. Format inputs</a>
     </li>
   </ul>
 </li>
@@ -118,28 +118,47 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-
 <div class="section level1">
-<div class="page-header"><h1 id="scapesclassification-">scapesClassification <img src="reference/figures/logo.png" align="right" alt="" width="200" style="border:0.5rem solid transparent"><a class="anchor" aria-label="anchor" href="#scapesclassification-"></a>
+<div class="page-header"><h1 id="scapesclassification-">scapesClassification <img src="reference/figures/logo.png" align="right" width="200" style="padding: 0 0 10px 15px"><a class="anchor" aria-label="anchor" href="#scapesclassification-"></a>
 </h1></div>
-<p><a href="https://github.com/ghTaranto/scapesClassification" title="GitHub repository" class="external-link"><em>scapesClassification</em></a> is an R-package for the classification of seascapes, landscapes and other geo-spaces based on user-defined conditions. It allows users to translate task-oriented views of spaces and of geographic objects into computer representations.</p>
+<p>The R-package <code>scapesClassification</code> is designed to translate users’ mental models of seascapes, landscapes and, more generally, of geo-spaces into computer representations (classifications). Spaces and geographic objects are classified with user-defined rules taking into account spatial data as well as spatial relationships among different classes and objects.</p>
+<div class="section level2">
+<h2 id="raster-surfaces-and-objects">Raster surfaces and objects<a class="anchor" aria-label="anchor" href="#raster-surfaces-and-objects"></a>
+</h2>
+<ul>
+<li>(scapes)Classifications are performed on raster surfaces. The suit of available functions can be used to segment the raster space and to identify distinct raster objects (i.e., distinct groups of raster cells, each having a unique ID).</li>
+</ul>
 </div>
-<div class="section level1">
-<h1 id="how-does-scapesclassification-work">How does <em>scapesClassification</em> work?<a class="anchor" aria-label="anchor" href="#how-does-scapesclassification-work"></a>
-</h1>
-<p>Geo-spaces are classified using sets of user-defined conditions. These sets of conditions, presented in the form of <a href="https://en.wikipedia.org/wiki/Conditional_(computer_programming)" title="Wikipedia definition" class="external-link">conditional statements</a>, can be applied simultaneously or sequentially. The second alternative is generally preferred. In fact, the rationale that guided the design of <em>scapesClassification</em> is better implemented considering multi-step classification processes:</p>
-<ol style="list-style-type: decimal">
-<li><p>Geographic objects and segments of space can be identified by a unique class (or set of classes);</p></li>
-<li><p>Generally, it is easier to identify attributes that are distinctive of a portion of a class rather then identify its full range of attributes at once;</p></li>
-<li><p>Thus, distinctive attributes can be used to map an initial set of locations to a class. These locations are hereafter referred to as <strong><em>anchor locations</em></strong>;</p></li>
-<li><p>Then, it becomes possible to map a location to a class not only considering its intrinsic attributes, but also its spatial relationships with anchor locations;</p></li>
-<li><p>In particular, <em>class contiguity</em> and <em>class continuity</em> can be considered;</p></li>
-<li><p><strong><em>Class contiguity.</em></strong> Qualitative and/or quantitative conditions define the membership of a location to a class only if they occur in positions considered adjacent to a specific class;</p></li>
-<li><p><strong><em>Class continuity.</em></strong> When two adjacent locations are assigned to the same class using contiguity conditions, these conditions can be re-applied at positions neighboring the newly classified locations;</p></li>
-<li><p>Distinct classes can be identified repeating the above process and considering the relationships expected to exist among classified and unclassified locations.</p></li>
-</ol>
+<div class="section level2">
+<h2 id="key-ideas">Key ideas<a class="anchor" aria-label="anchor" href="#key-ideas"></a>
+</h2>
+<ul>
+<li><p>Landscapes and seascapes tend to have prominent features easy to identify. These features can be associated to a group of raster cells (<strong>anchor cells</strong>) and can be used to initialize a classification process;</p></li>
+<li><p>Classification rules can take into account spatial relationships, i.e., where a segment of space or an object is expected to be in relation to anchor cells or to other objects;</p></li>
+<li><p>Classification rules can also take into account multi-layer gridded data; objects and segments can be defined based on a combination of data-driven rules and spatial relationships.</p></li>
+</ul>
 </div>
-
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the released version of <code>scapesClassification</code> from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"scapesClassification"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<p>And the development version from <a href="https://github.com/ghTaranto/scapesClassification" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ghTaranto/scapesClassification"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div style="color-background: #1088a0;">
+<h2 id="usage-and-documentation">Usage and documentation</h2>
+<p>A general overview of the package is available in <a href="https://ghtaranto.github.io/scapesClassification/index.html">Github Pages</a>:</p>
+<ul>
+<li><p>Implementation</p></li>
+<li><p><a href="file:///E:/Documents/GeraldTaranto/Phd/ATLAS/Reports_Papers/GMU/Rcodes/Git/scapesClassification/docs/articles/scapesClassification_02_0_GMU.html">Working example</a></p></li>
+<li><p><a href="https://ghtaranto.github.io/scapesClassification/reference/index.html">Functions</a></p></li>
+</ul>
+</div>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

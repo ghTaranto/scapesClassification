@@ -1,50 +1,66 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# scapesClassification <img src="man/figures/logo.png" align="right" alt="" width="200" style="border:0.5rem solid transparent" />
+# scapesClassification <img src="man/figures/logo.png" align="right" width="200" style="padding: 0 0 10px 15px" />
 
-[*scapesClassification*](https://github.com/ghTaranto/scapesClassification "GitHub repository")
-is an R-package for the classification of seascapes, landscapes and
-other geo-spaces based on user-defined conditions. It allows users to
-translate task-oriented views of spaces and of geographic objects into
-computer representations.
+The R-package `scapesClassification` is designed to translate users’
+mental models of seascapes, landscapes and, more generally, of
+geo-spaces into computer representations (classifications). Spaces and
+geographic objects are classified with user-defined rules taking into
+account spatial data as well as spatial relationships among different
+classes and objects.
 
-# How does *scapesClassification* work?
+## Raster surfaces and objects
 
-Geo-spaces are classified using sets of user-defined conditions. These
-sets of conditions, presented in the form of [conditional
-statements](https://en.wikipedia.org/wiki/Conditional_\(computer_programming\) "Wikipedia definition"),
-can be applied simultaneously or sequentially. The second alternative is
-generally preferred. In fact, the rationale that guided the design of
-*scapesClassification* is better implemented considering multi-step
-classification processes:
+  - (scapes)Classifications are performed on raster surfaces. The suit
+    of available functions can be used to segment the raster space and
+    to identify distinct raster objects (i.e., distinct groups of raster
+    cells, each having a unique ID).
 
-1.  Geographic objects and segments of space can be identified by a
-    unique class (or set of classes);
+## Key ideas
 
-2.  Generally, it is easier to identify attributes that are distinctive
-    of a portion of a class rather then identify its full range of
-    attributes at once;
+  - Landscapes and seascapes tend to have prominent features easy to
+    identify. These features can be associated to a group of raster
+    cells (**anchor cells**) and can be used to initialize a
+    classification process;
 
-3.  Thus, distinctive attributes can be used to map an initial set of
-    locations to a class. These locations are hereafter referred to as
-    ***anchor locations***;
+  - Classification rules can take into account spatial relationships,
+    i.e., where a segment of space or an object is expected to be in
+    relation to anchor cells or to other objects;
 
-4.  Then, it becomes possible to map a location to a class not only
-    considering its intrinsic attributes, but also its spatial
-    relationships with anchor locations;
+  - Classification rules can also take into account multi-layer gridded
+    data; objects and segments can be defined based on a combination of
+    data-driven rules and spatial relationships.
 
-5.  In particular, *class contiguity* and *class continuity* can be
-    considered;
+## Installation
 
-6.  ***Class contiguity.*** Qualitative and/or quantitative conditions
-    define the membership of a location to a class only if they occur in
-    positions considered adjacent to a specific class;
+You can install the released version of `scapesClassification` from
+[CRAN](https://CRAN.R-project.org) with:
 
-7.  ***Class continuity.*** When two adjacent locations are assigned to
-    the same class using contiguity conditions, these conditions can be
-    re-applied at positions neighboring the newly classified locations;
+``` r
+install.packages("scapesClassification", dependencies = TRUE)
+```
 
-8.  Distinct classes can be identified repeating the above process and
-    considering the relationships expected to exist among classified and
-    unclassified locations.
+And the development version from
+[GitHub](https://github.com/ghTaranto/scapesClassification) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ghTaranto/scapesClassification", dependencies = TRUE)
+```
+
+<div style="color-background: #1088a0;">
+
+## Usage and documentation
+
+A general overview of the package is available in [Github
+Pages](https://ghtaranto.github.io/scapesClassification/index.html):
+
+  - Implementation
+
+  - [Working
+    example](file:///E:/Documents/GeraldTaranto/Phd/ATLAS/Reports_Papers/GMU/Rcodes/Git/scapesClassification/docs/articles/scapesClassification_02_0_GMU.html)
+
+  - [Functions](https://ghtaranto.github.io/scapesClassification/reference/index.html)
+
+</div>

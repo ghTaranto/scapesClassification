@@ -61,9 +61,9 @@ navbar:
     impl:
       text: Implementation
       menu:
-        - text: Geomorphic management units (GMUs)
-        - text: 0. Overview
-          href: articles/scapesClassification_02_0_GMU.html
+        - text: Implementation
+        - text: 1. Format inputs
+          href: articles/scapesClassification_01_1_FormatInputs.html
     workex:
       text: Working example
       menu:
