@@ -2,44 +2,80 @@
 % Please edit documentation in R/formatInputs.R
 \name{attTbl}
 \alias{attTbl}
-\title{Raster Object to Data Frame}
+\title{Attribute table}
 \usage{
 attTbl(rstack, var_names = NULL)
 }
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{var_names}{character vector, re-name the variables of the
-\code{Raster*} object in the \code{data.frame}.}
+\item{var_names}{character vector, names of variables used to store the
+values of the layers of the \code{Raster*} object.}
 }
 \value{
 data.frame
 }
 \description{
-Returns the attribute table (\code{data.frame}) used by other
-\code{scapesClassification} functions. Each row corresponds to a cell on the
-\code{Raster*} object.
+Converts a \code{Raster*} object into an attribute table (\code{data.frame}).
 }
 \details{
-Returns a \code{data.frame} with a number of columns equal to the
-number of layers in \code{rstack} plus one and with a maximum number of
-rows equal to the number of cells on \code{rstack}. Its first column, named
-\code{'Cell'}, refers to positions on the \code{Raster*} object with
-complete cases, i.e., raster cells having a value for every layer in the
-stack.
+Attribute tables come with a column named \strong{\code{"Cell"}} which
+stores raster cell numbers and associate each row of the attribute table
+with a cell of the raster object. Each of the remaining columns stores the
+values of a layer of the \code{Raster*} object. Note that only raster cells
+having no missing value in any layer (\strong{complete cases}) are included in
+the attribute table.
 }
 \note{
-The attribute table contains only complete cases, i.e., raster cells
+\strong{Attribute table contains only complete cases}, i.e., raster cells
 having a value for every layer in the stack.
 }
 \examples{
-## r1, raster with cell numbers as values
-r1 <- raster::raster(matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE))
+library(ggplot2)
+library(reshape2)
+library(raster)
 
-## r2, raster with missing values in cell numbers 1 and 2
-r2 <- raster::raster(matrix(1, nrow = 3, ncol = 4, byrow = TRUE))
-r2[c(1,2)] <- NA
+## CREATE A DUMMY RASTER ##
+r <- raster(
 
-attTbl(raster::stack(r1,r2))
-attTbl(raster::stack(r1,r2), var_names = c("var_r1", "var_r2"))
+  matrix(c(NA,100,100,NA,100,100,0,0,0),
+         nrow = 3,
+         ncol = 3,
+         byrow = TRUE) )
+
+
+## VISUALIZE RASTER CELL NUMBERS ##
+m <- matrix(1:9, nrow=3, ncol=3, byrow = TRUE)
+
+m <- t(m)[,nrow(m):1]
+m <- melt(m, value.name = "cell")
+
+ggplot(m, aes(x=Var1, y=Var2)) +
+  geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
+  coord_fixed(ratio=1) +
+  geom_text(aes(label=cell), color = "white", family=c("serif"), size=8) +
+  theme_void()
+
+
+## VISUALIZE RASTER DUMMY LAYER ##
+r_plot <- as.matrix(r)
+r_plot <- t(r_plot)[,nrow(r_plot):1]
+r_plot <- melt(r_plot, value.name = "dummy")
+
+r_plot$nas <- NA
+r_plot$nas[which(is.na(r_plot$dummy))] <- 'NA'
+
+
+ggplot(r_plot, aes(x=Var1, y=Var2)) +
+  geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
+  coord_fixed(ratio=1) +
+  geom_text(aes(label=dummy), color = "white", family=c("serif"), size=8, na.rm=TRUE) +
+  geom_text(aes(label=nas), color = "red", family=c("serif"), size=8, fontface='bold', na.rm=TRUE) +
+  theme_void()
+
+
+## VISUALIZE ATTRIBUTE TABLE ##
+
+# Note that cells 1 and 4 have missing values and therefore are not included in the table
+attTbl(r, var_names = c("dummy_var"))
 }

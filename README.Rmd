@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 The R-package `scapesClassification` is designed to translate users' mental models of seascapes, landscapes and, more generally, of geo-spaces into computer representations (classifications). Spaces and geographic objects are classified with user-defined rules taking into account spatial data as well as spatial relationships among different classes and objects.
 
 ## Raster surfaces and objects
-* (scapes)Classifications are performed on raster surfaces. The suit of available functions can be used to segment the raster space and to identify distinct raster objects (i.e., distinct groups of raster cells, each having a unique ID).
+* `(scapes)Classifications` are performed on raster surfaces. The suit of available functions can be used to segment the raster space and to identify distinct raster objects (i.e., distinct groups of raster cells, each having a unique ID).
 
 ## Key ideas
 * Landscapes and seascapes tend to have prominent features easy to identify. These features can be associated to a group of raster cells (**anchor cells**) and can be used to initialize a classification process;
@@ -48,6 +48,6 @@ A general overview of the package is available in [Github Pages](https://ghtaran
 
 * Implementation
 
-* [Working example](file:///E:/Documents/GeraldTaranto/Phd/ATLAS/Reports_Papers/GMU/Rcodes/Git/scapesClassification/docs/articles/scapesClassification_02_0_GMU.html)
+* [Working example](https://ghtaranto.github.io/scapesClassification/articles/scapesClassification_02_0_GMU.html)
 
 * [Functions](https://ghtaranto.github.io/scapesClassification/reference/index.html)

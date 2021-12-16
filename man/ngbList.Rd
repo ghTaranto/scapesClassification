@@ -2,58 +2,66 @@
 % Please edit documentation in R/formatInputs.R
 \name{ngbList}
 \alias{ngbList}
-\title{Eight Neighbors for Complete Cases}
+\title{List of neighborhoods}
 \usage{
 ngbList(rstack, rNumb = FALSE, attTbl = NULL)
 }
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{rNumb}{logic, the 8-neighbors of each cell are identified by their row
-number in the attribute table (indicated by the argument \code{attTbl}).
-For instance, if cell 3 is located in row 2 it will be identified by the
-number 2.}
+\item{rNumb}{logic, the neighbors of a raster cell are identified by cell
+numbers if \code{rNumb=FALSE} or by row numbers if \code{rNumb=TRUE}. If
+the argument is true the argument \code{attTbl} cannot be NULL.}
 
 \item{attTbl}{data.frame, the attribute table returned by the function
-\code{\link{attTbl}}. It is required only if the argument \code{rNumb =
-  TRUE}}
+\code{\link{attTbl}} (see \code{\link{attTbl}}). It is required only if the
+argument \code{rNumb=TRUE}.}
 }
 \value{
 Named list of integer vectors.
 }
 \description{
-The function \code{ngbList} returns the list of 8-neighbors for all the cells
-of \code{rstack} with complete cases (i.e., cells without any missing value).
-Neighbors are identified by their cell numbers if the argument \code{rNumb =
-FALSE} or by their positions in the attribute table (i.e. row numbers) if the
-argument \code{rNumb = TRUE} and the argument \code{attTbl != NULL} (see
-\code{\link{attTbl}}). \cr\cr The list of 8-neighbors is named. When
-\code{rNumb = FALSE}, names identify the cell number for which the
-neighborhood was computed. When \code{rNumb = TRUE}, names refers to row
-indices. For instance, the name \code{"6"} can be used to call the
-neighborhood of cell number 6 when \code{rNumb = FALSE}. However, when
-\code{rNumb = TRUE}, the name \code{"6"} can be used to call the neighborhood
-of the raster cell stored in the 6th row of the attribute table
-\code{attTbl}.\cr\cr When the argument \code{rNumb = TRUE}, only neighbors
-with complete cases are considered, i.e. if a neighbor position correspond to
-a raster cell with one or more missing values it is not considered.
-Therefore, if a cell has all neighboring cells with missing values, the
-8-neighbor vector of that cell will have zero-length.
+Excluding cells on the edge of a raster, a cell with coordinates \code{(x,
+y)} has 8 neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
+\code{(x±1, y±1)}. The function computes the neighborhoods of all the cells
+of a \code{Raster*} object. Cell with missing values are omitted.
 }
 \details{
-The names of the list correspond to focal cells
-(\code{as.character}), the integer vectors within the list contain the
-8-neighbors of each focal cell. When the argument \code{rNumb = FALSE},
-both focal cells and neighbors are identified by cell numbers. When the
-argument \code{rNumb = TRUE}, both focal cells and neighbors are identified
-by row numbers.
+\strong{Neighborhoods (\code{rNumb=FALSE})}
+\itemize{
+\item Neighbors are identified by their cell numbers if the argument
+\code{rNumb=FALSE}.
+}
+
+\strong{Neighborhoods (\code{rNumb=TRUE})}
+\itemize{
+\item Neighbors are identified by their positions in the attribute table (i.e.
+row numbers) if the argument \code{rNumb=TRUE} and the argument
+\code{attTbl!=NULL} (see \code{\link{attTbl}});
+\item When the argument \code{rNumb = TRUE}, neighbors with one or more missing
+values are omitted;
+\item \code{(scapes)Classifications} are faster when the list of neighborhoods
+uses row numbers.
+}
+
+\strong{Neighborhood names}
+
+The list of neighborhoods is named.
+\itemize{
+\item When \code{rNumb = FALSE}, the element name identify the raster cell to
+which the neighborhood refers. For instance, the element with name
+\code{"6"} stores the neighborhood of the raster cell \code{6}.
+\item When \code{rNumb = TRUE}, the element name identify the row number to
+which the neighborhood refers. For instance, the element with name
+\code{"6"} stores the neighborhood of the raster cell located in the 6th
+row of the attribute table (see \code{\link{attTbl}}).\cr
+}
 }
 \note{
 There is a correspondence between the indices of the attribute table
-(\code{\link{attTbl}}) and the indices of the 8-neighbors list. For
-instance, the first element in the 8-neighbors list corresponds to the
-neighbors of the cell whose values are stored in the first row of the
-attribute table.
+(\code{\link{attTbl}}) and the indices of the list of neighborhoods. For
+instance, the first element of the list corresponds to the neighbors of the
+cell stored in the first row of the attribute table.
 }
 \examples{
 ## r1, raster with cell numbers as values
