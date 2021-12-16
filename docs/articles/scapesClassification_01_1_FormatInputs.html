@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1.Raster surfaces • scapesClassification</title>
+<title>Format inputs • scapesClassification</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="1.Raster surfaces">
+<meta property="og:title" content="Format inputs">
 <meta property="og:description" content="scapesClassification">
 <meta property="og:image" content="https://ghtaranto.github.io/scapesClassification/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -56,7 +56,7 @@
   <ul class="dropdown-menu" role="menu">
 <li class="dropdown-header">Implementation</li>
     <li>
-      <a href="../articles/scapesClassification_01_1_FormatInputs.html">1. Format inputs</a>
+      <a href="../articles/scapesClassification_01_1_FormatInputs.html">Format inputs</a>
     </li>
   </ul>
 </li>
@@ -112,7 +112,7 @@
       </header><script src="scapesClassification_01_1_FormatInputs_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>1.Raster surfaces</h1>
+      <h1 data-toc-skip>Format inputs</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
             <h4 data-toc-skip class="date">Thu 16, December, 2021</h4>
@@ -176,7 +176,7 @@
 <span class="va">at</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r</span>, var_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dummy_var"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># NEIGHBORHOODS - CELL NUMBERS</span>
-<span class="va">nbs_CELL</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span>, rNumb <span class="op">=</span> <span class="cn">FALSE</span>, attTbl <span class="op">=</span> <span class="va">at</span><span class="op">)</span>
+<span class="va">nbs_CELL</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span>, rNumb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
 <span class="co"># NEIGHBORHOODS - ROW NUMBERS</span>
 <span class="va">nbs_ROW</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span>, rNumb <span class="op">=</span> <span class="cn">TRUE</span>, attTbl <span class="op">=</span> <span class="va">at</span><span class="op">)</span></code></pre></div>

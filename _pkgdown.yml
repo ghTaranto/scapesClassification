@@ -62,7 +62,7 @@ navbar:
       text: Implementation
       menu:
         - text: Implementation
-        - text: 1. Format inputs
+        - text: Format inputs
           href: articles/scapesClassification_01_1_FormatInputs.html
     workex:
       text: Working example
