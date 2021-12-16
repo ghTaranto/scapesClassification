@@ -7,14 +7,12 @@ Authors@R:
            role = c("aut", "cre"),
            email = "gh.taranto@gmail.com",
            comment = c(ORCID = "0000-0002-7968-1982"))
-Description: Classification of seascapes or landscapes using environmental 
-  and geographic data stored as Raster* objects. The classification is 
-  implemented using a stepwise procedure. At each step a portion of the 
-  'scape' is classified based on user defined conditions, local spatial 
-  statistics and/or spatial contiguity between classes. The portion of 
-  'scape' classified can be considered in the next classification step. 
-  User defined conditions can be absolute, relative to the focal cell or 
-  relative to the focal neighbourhood.
+Description: The R-package scapesClassification is designed to translate
+  users' mental models of seascapes, landscapes and, more generally, of
+  geo-spaces into computer representations (classifications). Spaces and
+  geographic objects are classified with user-defined rules taking into account
+  spatial data as well as spatial relationships among different classes and
+  objects.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -36,3 +34,5 @@ Imports:
     sp,
     stringr
 VignetteBuilder: knitr
+URL: https://github.com/ghTaranto/scapesClassification
+BugReports: https://github.com/ghTaranto/scapesClassification/issues
