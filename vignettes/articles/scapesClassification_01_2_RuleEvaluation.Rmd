@@ -1,0 +1,305 @@
+---
+title: "Rule evaluation"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rule evaluation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE, out.width="600px", fig.align='center', message=FALSE, warning=FALSE)
+```
+
+
+## Vectorized evaluation
+Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. `cell value > threshold`) or when we evaluate at what locations a shapefile overlap our raster (e.g., functions `cond.4.all()` and `anchor.svo()`). 
+
+## Focal evaluation
+In other cases it can be more fruitful to perform targeted evaluations evaluating classification rules only for cells at specific positions on a raster. These positions can be identified based on their adjacency to particular raster cells that we will call **anchor cells**. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial vector objects.  
+
+### Class contiguity
+An example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to the same class ([Figure 1](#figure1)). 
+
+<a id="figure1"></a>
+```{r c_contiguity, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE}
+library(gifski)
+library(ggplot2)
+library(reshape2)
+
+fc_tc <- function(FC){
+  
+  m  <- matrix(1:49,nrow = 7, ncol = 7, byrow = TRUE)
+  # FC <- 25
+  
+  r   <- raster::raster(m)
+  r[] <- NA
+  
+  FCN <- scapesClassification::nbg8(7,7)[[as.character(FC)]] 
+  
+  # ORDER PLOTS
+  f <- "forestgreen"
+  r <- "firebrick"
+  
+  ord <- c(5,8,7,6,4,1,2,3)
+  cls <- c(f,f,f,r,r,r,r,r)
+  dta <- c(10,10,10,1,1,1,1,1)
+  FCN <- FCN[ord]
+  
+  r   <- raster::raster(m)
+  r[] <- NA
+  
+  r[FCN] <- dta
+  
+  r_long0 <- melt(raster::as.matrix(r))
+  dtaR <- r_long0$value
+  
+  r[] <- NA
+  r[ FC ] <- 0
+  r_long <- melt(raster::as.matrix(r))
+  r_long$label <- as.character(NA)
+  r_long$label[which(r_long$value == 0)] <- "FC"
+  r_long$value <- as.factor(r_long$value)
+  r_long$dtaR  <- dtaR
+  
+  p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+    geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+    coord_fixed(ratio=1) + 
+    geom_text(aes(label=label), color = "white", family=c("serif"), size=9) +
+    geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+    scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+    geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) +
+    theme_void()
+  
+  print(p)
+  print(p)
+  print(p)
+  
+  for(i in 1:length(FCN)){
+    
+    r   <- raster::raster(m)
+    r[] <- NA
+    
+    TC <- FCN[i]
+    
+    r[ FC ]  <- 0
+    r[ TC ]  <- 1
+    
+    r_long <- melt(raster::as.matrix(r))
+    
+    r_long$label <- as.character(NA)
+    r_long$label[which(r_long$value == 0)] <- "FC"
+    r_long$label[which(r_long$value == 1)] <- "TC"
+    r_long$value <- as.factor(r_long$value)
+    r_long$dtaR  <- dtaR
+    
+    tc_cord <- r_long[which(r_long$value == 1), c("Var1", "Var2")]
+    
+    x0 <- tc_cord$Var1 - 1.5
+    x1 <- tc_cord$Var1 + 1.5
+    y0 <- tc_cord$Var2 - 1.5
+    y1 <- tc_cord$Var2 + 1.5
+    
+    if(i == 1){
+      r_long$pts <- "transparent"
+    } else {
+      r_long$pts <- pts
+    }
+    
+    p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+      geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+      coord_fixed(ratio=1) + 
+      geom_text(aes(label=label), color = "white", family=c("serif"), size=9) + 
+      geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+      scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+      geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) + 
+      geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+      geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+      theme_void()
+    
+    print(p)
+    
+    pts <- r_long$pts
+    pts[which(r_long$value==1)] <- cls[i]
+  }
+  
+  r_long$value[which(r_long$value == 1)] <- NA
+  r_long$value[which(r_long$pts == f | r_long$value == 0)] <- 1
+  
+  r_long$pts <- pts
+  r_long$label[which(r_long$label == "TC")] <- NA
+  
+  p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+    geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+    coord_fixed(ratio=1) + 
+    geom_text(aes(label=label), color = "white", family=c("serif"), size=9) +
+    geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+    scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+    geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) +
+    # geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+    geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+    theme_void()
+  
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+}
+
+gifski::save_gif(fc_tc(25), "fc_tc.gif", delay = 0.8, width = 800, 
+                 height = 800, progress = FALSE, loop = TRUE)
+```
+
+```{r gif1, message=FALSE, warning=FALSE, echo=FALSE, out.width="600px", fig.align='center'}
+knitr::include_graphics("fc_tc.gif")
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Class contiguity evaluation**. Cells adjacent to the **focal cell (FC, in blue)** are being tested. **Test cells (TC, in yellow)** belong to the same class of the focal cell if `cell value > 1`. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. </span></div>
+
+* **Focal cell.** At turn, each anchor cell is treated as a focal cell. Cells in the neighborhood of a focal cell are considered adjacent to it and are evaluated against the classification rule(s). _In [Figure 1](#figure1) the focal cell is showed in blue and its neighborhood is showed by the blue rectangle._  
+
+* **Test cell.** The cell in the neighborhood of the focal cell that is being tested. _In [Figure 1](#figure1) the test cell is showed in yellow and its neighborhood is showed by the yellow rectangle._  
+
+* **Rule evaluation.** If the classification rule(s) evaluates to true, the test cell is classified, otherwise it is not. _In [Figure 1](#figure1) we considered a dummy classification rule `value > 1`; positive evaluation are showed by a green circle; negative evaluations are showed by a red circle._ 
+
+
+### Class discontiguity
+A second example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to a different class ([Figure 2](#figure2)). 
+
+<a id="figure2"></a>
+```{r c_discontiguity, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE}
+fc_tc <- function(FC){
+  
+  m  <- matrix(1:49,nrow = 7, ncol = 7, byrow = TRUE)
+  # FC <- 25
+  
+  r   <- raster::raster(m)
+  r[] <- NA
+  
+  FCN <- scapesClassification::nbg8(7,7)[[as.character(FC)]] 
+  
+  # ORDER PLOTS
+  f <- "forestgreen"
+  r <- "firebrick"
+  
+  ord <- c(5,8,7,6,4,1,2,3)
+  cls <- c(f,f,f,r,r,r,r,r)
+  dta <- c(10,10,10,1,1,1,1,1)
+  FCN <- FCN[ord]
+  
+  r   <- raster::raster(m)
+  r[] <- NA
+  
+  r[FCN] <- dta
+  
+  r_long0 <- melt(raster::as.matrix(r))
+  dtaR <- r_long0$value
+  
+  r[] <- NA
+  r[ FC ] <- 0
+  r_long <- melt(raster::as.matrix(r))
+  r_long$label <- as.character(NA)
+  r_long$label[which(r_long$value == 0)] <- "FC"
+  r_long$value <- as.factor(r_long$value)
+  r_long$dtaR  <- dtaR
+  
+  p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+    geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+    coord_fixed(ratio=1) + 
+    geom_text(aes(label=label), color = "white", family=c("serif"), size=9) +
+    geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+    scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+    geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) +
+    theme_void()
+  
+  print(p)
+  print(p)
+  print(p)
+  
+  for(i in 1:length(FCN)){
+    
+    r   <- raster::raster(m)
+    r[] <- NA
+    
+    TC <- FCN[i]
+    
+    r[ FC ]  <- 0
+    r[ TC ]  <- 1
+    
+    r_long <- melt(raster::as.matrix(r))
+    
+    r_long$label <- as.character(NA)
+    r_long$label[which(r_long$value == 0)] <- "FC"
+    r_long$label[which(r_long$value == 1)] <- "TC"
+    r_long$value <- as.factor(r_long$value)
+    r_long$dtaR  <- dtaR
+    
+    tc_cord <- r_long[which(r_long$value == 1), c("Var1", "Var2")]
+    
+    x0 <- tc_cord$Var1 - 1.5
+    x1 <- tc_cord$Var1 + 1.5
+    y0 <- tc_cord$Var2 - 1.5
+    y1 <- tc_cord$Var2 + 1.5
+    
+    if(i == 1){
+      r_long$pts <- "transparent"
+    } else {
+      r_long$pts <- pts
+    }
+    
+    p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+      geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+      coord_fixed(ratio=1) + 
+      geom_text(aes(label=label), color = "white", family=c("serif"), size=9) + 
+      geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+      scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+      geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) + 
+      geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+      geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+      theme_void()
+    
+    print(p)
+    
+    pts <- r_long$pts
+    pts[which(r_long$value==1)] <- cls[i]
+  }
+  
+  r_long$value[which(r_long$value == 1)] <- NA
+  r_long$value[which(r_long$pts == f)] <- 1
+  
+  r_long$pts <- pts
+  r_long$label[which(r_long$label == "TC")] <- NA
+  
+  p <- ggplot(r_long, aes(x=Var1, y=Var2)) +
+    geom_tile(aes(fill=value), colour="gray90", lwd=1.5, show.legend = FALSE) +
+    coord_fixed(ratio=1) + 
+    geom_text(aes(label=label), color = "white", family=c("serif"), size=9) +
+    geom_text(aes(label=dtaR), color = "gray", family=c("serif"), size=5, nudge_y = -0.3) +
+    scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+    geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) +
+    # geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1), fill = "transparent", color="goldenrod3", lwd = 1.5) + 
+    geom_point(aes(x=Var1, y=Var2, color= pts), size = 9) +  scale_colour_identity() +
+    theme_void()
+  
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+  print(p)
+}
+
+gifski::save_gif(fc_tc(25), "fc_tc2.gif", delay = 0.8, width = 800, 
+                 height = 800, progress = FALSE, loop = TRUE)
+```
+
+```{r gif2, message=FALSE, warning=FALSE, echo=FALSE, out.width="600px", fig.align='center'}
+knitr::include_graphics("fc_tc2.gif")
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Class discontiguity evaluation**. Cells adjacent to the **focal cell (FC, in blue)** are being tested. **Test cells (TC, in yellow)** belong to a user defined class if `cell value > 1`. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. </span></div>
+
+
+### Class continuity

@@ -95,8 +95,8 @@
     <dl><dt>rstack</dt>
 <dd><p><code>Raster*</code> object.</p></dd>
 <dt>var_names</dt>
-<dd><p>character vector, names of variables used to store the
-values of the layers of the <code>Raster*</code> object.</p></dd>
+<dd><p>character vector, names of the <code>Raster*</code> object layers
+in the attribute table. If <code>NULL</code> layers' names are used.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -108,7 +108,7 @@ values of the layers of the <code>Raster*</code> object.</p></dd>
 stores raster cell numbers and associate each row of the attribute table
 with a cell of the raster object. Each of the remaining columns stores the
 values of a layer of the <code>Raster*</code> object. Note that only raster cells
-having no missing value in any layer (<strong>complete cases</strong>) are included in
+having no missing value in no layer (<strong>complete cases</strong>) are included in
 the attribute table.</p>
     </div>
     <div id="note">

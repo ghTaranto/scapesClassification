@@ -64,6 +64,8 @@ navbar:
         - text: Implementation
         - text: Format inputs
           href: articles/scapesClassification_01_1_FormatInputs.html
+        - text: Rule evaluation
+          href: articles/scapesClassification_01_2_RuleEvaluation.html
     workex:
       text: Working example
       menu:
