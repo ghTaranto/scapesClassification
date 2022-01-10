@@ -9,8 +9,8 @@ attTbl(rstack, var_names = NULL)
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{var_names}{character vector, names of variables used to store the
-values of the layers of the \code{Raster*} object.}
+\item{var_names}{character vector, names of the \code{Raster*} object layers
+in the attribute table. If \code{NULL} layers' names are used.}
 }
 \value{
 data.frame
@@ -23,7 +23,7 @@ Attribute tables come with a column named \strong{\code{"Cell"}} which
 stores raster cell numbers and associate each row of the attribute table
 with a cell of the raster object. Each of the remaining columns stores the
 values of a layer of the \code{Raster*} object. Note that only raster cells
-having no missing value in any layer (\strong{complete cases}) are included in
+having no missing value in no layer (\strong{complete cases}) are included in
 the attribute table.
 }
 \note{

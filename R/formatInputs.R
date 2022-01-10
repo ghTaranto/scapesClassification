@@ -3,8 +3,8 @@
 #' Converts a \code{Raster*} object into an attribute table (\code{data.frame}).
 #'
 #' @param rstack \code{Raster*} object.
-#' @param var_names character vector, names of variables used to store the
-#'   values of the layers of the \code{Raster*} object.
+#' @param var_names character vector, names of the \code{Raster*} object layers
+#'   in the attribute table. If \code{NULL} layers' names are used.
 #'
 #' @return data.frame
 #'
@@ -12,7 +12,7 @@
 #'   stores raster cell numbers and associate each row of the attribute table
 #'   with a cell of the raster object. Each of the remaining columns stores the
 #'   values of a layer of the \code{Raster*} object. Note that only raster cells
-#'   having no missing value in any layer (**complete cases**) are included in
+#'   having no missing value in no layer (**complete cases**) are included in
 #'   the attribute table.
 #'
 #' @note **Attribute table contains only complete cases**, i.e., raster cells
@@ -96,23 +96,28 @@ attTbl <- function(rstack, var_names = NULL){
 
 #' List of neighborhoods
 #'
-#' Excluding cells on the edge of a raster, a cell with coordinates \code{(x,
-#' y)} has 8 neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
-#' \code{(x±1, y±1)}. The function computes the neighborhoods of all the cells
-#' of a \code{Raster*} object. Cell with missing values are omitted.
+#' Computes the neighborhoods of the cells of a \code{Raster*} object.
+#' Neighborhoods are not computed for cells with missing values.
 #'
 #' @param rstack \code{Raster*} object.
-#' @param rNumb logic, the neighbors of a raster cell are identified by cell
-#'   numbers if \code{rNumb=FALSE} or by row numbers if \code{rNumb=TRUE}. If
-#'   the argument is true the argument \code{attTbl} cannot be NULL.
+#' @param rNumb logic, the neighbors of a raster cell are identified by **cell
+#'   numbers (\code{rNumb=FALSE})** or by **row numbers (\code{rNumb=TRUE})**.
+#'   If true, the argument \code{attTbl} cannot be NULL.
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}} (see \code{\link{attTbl}}). It is required only if the
 #'   argument \code{rNumb=TRUE}.
 #'
+#' @encoding UTF-8
 #'
 #' @return Named list of integer vectors.
 #'
-#' @details **Neighborhoods (\code{rNumb=FALSE})**
+#' @details **Definition of neighborhood**
+#'
+#'   * A cell with coordinates \code{(x, y)} has 8 neighbors with coordinates:
+#'   \code{(x±1, y)},  \code{(x, y±1)} and \code{(x±1, y±1)}. Cells on the edge
+#'   of a raster have less than 8 neighbors.
+#'
+#'   **Neighborhoods (\code{rNumb=FALSE})**
 #'
 #'   * Neighbors are identified by their cell numbers if the argument
 #'   \code{rNumb=FALSE}.
@@ -120,8 +125,7 @@ attTbl <- function(rstack, var_names = NULL){
 #'   **Neighborhoods (\code{rNumb=TRUE})**
 #'
 #'   * Neighbors are identified by their positions in the attribute table (i.e.
-#'   row numbers) if the argument \code{rNumb=TRUE} and the argument
-#'   \code{attTbl!=NULL} (see \code{\link{attTbl}});
+#'   row numbers) if the argument \code{rNumb=TRUE};
 #'
 #'   * When the argument \code{rNumb = TRUE}, neighbors with one or more missing
 #'   values are omitted;
@@ -133,34 +137,117 @@ attTbl <- function(rstack, var_names = NULL){
 #'
 #'   The list of neighborhoods is named.
 #'
-#'   * When \code{rNumb = FALSE}, the element name identify the raster cell to
+#'   * When \code{rNumb = FALSE}, the element name identifies the raster cell to
 #'   which the neighborhood refers. For instance, the element with name
-#'   \code{"6"} stores the neighborhood of the raster cell \code{6}.
+#'   \code{"n"} stores the neighborhood of the raster cell \code{n}.
 #'
-#'   * When \code{rNumb = TRUE}, the element name identify the row number to
+#'   * When \code{rNumb = TRUE}, the element name identifies the row number to
 #'   which the neighborhood refers. For instance, the element with name
-#'   \code{"6"} stores the neighborhood of the raster cell located in the 6th
-#'   row of the attribute table (see \code{\link{attTbl}}).\cr
+#'   \code{"n"} stores the neighborhood of the raster cell located in the
+#'   \code{nth} row of the attribute table (\code{attTbl$Cell[n]}).
 #'
 #' @seealso [nbg8()], [attTbl()]
 #'
-#' @note There is a correspondence between the indices of the attribute table
-#'   (\code{\link{attTbl}}) and the indices of the list of neighborhoods. For
-#'   instance, the first element of the list corresponds to the neighbors of the
-#'   cell stored in the first row of the attribute table.
+#' @note
+#'   * There is always a correspondence between the indices of the attribute
+#'   table (\code{\link{attTbl}}) and the indices of the list of neighborhoods:
+#'   the 1st element of the list corresponds to the neighbors of the cell stored
+#'   in the 1st row of the attribute table; the 2nd element corresponds to the
+#'   2nd row; etc.
+#'
+#'   * There is a correspondence between the raster cell number and the indices
+#'   of the list of neighborhoods only when no missing value is present in the
+#'   Raster* object.
 #'
 #' @export
 #' @examples
-#' ## r1, raster with cell numbers as values
-#' r1 <- raster::raster(matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE))
+#' library(ggplot2)
+#' library(reshape2)
+#' library(raster)
 #'
-#' ## r2, raster with missing values in cell numbers 1 and 2
-#' r2 <- raster::raster(matrix(1, nrow = 3, ncol = 4, byrow = TRUE))
-#' r2[c(1,2)] <- NA
+#' ## CREATE A DUMMY RASTER AND COMPUTE ITS ATTRIBUTE TABLE##
+#' r <- raster(
+#'
+#'   matrix(c(NA,100,100,NA,100,100,0,0,0),
+#'          nrow = 3,
+#'          ncol = 3,
+#'          byrow = TRUE) )
+#'
+#' at <- attTbl(r, var_names = c("dummy_var"))
 #'
 #'
-#' ngbList(raster::stack(r1,r2))
-#' matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
+#' ## VISUALIZE RASTER CELL NUMBERS ##
+#' m <- matrix(1:9, nrow=3, ncol=3, byrow = TRUE)
+#' m <- t(m)[,nrow(m):1]
+#' m <- melt(m, value.name = "cell")
+#'
+#' ggplot(m, aes(x=Var1, y=Var2)) +
+#'   geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
+#'   coord_fixed(ratio=1) +
+#'   geom_text(aes(label=cell), color = "white", family=c("serif"), size=8) +
+#'   theme_void()
+#'
+#'
+#' ## VISUALIZE RASTER DUMMY LAYER ##
+#' r_plot <- as.matrix(r)
+#' r_plot <- t(r_plot)[,nrow(r_plot):1]
+#' r_plot <- melt(r_plot, value.name = "dummy")
+#' r_plot$nas <- NA
+#' r_plot$nas[which(is.na(r_plot$dummy))] <- 'NA'
+#'
+#' ggplot(r_plot, aes(x=Var1, y=Var2)) +
+#'   geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
+#'   coord_fixed(ratio=1) +
+#'   geom_text(aes(label=dummy), color = "white", family=c("serif"), size=8, na.rm=TRUE) +
+#'   geom_text(aes(label=nas), color = "red", family=c("serif"), size=8, fontface='bold', na.rm=TRUE) +
+#'   theme_void()
+#'
+#'
+#' ## NEIGHBORHOODS - CELL NUMBERS ##
+#'
+#' # Cells 1 and 4 are omitted because they are NAs
+#' nbs_CELL <- ngbList(r, rNumb = FALSE)
+#' nbs_CELL
+#'
+#'
+#' ## NEIGHBORHOODS - ROW NUMBERS ##
+#'
+#' # Cells 1 and 4 are omitted because they are NAs
+#' nbs_ROW <- ngbList(r, rNumb = TRUE, attTbl = at)
+#' nbs_ROW
+#'
+#' # Numbers in 'nbs_ROW' refer to row numbers
+#' # (e.g. number 1 refers to the cell #2)
+#' at$Cell[1]
+#'
+#' # (e.g. number 2 refers to the cell #3)
+#' at$Cell[2]
+#'
+#' # (e.g. number 5 refers to the cell #7)
+#' at$Cell[5]
+#'
+#'
+#' ## CONSIDER THE NEIGHBORHOOD OF CELL #2 ##
+#'
+#' # Cell #2 corresponds to the 1st element of both 'nbs_CELL' and 'nbs_ROW'
+#' # because raster cell 1 is an NA-cell
+#' r[1]
+#'
+#' # Neighborhood cell #2 corresponds to cells:
+#' nbs_CELL[1]
+#'
+#' # Neighborhood cell #2 corresponds to rows:
+#' nbs_ROW[1]
+#'
+#' # Rows can be converted to cell numbers
+#' at$Cell[ nbs_ROW[[1]] ]
+#'
+#' # Note that 'at$Cell[ nbs_ROW[[1]] ]' is not equal to 'nbs_CELL'
+#' identical( at$Cell[ nbs_ROW[[1]] ] , nbs_CELL[[1]] )
+#'
+#' # This is because raster cells 1 and 4 (NA-cells) are omitted in 'nbs_ROW'
+#' setdiff(nbs_CELL[[1]], at$Cell[ nbs_ROW[[1]] ])
+#' r[c(1,4)]
 
 
 ngbList <- function(rstack, rNumb = FALSE, attTbl = NULL){

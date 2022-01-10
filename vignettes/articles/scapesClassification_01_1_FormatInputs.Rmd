@@ -15,14 +15,15 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE, out.width="600px", fig.al
 
 
 ## Rasters 
-[`Raster*`](https://rspatial.org/raster/spatial/4-rasterdata.html) objects are central to `(scapes)Classifications`. They define the area over which classifications are performed and provide the spatial data users deem important to build their classification rules. In addition, all rasters provide information about where individual cells are located and how they relate with each other. As we will see in the next paragraphs, raster cells are the basic unit of `(scapes)Classifications`. 
+[Raster*](https://rspatial.org/raster/spatial/4-rasterdata.html) objects are central to `(scapes)Classifications`. They define the area over which classifications are performed and provide the spatial data users deem important to build their classification rules. In addition, rasters provide information about where individual cells are located and how they relate with each other. As we will see in the next sections, raster cells are the basic unit of `(scapes)Classifications`. 
 
 ## Format inputs
 Raster cells are numbered from the upper left cell to the upper right cell and then continuing on the left side of the next row, and so on until the last cell at the lower-right side of the raster ([RSpatial](https://rspatial.org/raster/pkg/8-cell_level_functions.html?highlight=cell%20number)). This numbering is used by the functions `attTbl()` and `ngbList()` to compute the attribute table and the neighborhood list.
 
 ### Attribute table
-Making use of cell numbers, the function `attTbl()` converts `Raster*` objects into an attribute table (`data.frame`). Attribute tables come with a column named `Cell` which stores raster cell numbers and associate each row of the attribute table with a cell of the raster object. Each of the remaining columns stores the values of a layer of the 
-`Raster*` object. Note that only raster cells having no missing value in any layer (complete cases) are included in the attribute table.
+Making use of cell numbers, the function `attTbl()` converts a `Raster*` object into an attribute table (`data.frame`). Attribute tables come with a column named `Cell`. This column stores raster cell numbers and associates each row of the attribute table to a cell of the raster object. The remaining columns of the attribute table store the data contained in the layers of the `Raster*` object. 
+
+> _Note that only raster cells having no missing values in no layer (i.e., complete cases) are included in the attribute table._
 
 As an example we can consider a 3X3 raster and some dummy data ([Figure 1](#figure1)). 
 ```{r exm_rast}
@@ -80,7 +81,7 @@ ggarrange(p1, p2, labels = c("Cell numbers", "Dummy data"), label.y=0.96, label.
 <div style="line-height: 0.8em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 1 -** Example of a raster object. On the left, raster cell numbers; on the right raster data.</span></div>
 
 We can compute the attribute table with the following code chunk. Note that raster cells 1 and 4 have missing values, therefore, they are not included in the attribute table.
-```{r atbl}
+```{r atbl, collapse=TRUE}
 # ATTRIBUTE TABLE
 library(scapesClassification)
 
@@ -89,19 +90,23 @@ attTbl(r, var_names = c("dummy_var"))
 
 
 ### List of neighborhoods 
-The evaluation of classification rules depends on what values and classes exist in the neighborhood of a raster cell. The neighborhood of each raster cell is computed and stored in a list by the function `ngbList()`:
+The values and classes existing in the neighborhood of a raster cell can be used to define classification rules. The function `ngbList()` speeds up the evaluation of classification rules by computing and storing in memory as a `list` raster cells' neighborhoods.  
 
-* Excluding cells on the edge of a raster, a cell with coordinates `(x, y)` has 8 neighbors with coordinates: `(x±1, y)`,  `(x, y±1)` and `(x±1, y±1)`; 
+The function `ngbList()` is coded based on the following points:
 
-* Neighborhoods of cells presenting one or more missing values are not computed (e.g., cells 1 and 4 in [figure 1](#figure1)); 
-
-* With the argument `rNumb = FALSE`  the neighbors are identified by cell numbers (e.g., neighbors of cell 2 in [figure 1](#figure1) are cells `1, 3, 4, 5, 6`);
-
-* With the argument `rNumb = TRUE`  the neighbors are identified by row numbers and neighbors with missing values are omitted (e.g., neighbors of cell 2 in [figure 1](#figure1) are in the rows of the attribute table `2, 3, 4` which correspond to cells  `3, 5, 6`);
+> * The neighborhood of a raster cell with coordinates `(x, y)` counts 8 neighbors with coordinates `(x±1, y)`,  `(x, y±1)` and `(x±1, y±1)`. Note that edge cells have less than 8 neighbors; 
 
 
-As an example let's consider the raster `r` plotted [Figure 1](#figure1) and compute the list of neighborhoods. 
+> * Neighborhoods of cells presenting one or more missing values are not computed (_e.g., cells 1 and 4 of [Figure 1](#figure1)_); 
 
+ 
+> * With the argument `rNumb = FALSE`,  the neighbors are identified by cell numbers (_e.g., neighbors of cell 2 of [Figure 1](#figure1) are cells `1, 3, 4, 5, 6`_);
+
+ 
+> * With the argument `rNumb = TRUE`,  the neighbors are identified by row numbers and neighbors with missing values are omitted (_e.g., neighbors of cell 2 of [Figure 1](#figure1) are in the rows of the attribute table `2, 3, 4` which correspond to cells  `3, 5, 6`_);
+
+
+As an example let's consider the raster `r` plotted in [Figure 1](#figure1). 
 ```{r nbsList}
 # ATTRIBUTE TABLE
 at <- attTbl(r, var_names = c("dummy_var"))
@@ -126,23 +131,24 @@ head(nbs_CELL, 3)
 
 # Cells 1 and 4 are omitted because they are NAs -> 
 # The top three elements of the list are in rows 1, 2 and 3
-# which correspond to cells 2, 3 and 5
 head(nbs_ROW, 3)
 
-# Cells in the top three rows of the attribute table
+# Rows 1, 2 and 3 correspond to cells 2, 3 and 5
 at$Cell[1:3]
 ```
 
 ```{r nbsList_rn_ex, collapse=TRUE}
 # LET'S CONSIDER THE NEIGHBORHOOD OF CELL #2
 
+# Cell #2 corresponds to the 1st element of both 'nbs_CELL' and 'nbs_ROW'
+
 # These are cell numbers
 nbs_CELL[1]
 
-# These are not cell numbers...
+# These are row numbers
 nbs_ROW[1]
 
-# But these are cell numbers
+# Row numbers can be converted into cell numbers
 at$Cell[ nbs_ROW[[1]] ]
 
 # Cells 1 and 4 are omitted from at$Cell[ nbs_ROW[[1]] ] 
@@ -152,8 +158,7 @@ r[c(1,4)]
 
 <br />
 
-> The list of neighborhoods is computed to improve the performance of the classification algorithms implemented in `(scapes)Classifications`. The performance increase is greater when neighbors are identified by row numbers. 
-
+> The list of neighborhoods is computed ans stored in memory to improve the performance of the classification algorithms. The performance increase is greater when neighbors are identified by row numbers rather than by cell numbers.
 
 ## Classification rules evaluation 
 Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. `cell value > threshold`) or when we evaluate at what locations a shapefile overlap our raster. 
@@ -161,7 +166,7 @@ Classification rules can be evaluated for all raster cells simultaneously. For i
 In other cases it can be more fruitful to perform targeted evaluations. For instance, we might want to evaluate classification rules only for cells at specific positions on the raster surface. Imagine we have a raster cell that has already been classified and we want to evaluate if its neighboring cells belong to the same class based on some rule. 
 
 
-let's consider that we have an island shapefile form which we can derive what raster cells represent land positions (see [working example](https://ghtaranto.github.io/scapesClassification/articles/scapesClassification_02_2_ISU.html)). 
+let's consider that we have an island shapefile from which we can derive what raster cells represent land positions (see [working example](https://ghtaranto.github.io/scapesClassification/articles/scapesClassification_02_2_ISU.html)). 
 
 
 ```{r rast_matrix, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE}

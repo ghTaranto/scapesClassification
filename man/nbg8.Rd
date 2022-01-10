@@ -2,25 +2,27 @@
 % Please edit documentation in R/nbg8.R
 \name{nbg8}
 \alias{nbg8}
-\title{Eight Neighbors}
+\title{Eight neighbors}
 \usage{
 nbg8(n_row, n_col)
 }
 \arguments{
-\item{n_row}{Integer. The number of rows of a Raster or RasterStack object.}
+\item{n_row}{Integer. The number of rows of a Raster or object.}
 
-\item{n_col}{Integer. The number of columns of a Raster or RasterStack
-object.}
+\item{n_col}{Integer. The number of columns of a Raster object.}
 }
 \value{
-List of length equal to the number of cells on a raster. The nth
-element of the list corresponds to the 8 adjacent cell numbers of the nth
-cell on the RasterStack object.
+Named list, the \code{nth} element of the list corresponds to the 8
+adjacent cell numbers of the \code{nth} cell on the \code{Raster*} object.
 }
 \description{
-Return the 8 neighbors, as cell numbers, of each cell on a raster. Cell numbers
-start with 1 in the upper-left corner and increase from left to right and
-from top to bottom.
+Return the 8 neighbors, as cell numbers, of each cell on a raster.
+}
+\details{
+A cell with coordinates \code{(x, y)} has 8 neighbors with
+coordinates: \code{(x±1, y)},  \code{(x, y±1)} and \code{(x±1, y±1)}. Cells
+on the edge of a raster have less than 8 neighbors. The function identifies
+the neighbors of a cell as cell numbers.
 }
 \examples{
 ## Matrix m mocking a raster of 3 rows and 4 columns
