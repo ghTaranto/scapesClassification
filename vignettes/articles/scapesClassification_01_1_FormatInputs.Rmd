@@ -151,7 +151,7 @@ nbs_ROW[1]
 # Row numbers can be converted into cell numbers
 at$Cell[ nbs_ROW[[1]] ]
 
-# Cells 1 and 4 are omitted from at$Cell[ nbs_ROW[[1]] ] 
+# Cells 1 and 4 are omitted from 'at$Cell[ nbs_ROW[[1]] ]' 
 # because they have missing values
 r[c(1,4)]
 ```
