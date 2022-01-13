@@ -223,6 +223,12 @@ cond.4.nofn <- function(attTbl,
   classification_t0 <- new_cell_id
   conditions0       <- conditions
 
+  # check if 'class' in 'nbs_of' (CLASS CONTINUITY)
+  if(class %in% nbs_of){
+    class_continuity <- TRUE
+  } else {
+    class_continuity <- FALSE
+  }
 
   ### RUN ALGORITHM #################################################################### while ####
   while (continue & itr < max.iter) {
@@ -373,7 +379,7 @@ cond.4.nofn <- function(attTbl,
       setdiff(unlist(list_new_cell_ind), classification_t0)
 
     ### TEST IF NEW CELLS CHANGED CLASS ############################### while//if//new_cell_id ####
-    if (length(new_cell_id) != 0) {
+    if (length(new_cell_id) != 0 & class_continuity) {
       classification_t0 <- c(new_cell_id , classification_t0)
       continue          <- TRUE
     }
