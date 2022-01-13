@@ -225,7 +225,7 @@ cond.4.nofn <- function(attTbl,
 
 
   ### RUN ALGORITHM #################################################################### while ####
-  while (continue & itr <= max.iter) {
+  while (continue & itr < max.iter) {
     continue <- FALSE
     itr      <- itr + 1
 
