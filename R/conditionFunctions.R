@@ -63,7 +63,7 @@ cond.4.nofn <- function(attTbl,
                         overwrite_class = FALSE,
                         max.iter = +Inf,
                         fn_perc = 1,
-                        directional = T) {
+                        directional = FALSE) {
 
   # TEST FOR COLUMN CELL IN attTbl
   if (!("Cell" %in% names(attTbl))){
