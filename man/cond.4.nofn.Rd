@@ -16,7 +16,7 @@ cond.4.nofn(
   overwrite_class = FALSE,
   max.iter = +Inf,
   fn_perc = 1,
-  directional = T
+  directional = FALSE
 )
 }
 \arguments{

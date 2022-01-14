@@ -61,6 +61,9 @@
     <li>
       <a href="../articles/scapesClassification_01_2_RuleEvaluation.html">Rule evaluation</a>
     </li>
+    <li>
+      <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -118,7 +121,7 @@
       <h1 data-toc-skip>Rule evaluation</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Tue 11, January, 2022</h4>
+            <h4 data-toc-skip class="date">Fri 14, January, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_2_RuleEvaluation.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_2_RuleEvaluation.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_2_RuleEvaluation.Rmd</code></div>
@@ -130,45 +133,50 @@
 <div class="section level2">
 <h2 id="vectorized-evaluation">Vectorized evaluation<a class="anchor" aria-label="anchor" href="#vectorized-evaluation"></a>
 </h2>
-<p>Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. <code>cell value &gt; threshold</code>) or when we evaluate at what locations a shapefile overlap our raster (e.g., functions <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> and <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code>).</p>
+<p>Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. <code>cell value &gt; threshold</code>) or when we evaluate at what locations different spatial objects overlap (e.g., functions <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> and <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code>).</p>
+<p><a id="figure1"></a></p>
+<p><img src="v_eval.gif" width="70%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 1 - Vectorized evaluation</strong>. All cells respecting the classification rule <code>"cell value &gt; 1"</code> are classified simultaneously.</span>
+</div>
 </div>
 <div class="section level2">
 <h2 id="focal-evaluation">Focal evaluation<a class="anchor" aria-label="anchor" href="#focal-evaluation"></a>
 </h2>
-<p>In other cases it can be more fruitful to perform targeted evaluations evaluating classification rules only for cells at specific positions on a raster. These positions can be identified based on their adjacency to particular raster cells that we will call <strong>anchor cells</strong>. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial vector objects.</p>
+<p>In other cases it can be more fruitful to perform targeted evaluations where classification rules are only tested at specific positions on a raster. These positions can be identified based on their adjacency to particular raster cells that we will call <strong>anchor cells</strong>. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial objects.</p>
 <div class="section level3">
 <h3 id="cc">Class contiguity<a class="anchor" aria-label="anchor" href="#cc"></a>
 </h3>
-<p>An example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to the same class (<a href="#figure1">Figure 1</a>).</p>
-<p><a id="figure1"></a></p>
-<p><img src="fc_tc.gif" width="600px" style="display: block; margin: auto;"></p>
+<p>An example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to the same class (<a href="#figure2">Figure 2</a>).</p>
+<p><a id="figure2"></a></p>
+<p><img src="fc_tc.gif" width="70%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 1 - Class contiguity evaluation</strong>. Cells adjacent to the <strong>focal cell (FC, in blue)</strong> are being tested. <strong>Test cells (TC, in yellow)</strong> belong to the same class of the focal cell if <code>"cell value &gt; 1"</code>. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. The blue border indicate the focal cell neighborhood, the yellow border the test cell neighborhood.</span>
+<span class="legend"><strong>Figure 2 - Class contiguity evaluation</strong>. Cells adjacent to the <strong>focal cell (FC, in blue)</strong> are being tested. <strong>Test cells (TC, in yellow)</strong> belong to the same class of the focal cell if <code>"cell value &gt; 1"</code>. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. The blue border indicate the focal cell neighborhood, the yellow border the test cell neighborhood.</span>
 </div>
 <ul>
-<li><p><strong>Focal cell.</strong> At turn, each anchor cell is treated as a focal cell. Cells in the neighborhood of a focal cell are considered adjacent to it and are evaluated against the classification rule(s). <em>In <a href="#figure1">Figure 1</a> the focal cell is showed in blue and its neighborhood is showed by the blue border.</em></p></li>
-<li><p><strong>Test cell.</strong> The cell in the neighborhood of the focal cell that is being tested. <em>In <a href="#figure1">Figure 1</a> the test cell is showed in yellow and its neighborhood is showed by the yellow border.</em></p></li>
-<li><p><strong>Rule evaluation.</strong> If the classification rule(s) evaluates to true, the test cell is classified, otherwise it is not. <em>In <a href="#figure1">Figure 1</a> we considered a dummy classification rule <code>value &gt; 1</code>; positive evaluation are showed by a green circle; negative evaluations are showed by a red circle.</em></p></li>
+<li><p><strong>Focal cell.</strong> At turn, each anchor cell is treated as a focal cell. Cells in the neighborhood of a focal cell are considered adjacent to it and are evaluated against the classification rule(s). <em>In <a href="#figure2">Figure 2</a> the focal cell is showed in blue and its neighborhood is showed by the blue border.</em></p></li>
+<li><p><strong>Test cell.</strong> The cell in the neighborhood of the focal cell that is being tested. <em>In <a href="#figure2">Figure 2</a> the test cell is showed in yellow and its neighborhood is showed by the yellow border.</em></p></li>
+<li><p><strong>Rule evaluation.</strong> If the classification rule(s) evaluates to true, the test cell is classified, otherwise it is not. <em>In <a href="#figure2">Figure 2</a> we considered a dummy classification rule <code>"cell value &gt; 1"</code>; positive evaluation are showed by a green circle; negative evaluations are showed by a red circle.</em></p></li>
 </ul>
 </div>
 <div class="section level3">
 <h3 id="class-discontiguity">Class discontiguity<a class="anchor" aria-label="anchor" href="#class-discontiguity"></a>
 </h3>
-<p>A second example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to a different class (<a href="#figure2">Figure 2</a>).</p>
-<p><a id="figure2"></a></p>
-<p><img src="fc_tc2.gif" width="600px" style="display: block; margin: auto;"></p>
+<p>A second example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to a different class (<a href="#figure3">Figure 3</a>).</p>
+<p><a id="figure3"></a></p>
+<p><img src="fc_tc2.gif" width="70%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 2 - Class discontiguity evaluation</strong>. Cells adjacent to the <strong>focal cell (FC, in blue)</strong> are being tested. <strong>Test cells (TC, in yellow)</strong> belong to a user defined class if <code>"cell value == 1"</code>. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. The blue border indicate the focal cell neighborhood, the yellow border the test cell neighborhood.</span>
+<span class="legend"><strong>Figure 3 - Class discontiguity evaluation</strong>. Cells adjacent to the <strong>focal cell (FC, in blue)</strong> are being tested. <strong>Test cells (TC, in yellow)</strong> belong to a user defined class if <code>"cell value == 1"</code>. Positive evaluations are showed by a green circle; negative evaluations are showed by a red circle. The blue border indicate the focal cell neighborhood, the yellow border the test cell neighborhood.</span>
 </div>
 </div>
 <div class="section level3">
 <h3 id="class-continuity">Class continuity<a class="anchor" aria-label="anchor" href="#class-continuity"></a>
 </h3>
-<p><a href="#cc"><em>Class contiguity</em></a> evaluates if groups of adjacent cells belong to the same class. As long as new cells are classified based on class continuity rule(s), it is possible to find a new pool of adjacent cells that can be tested against the same continuity rule(s). This process can be defined as <em>class continuity</em> and can be used to join into the same class cells that share the same property(ies) and that are connected to the same anchor cell(s) (<a href="#figure3">Figure 3</a>).</p>
-<p><a id="figure3"></a></p>
-<p><img src="ccont.gif" width="600px" style="display: block; margin: auto;"></p>
+<p><a href="#cc"><em>Class contiguity</em></a> evaluates if groups of adjacent cells belong to the same class. As long as <strong>new</strong> cells are classified based on class continuity rule(s), it is possible to find a <strong>new</strong> pool of adjacent cells that can be tested against the same continuity rule(s). This process can be defined as <em>class continuity</em> and can be used to join into the same class cells that share the same property(ies) and that are connected to the same anchor cell(s) (<a href="#figure4">Figure 4</a>).</p>
+<p><a id="figure4"></a></p>
+<p><img src="ccont.gif" width="70%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 3 - Class continuity.</strong> Every <strong>unclassified cell (in black)</strong> adjacent to <strong>focal cells (in blue)</strong> is being tested. <strong>Test cells (in yellow)</strong> belong to the same class of the focal cells if <code>"cell value &gt; 1"</code>. Note that each evaluation take into account both the test cell and its neighborhood (yellow border). Note also that cell classified in one iteration (iteration 1) can become focal cells in the next iteration (iteration 2).</span>
+<span class="legend"><strong>Figure 4 - Class continuity.</strong> Every <strong>unclassified cell (in black)</strong> adjacent to <strong>focal cells (in blue)</strong> is being tested. Test cells belong to the same class of the focal cell(s) if <code>"cell value &gt; 1"</code>. Note that cells classified in one iteration (<code>Iteration n</code>) become focal cells in the next iteration (<code>Iteration n+1</code>).</span>
 </div>
 </div>
 </div>

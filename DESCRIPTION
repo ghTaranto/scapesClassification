@@ -21,6 +21,7 @@ RoxygenNote: 7.1.2
 Suggests: 
     data.table,
     ggplot2,
+    ggpubr,
     gifski,
     kableExtra,
     knitr,
