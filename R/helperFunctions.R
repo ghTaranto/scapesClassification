@@ -1,175 +1,200 @@
-#' Check Conditions
+#' scapesClassification conditions
 #'
-#' Check for spelling and syntax errors in \code{conditions} and evaluate the
-#' type of conditions being used.
+#' Check for spelling and syntax errors in conditions (\code{cond} argument) and
+#' detect the type of conditions being used.
 #'
 #' @param names_attTbl character vector, the column (i.e. variable) names of the
 #'   attribute table returned by the function \code{\link{attTbl}}.
-#' @param cond character string, a set of conditions used to classify raster
-#'   cells (see \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
+#' @param cond character string, condition string used to classify raster cells
+#'   (see \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
 #'   \code{\link{cond.4.all}} and \code{\link{anchor.seed}}).
-#' @param silent logic, returns only error messages.
+#' @param silent logic, when true, the function returns only error messages.
 #'
-#' @return An error message as character string if spelling or syntax errors
-#'   were found or a message detailing the types of conditions that were
-#'   found.
+#' @encoding UTF-8
 #'
-#' @details \cr **Conditions** \cr\cr Conditions are passed to
-#'   \code{scapesClassification} functions as a single character string. They
-#'   can consist of combination of arithmetic \code{(+|-|*|/|^|%%|%/%)},
-#'   relational \code{(>|<|>=|<=|==|!=|%/%)} and logic operators \code{(&||)},
-#'   base R functions (e.g., \code{abs(variable_name)}), variables names (i.e.,
-#'   \code{names(attTbl)}) and class vectors (referred to as
-#'   \code{"classVector"}). \cr\cr A combination of absolute and relative
-#'   conditions can be used, but _**only one neighborhood condition per
-#'   string**_ is allowed. In order to avoid errors, it should always be
-#'   possible to evaluate the \code{conditions} as \code{TRUE} or \code{FALSE}
-#'   when substituting variable names with numeric values. All variables of
-#'   interest should be addressed in the \code{conditions} argument by name.
-#'   \cr\cr\cr **Evaluation of conditions** \cr\cr The way conditions are
-#'   evaluated depends on both the type of condition and the type of function
-#'   used. When class contiguity is not being considered (i.e., functions
-#'   without the argument \code{nbs_of}) absolute conditions can be used. Their
-#'   evaluation is vectorized and exclude cells that have already been
-#'   classified (i.e., \code{which(!is.na(classVector))}), unless the argument
-#'   \code{overwrite_class} is \code{TRUE}. The function \code{cond.reclass} can
-#'   evaluate absolute focal neighborhood conditions, but cannot evaluate
-#'   directional neighborhood conditions (see functions \code{\link{cond.4.all}}
-#'   and \code{\link{cond.reclass}}). \cr\cr When class contiguity is being
-#'   considered (i.e., functions with the argument \code{nbs_of} and
-#'   \code{anchor.seed}), then both absolute and relative conditions can be
-#'   used. Their evaluation is iterative. At each iteration, conditions are
-#'   evaluated for the 8-neighbors of one of the cells classified as
-#'   \code{nbs_of}. Neighbors that have already been classified are excluded
-#'   from the evaluation (i.e., \code{which(!is.na(classVector))}), unless the
-#'   argument \code{overwrite_class} is \code{TRUE} (see functions
-#'   \code{\link{anchor.seed}} and \code{\link{cond.4.nofn}}). Some
-#'   classification functions do not have a \code{condition} argument. These
-#'   functions consider only class contiguity to classify raster cells (see
-#'   functions \code{\link{anchor.cell}}, \code{\link{anchor.svo}},
-#'   \code{\link{reclass.nbs}} and \code{\link{classify.all}}). \cr\cr
-#'   Hereinafter the following definitions are adopted (see also the example
-#'   section): \itemize{ \item{**focal cell:** }{cell included in the classes of
-#'   the argument \code{nbs_of} whose neighbors are in evaluation;} \item{**nbs
-#'   cell**: }{one of the neighbors in evaluation;} \item{**focal
-#'   neighborhood:** }{when _absolute focal neighborhood conditions_ are used,
-#'   it includes \code{nbs} and its 8 neighbors; when _relative focal
-#'   neighborhood conditions_ are used, it only includes the 8 neighbors of
-#'   \code{nbs}.} \item{**directional neighborhood:** }{it consists of the
-#'   intersection set of the \code{focal cell} neighbors with the \code{focal
-#'   neighborhood}. When _absolute focal neighborhood conditions_ are used, it
-#'   includes \code{nbs}, but it does not include the \code{focal cell}; when
-#'   _relative focal neighborhood conditions_ are used, it includes the
-#'   \code{focal cell}, but it does not include \code{nbs}.}} \cr **Absolute
-#'   conditions** \cr This type of condition applies to all functions with a
-#'   \code{conditions} argument. It compares between variables (including
-#'   \code{"classVector"}) and numeric values. When class contiguity is not
-#'   considered, all cells meeting absolute conditions receive a classification
-#'   number. When class contiguity is considered, all \code{nbs} meeting
-#'   absolute conditions receive a classification number. \cr\cr _Examples of
-#'   valid conditions:_ \code{"variable_A > 1 & variable_B != 0"};
-#'   \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}. \cr
-#'   _Functions:_ \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
-#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}. \cr\cr\cr
-#'   **Absolute focal neighborhood conditions** \cr This type of condition
-#'   applies to the functions \code{\link{cond.4.nofn}} and
-#'   \code{\link{cond.reclass}}. It compares each cell of \code{focal
-#'   neighborhood} with a numeric value. The argument \code{fn_perc} controls
-#'   the percentage of evaluations that have to be \code{TRUE} in order to
-#'   assign a classification number to \code{nbs}. The function
-#'   \code{\link{cond.4.nofn}} can consider a \code{directional neighborhood}
-#'   instead of a \code{focal neighborhood}. This type of condition is flagged
-#'   by a variable name followed by curly brackets (i.e.,
-#'   \code{"variable_name{}"}), where the curly brackets indicate the
-#'   \code{focal} or \code{directional neighborhood} considered at each
-#'   iteration. \cr\cr _Example of valid conditions:_ \code{"variable_A{} > 1 &
-#'   abs(variable_B) != 0"}. \cr _Functions:_ \code{\link{cond.4.nofn}} and
-#'   \code{\link{cond.reclass}}. \cr\cr\cr **Focal cell conditions.** \cr This
-#'   type of condition applies only to functions considering class contiguity
-#'   and with a \code{conditions} argument. It compares the value of \code{nbs}
-#'   with the value of the \code{focal cell}. This type of condition is flagged
-#'   by a variable name followed by square brackets (i.e.,
-#'   \code{"variable_name[]"}), where the square brackets indicate the focal
-#'   cell. \cr\cr _Examples of valid conditions:_ \code{"variable_A >
-#'   variable_A[]"}; \code{"(variable_A > variable_A[] & variable_B{} < 10) |
-#'   variable_C > 1"}.  Note that the last example is a combination of absolute
-#'   and focal cell conditions. \cr _Functions:_ \code{\link{anchor.seed}} and
-#'   \code{\link{cond.4.nofn}}. \cr\cr\cr **Relative focal neighborhood
-#'   conditions.** \cr This type of condition applies only to the functions
-#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}. It compares each
-#'   cell of \code{focal neighborhood} with \code{nbs}. The argument
-#'   \code{fn_perc} controls the percentage of evaluations that have to be
-#'   \code{TRUE} in order to assign a classification number to \code{nbs}. The
-#'   function \code{\link{cond.4.nofn}} can consider a \code{directional
-#'   neighborhood} instead of a \code{focal neighborhood}. This type of
-#'   condition is flagged by a variable name followed by curly brackets (i.e.,
-#'   \code{"variable_name{}"}), where the curly brackets indicate the
-#'   \code{focal} or \code{directional neighborhood} considered at each
-#'   iteration. \cr\cr _Example of valid conditions:_ \code{"variable_A >
-#'   variable_A{}"}; \code{"(variable_A > variable_A{} & variable_B !=
-#'   variable_B[]) | variable_C > 1"}. Note that the last example is a
-#'   combination of absolute, focal cell and focal neighborhood conditions. \cr
-#'   _Functions:_ \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}
+#' @return An error message if the function finds spelling or syntax errors or a
+#'   a string with the types of rules that were detected in the argument
+#'   \code{cond}.
+#'
+#' @details **Conditions (or classification rules)**
+#'
+#'   * Classification rules evaluate either to true or false and determine what
+#'   raster cells belong to a class.
+#'
+#'   * Conditions are passed to \code{scapesClassification} functions as a
+#'   single character string. They can consist of combination of arithmetic
+#'   \code{(+|-|*|/|^|%%|%/%)}, relational \code{(>|<|>=|<=|==|!=|%/%)} and
+#'   logic operators \code{(&||)}, base R functions (e.g.,
+#'   \code{abs(variable_name)}), variables names (as named in the attribute
+#'   table, see \code{\link{attTbl}}) and previous classifications (either
+#'   stored as \code{classVector} or as rasters).
+#'
+#'   * A combination of absolute and relative conditions can be used, but only
+#'   _**one neighborhood condition per string**_ is allowed.
+#'
+#'   \cr **Rule evaluation**
+#'
+#'   * One of the arguments of the classification functions is the
+#'   \code{classVector}, a numeric vector that identifies what raster cells have
+#'   already been classified (non-NA values) and what have yet to be classified
+#'   (NA values). Cells that have already been classified are excluded from the
+#'   rule evaluation unless the argument \code{'overwrite_class = TRUE'}.
+#'
+#'   * __Global evaluation__ \cr Classification rules are applied to all raster
+#'   cells (excluding the classified ones). This type of evaluation is common to
+#'   classification functions that do not have the argument \code{nbs_of}. Only
+#'   absolute conditions can have a global evaluation. See functions
+#'   \code{\link{cond.4.all}} and \code{\link{cond.reclass}}.
+#'
+#'   * __Focal evaluation__ \cr Classification rules are applied only to raster
+#'   cells contiguous to focal cells. This type of evaluation is common to
+#'   classification functions that have the argument \code{nbs_of}. The argument
+#'   \code{nbs_of} identifies the class(es) of the focal cells. See functions
+#'   \code{\link{anchor.seed}} and \code{\link{cond.4.nofn}}.
+#'
+#'       * Focal evaluation can take into account both absolute and relative rules;
+#'
+#'       * Some classification functions do not have a \code{condition} argument.
+#'   Classifications performed by these functions are focal and take into
+#'   account only the expected spatial relationships existing among classified
+#'   and unclassified cells. See functions \code{\link{reclass.nbs}} and
+#'   \code{\link{classify.all}}.
+#'
+#'   \cr **Focal evaluation, definitions**
+#'
+#'   * __Cell neighborhood:__ a cell with coordinates \code{(x, y)} has 8
+#'   neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
+#'   \code{(x±1, y±1)}. Cells on the edge of a raster have less than 8
+#'   neighbors. See \code{\link{ngbList}}.
+#'
+#'   * __Focal cell:__ cell identified by one of the classes of the argument
+#'   \code{nbs_of}.
+#'
+#'   * __Test cell:__ the cell in the neighborhood of the focal cell that is
+#'   being tested. At turns all cells in the neighborhood of a focal cell are
+#'   tested against the classification rule.
+#'
+#'   * __Directional neighborhood:__ it consists of the intersection between the
+#'   focal and the test cell neighborhoods.
+#'
+#'   \cr**Absolute conditions**
+#'
+#'   __1) Absolute test cell condition:__ compares cell values against a
+#'   threshold value.
+#'
+#'   * This type of condition applies to all functions with a \code{conditions}
+#'   argument.
+#'
+#'   * In global evaluations all cells meeting absolute conditions receive a
+#'   classification number. In focal evaluations all \code{test cells} meeting
+#'   absolute conditions receive a classification number.
+#'
+#'   * _Examples of valid conditions:_ \code{"variable_A > 1 & variable_B !=
+#'   0"}; \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}.
+#'   \cr _Functions:_ \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
+#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
+#'
+#'   \cr __2) Absolute neighborhood condition:__ compares the values of the
+#'   \code{test cell} and of its \code{neighborhood} against a threshold value.
+#'
+#'   * This type of condition applies to the functions \code{cond.4.nofn} and
+#'   \code{cond.reclass}.
+#'
+#'   * An absolute neighborhood condition is identified by a variable name
+#'   followed by curly brackets (e.g., \code{"variable_name{}"}).
+#'
+#'   * A maximum of 9 evaluations are performed for each test cell (the test
+#'   cell itself and the cells of its neighborhood are compared against a
+#'   threshold value).
+#'
+#'   * Test cells receive a classification number if the rule is true for at
+#'   least as many evaluations as the ones specified by the argument
+#'   \code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 9
+#'   evaluations are performed, \code{fn_perc = 1} means that all \code{9}
+#'   evaluations have to be true; \code{fn_perc = 0.5} means that at least
+#'   \code{4.5} (rounded to \code{5}) evaluations have to be true.
+#'
+#'   * Only one neighborhood rule is allowed for each condition string (e.g., it
+#'   is not possible to have a condition string like \code{"variable_A{} > 0 &
+#'   variable_B{} > 1"}).
+#'
+#'   * The function \code{\link{cond.4.nofn}} can consider a \code{directional
+#'   neighborhood} instead of the test cell neighborhood by setting the argument
+#'   \code{directional = TRUE}.
+#'
+#'   * _Example of valid conditions:_ \code{"variable_A{} > 1 & abs(variable_B)
+#'   != 0"}. \cr _Functions:_ \code{\link{cond.4.nofn}} and
+#'   \code{\link{cond.reclass}}.
+#'
+#'   \cr **Relative conditions**
+#'
+#'   __1) Relative focal cell condition:__ compares the \code{test cell} value
+#'   against the \code{focal cell} value.
+#'
+#'   * This type of condition applies only to functions performing focal
+#'   evaluation (i.e. function with a \code{nbs_of} argument).
+#'
+#'   * It is identified by a variable name followed by square brackets (e.g.,
+#'   \code{"variable_name[]"}).
+#'
+#'   * Rules are defined repeating twice the same variable name, once with
+#'   square brackets and once without. Square brackets indicate the focal cell
+#'   value. As an example, the rule \code{"dummy_var < dummy_var[]"} compares
+#'   the value of the the test cell (\code{"dummy_var"}) against the value of
+#'   the focal cell (\code{"dummy_var[]"}).
+#'
+#'   * Test cells are classified if the rule is true.
+#'
+#'   * _Examples of valid conditions:_ \code{"variable_A > variable_A[]"};
+#'   \code{"(variable_A > variable_A[] & variable_B{} < 10) | variable_C > 1"}.
+#'   Note that the last example is a combination of absolute and focal cell
+#'   conditions. \cr _Functions:_ \code{\link{anchor.seed}} and
+#'   \code{\link{cond.4.nofn}}.
+#'
+#'   __2) Relative neighborhood rule:__ compares the values of the \code{test
+#'   cell} against the values of the \code{test cell neighborhood}.
+#'
+#'   * This type of condition applies only to the functions
+#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
+#'
+#'   * It is identified by a variable name followed by curly brackets (e.g.,
+#'   \code{"variable_name{}"}).
+#'
+#'   * Rules are defined repeating twice the same variable name, once with curly
+#'   brackets and once without. Curly brackets indicate the test cell
+#'   neighborhood. As an example, the rule \code{'dummy_var < dummy_var{}'}
+#'   compares the value of the the test cell (\code{dummy_var}) against the
+#'   values of cells included in the test cell neighborhood
+#'   (\code{dummy_var{}}).
+#'
+#'   * A maximum of 8 evaluations are performed for each test cell (the test
+#'   cell is compared against each cell included in its neighborhood).
+#'
+#'   * Test cells receive a classification number if the rule is true for at
+#'   least as many evaluations as the ones specified by the argument
+#'   \code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 8
+#'   evaluations are performed, \code{fn_perc = 1} means that all \code{8}
+#'   evaluations have to be true; \code{fn_perc = 0.5} means that at least
+#'   \code{5} evaluations have to be true.
+#'
+#'   * Only one neighborhood rule is allowed for each condition string (e.g., it
+#'   is not possible to have a condition string like \code{"variable_A{} > 0 &
+#'   variable_B{} > variable_B"}).
+#'
+#'   * The function \code{\link{cond.4.nofn}} can consider a \code{directional
+#'   neighborhood} instead of the test cell neighborhood by setting the argument
+#'   \code{directional = TRUE}.
+#'
+#'   * _Example of valid conditions:_ \code{"variable_A > variable_A{}"};
+#'   \code{"(variable_A > variable_A{} & variable_B != variable_B[]) |
+#'   variable_C > 1"}. Note that the last example is a combination of absolute
+#'   and relative conditions. \cr _Functions:_ \code{\link{cond.4.nofn}} and
+#'   \code{\link{cond.reclass}}.
 #'
 #' @seealso [anchor.seed()], [attTbl()], [cond.4.all()], [cond.4.nofn()],
-#'   [cond.reclass()]
+#'   [cond.reclass()], [classify.all()]
 #'
 #' @export
-#' @examples
-#' # EXAMPLES OF VALID AND INVALID CONDITIONS:
-#'
-#' names_attTbl <- c("bathymetry", "slope")
-#
-#' cond <- "bathymetry>10"
-#' conditions(names_attTbl, cond)
-#' cond <- "classVector != 1"
-#' conditions(names_attTbl, cond)
-#' cond <- "bathymetry[]>10 & abs(slope{}) < 5"
-#' conditions(names_attTbl, cond)
-#' \dontrun{cond <- "thymetry[]>10 & abs(slpe{}) < 5"
-#' conditions(names_attTbl, cond)
-#' cond <- "bathymetry[]>10 & | abs(slope{}) < 5"
-#' conditions(names_attTbl, cond)
-#' cond <- "bathymetry{}>10 & | abs(slope{}) < 5"
-#' conditions(names_attTbl, cond)}
-#'
-#'
-#' # EXAMPLES OF FOCAL CELL, NBS CELLS AND NEIGHBORHOODS:
-#'
-#' # Matrix m mocking a raster of 3 rows and 4 columns
-#' m <- matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
-#' m
-#'
-#' # FOCAL CELL
-#' fc <- 6
-#' fc
-#'
-#' # NBS CELLS
-#' nbs <- nbg8(3, 4)[[6]]
-#' nbs
-#'
-#' # CELL IN EVALUATION
-#' nbs1 <- nbs[1]
-#' nbs1
-#'
-#' # FOCAL NEIGHBORHOOD
-#' # Absolute:
-#' ab_fn_nbs1 <- c(nbs1, nbg8(3, 4)[[1]])
-#' ab_fn_nbs1
-#'
-#' # Relative:
-#' r_fn_nbs1  <- c(nbg8(3, 4)[[1]])
-#' r_fn_nbs1
-#'
-#' # DIRECTIONAL FOCAL NEIGHBORHOOD
-#' # Absolute:
-#' ab_dfn_nbs1 <- c(nbs1, intersect(c(nbg8(3, 4)[[1]]) , nbg8(3, 4)[[6]]))
-#' ab_dfn_nbs1
-#'
-#' # Relative:
-#' r_dfn_nbs1  <- c(fc, intersect(c(nbg8(3, 4)[[1]]) , nbg8(3, 4)[[6]]))
-#' r_dfn_nbs1
-
 
 conditions <- function(names_attTbl,
                        cond,
@@ -229,19 +254,45 @@ conditions <- function(names_attTbl,
 
   if(!silent){
 
-    abs_cond <- stringr::str_detect(cond, paste0(names_attTbl, ("(?!\\[|\\{)"), collapse = "|"))
-    fc_cond  <- stringr::str_detect(cond, "\\[\\]")
-    fn_cond  <- stringr::str_detect(cond, "\\{\\}")
-    cv_cond  <- stringr::str_detect(cond, "classVector")
+    c_split <- unlist(strsplit(cond, "&|\\|"))
+    counts  <- stringr::str_count(c_split, paste0(names_attTbl,collapse = "|"))
 
-    verify_types <- c(abs_cond, fc_cond, fn_cond, cv_cond)
-    cond_types <- c("'Absolute'", "'Focal cell'", "'Focal neighborhood'", "'Class vector'")
+    abs_cond <- stringr::str_detect(c_split, paste0(names_attTbl, ("(?!\\[|\\{)"), collapse = "|"))
+    abs_cond <- any(counts == 1 & abs_cond)
+
+    fc_cond_r <- stringr::str_detect(c_split, "\\[\\]")
+    fc_cond_r <- any(counts > 1 & fc_cond_r)
+
+    fc_cond_a <- stringr::str_detect(c_split, "\\[\\]")
+    fc_cond_a <- any(counts == 1 & fc_cond_a)
+
+    fn_cond_r <- stringr::str_detect(c_split, "\\{\\}")
+    fn_cond_r <- any(counts > 1 & fn_cond_r)
+
+    fn_cond_a <- stringr::str_detect(c_split, "\\{\\}")
+    fn_cond_a <- any(counts == 1 & fn_cond_a)
+
+    cv_cond  <- any(stringr::str_detect(c_split, "classVector"))
+
+    verify_types <- c(abs_cond,
+                      fc_cond_a,
+                      fc_cond_r,
+                      fn_cond_a,
+                      fn_cond_r,
+                      cv_cond)
+
+    cond_types <- c("'Absolute test cell'",
+                    "'Absolute focal cell'",
+                    "'Relative focal cell'",
+                    "'Absolute neighborhood'",
+                    "'Relative neighborhood'",
+                    "'Class vector'")
 
 
     detc_cond <- cond_types[verify_types]
     if(length(detc_cond) == 0){detc_cond <- "unknown"}
 
-    print(paste0(paste0(detc_cond, collapse = " AND "), " condition type(s) detected)."))
+    print(paste0(paste0(detc_cond, collapse = " AND "), " condition type(s) detected."))
   }
 }
 
