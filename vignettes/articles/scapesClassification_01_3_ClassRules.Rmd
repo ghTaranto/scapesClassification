@@ -13,68 +13,31 @@ vignette: >
 knitr::opts_chunk$set(out.width = "99%", echo = TRUE, fig.align='center', message=FALSE, warning=FALSE)
 ```
 
-In `scapesClassification`, geo-spaces are classified using user-defined classification rules presented in the form of [conditional statements](https://en.wikipedia.org/wiki/Conditional_(computer_programming) "Wikipedia definition"). Classification rules evaluate either to true or false and determine, at each classification step, what raster cells are mapped to a class.  
+In `scapesClassification`, geo-spaces are classified using user-defined classification rules presented in the form of [conditional statements](https://en.wikipedia.org/wiki/Conditional_(computer_programming) "Wikipedia definition"). Classification rules evaluate either to true or false and determine what raster cells belong to a class.  
 
-Classifications start by converting single and multi-layer raster objects into [attribute tables](scapesClassification_01_1_FormatInputs.html#attribute-table). Each column of the attribute table represents a variable and contains the values of a raster layer. Classification rules can be built accessing by name the variables stored in the attribute table. For instance, if our attribute table has two columns named `"slope"` and `"height"` we could build the following classification rule: `"slope > 5 & height > 1000"`. 
-
-Rules are passed to a scapesClassification function as a single **`character string`**. They consist of combination of arithmetic (`+|-|*|/|^|%%|%/%`), relational (`>|<|>=|<=|==|!=|%/%`) and logic operators (`&||`), base R functions (e.g., `abs(variable_name)`), variables names (i.e., `names(attTbl)`) and previous classifications (either stored as `"classVector"` or as rasters) (see `?conditions`). 
+Classification rules access by name the variables stored in the attribute table (see the article [format inputs](scapesClassification_01_1_FormatInputs.html#attribute-table) and `?attTbl`). For instance, the classification rule `"slope > 5 & height > 1000"` would refer to the values stored in the columns `"slope"` and `"height"` and compare them against the respective threshold value.
+ 
+ScapesClassification functions accept rules in the form of **`character string`**. Rules can include a combination of arithmetic (`+|-|*|/|^|%%|%/%`), relational (`>|<|>=|<=|==|!=|%/%`) and logic operators (`&||`), base R functions (e.g., `abs(variable_name)`), variables names (i.e., `names(attTbl)`) and previous classifications (either stored as `"classVector"` or as rasters) (see `?conditions`). 
 
 ## Definitions
 
-The different types of classification rules used by `scapesClassification` can be better explained considering [Figure 1](#figure1) and the following definitions: 
+The different types of classification rules used by `scapesClassification` can be better explained considering [figure 1](#figure1) and the following definitions: 
 
-* **Cell neighborhood.** The neighborhood of a raster cell with coordinates `(x, y)` counts 8 neighbors with coordinates `(x±1, y)`,  `(x, y±1)` and `(x±1, y±1)`. Note that edge cells have less than 8 neighbors (see ["Format inputs"](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods)). _In [Figure 1](#figure1) are presented the focal and the test cells neighborhoods_.
+* **Cell neighborhood.** The neighborhood of a raster cell with coordinates `(x, y)` counts 8 neighbors with coordinates `(x±1, y)`,  `(x, y±1)` and `(x±1, y±1)`. Note that edge cells have less than 8 neighbors (see the article [format inputs](scapesClassification_01_1_FormatInputs.html#attribute-table) and [figure 1](#figure1)).
 
-* **Focal cell.** Cell identified by a particular class. Cells in the neighborhood of a focal cell are evaluated against the classification rule(s). _In [Figure 1](#figure2) there is one focal cell, cell number 25._  
+* **Focal cell.** Cell identified by a particular class. Cells in the neighborhood of a focal cell are evaluated against the classification rule(s). _In [figure 1](#figure2) there is one focal cell, cell number 32._  
 
-* **Test cell.** The cell in the neighborhood of the focal cell that is being tested. At turns all cells in the neighborhood of a focal cell are tested against the classification rule(s). _In [Figure 1](#figure1) the cell being tested is cell 17._  
+* **Test cell.** The cell in the neighborhood of the focal cell that is being tested. At turns all cells in the neighborhood of a focal cell are tested against the classification rule(s). _In [figure 1](#figure1) the cell being tested is cell 25._  
 
-* **Directional neighborhood.** It consists of the intersection between the focal and the test cell neighborhoods. _In [Figure 1](#figure1) it is marked by a red border and includes cells `17, 18, 24, 25`._  
+* **Directional neighborhood.** It consists of the intersection between the focal and the test cell neighborhoods. _In [figure 1](#figure1) it is marked by a red border and includes cells `24, 25, 26, 31, 32 and 33`._  
 
-<a id="figure1"></a>
-
-```{r def, message=FALSE, warning=FALSE, echo=FALSE}
+```{r test_plot_function, message=FALSE, warning=FALSE, echo=FALSE}
 library(ggplot2)
 library(reshape2)
 library(scapesClassification)
 library(raster)
+library(ggpubr)
 
-m     <- matrix(1:49, nrow = 7, ncol = 7, byrow = TRUE)
-
-r   <- raster(m)
-nbs <- ngbList(r)
-
-m <- t(m)[,nrow(m):1]
-m_long <- melt(m)
-
-m_long$tags[m_long$value == 25] <- "FC"
-m_long$tags[m_long$value == 17] <- "TC"
-
-npool <- unique(unlist(nbs[c("25", "17")]))
-m_long$whites[m_long$value %in% npool] <- m_long$value[m_long$value %in% npool]
-
-
-m_long$tags <- as.factor(m_long$tags)
-
-
-p <- ggplot(m_long, aes(x=Var1, y=Var2)) +
-  geom_tile(aes(fill=tags), colour="gray90", lwd=1.5, show.legend = FALSE) +
-  coord_fixed(ratio=1) + 
-  geom_text(aes(label=value), color = "grey30", family=c("serif"), size=8) + 
-  geom_text(aes(label=whites), color = "white", family=c("serif"), size=8) + 
-  scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
-  geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="#1088a0", lwd = 1.5) + 
-  geom_rect(aes(xmin = 1.5, xmax = 4.5, ymin = 3.5, ymax = 6.5), fill = "transparent", color="goldenrod3", lwd = 1.5) +
-  geom_rect(aes(xmin = 2.56, xmax = 4.44, ymin = 3.56, ymax = 5.44), fill = "transparent", color="red", lwd = 1.4) +
-  theme_void()  + 
-  scale_x_discrete(expand=c(0,0)) + scale_y_discrete(expand=c(0,0))
-
-print(p)
-```
-
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1** - Raster values correspond to cell numbers (`1:49`). **The focal cell** is cell number 25 (in blue). the **test cell** is cell number 17 (in yellow). **The focal cell neighborhood** is marked by the blue border (cells `17,18,19,24,26,31,32,33`). **The test cell neighborhood** is marked by the yellow border (cells `9,10,11,16,18,23,24,25`). **The directional neighborhood** is marked by the red border (cells `17,18,24,25`).</span></div>
-
-```{r test_plot_function, message=FALSE, warning=FALSE, echo=FALSE}
 test_plots <- function(fcells, m, 
                        cond, d = FALSE, mi = +Inf, fnp = 1,
                        title_txt = NULL,
@@ -209,7 +172,44 @@ test_plots <- function(fcells, m,
 }
 ```
 
-```{r test_plot_matrix, message=FALSE, warning=FALSE, echo=FALSE}
+<a id="figure1"></a>
+
+```{r def, message=FALSE, warning=FALSE, echo=FALSE}
+# MATRIX NUMBER
+m     <- matrix(1:49, nrow = 7, ncol = 7, byrow = TRUE)
+
+r   <- raster(m)
+nbs <- ngbList(r)
+
+m <- t(m)[,nrow(m):1]
+m_long <- melt(m)
+
+m_long$tags[m_long$value == 32] <- "FC"
+m_long$tags[m_long$value == 25] <- "TC"
+
+npool <- unique(unlist(nbs[c("32", "25")]))
+m_long$whites[m_long$value %in% npool] <- m_long$value[m_long$value %in% npool]
+
+
+m_long$tags <- as.factor(m_long$tags)
+
+
+p1 <- ggplot(m_long, aes(x=Var1, y=Var2)) +
+  geom_tile(aes(fill=tags), colour="gray90", lwd=1.5, show.legend = FALSE) +
+  coord_fixed(ratio=1) + 
+  geom_text(aes(label=value), color = "grey50", family=c("serif"), size=8) + 
+  geom_text(aes(label=whites), color = "white", family=c("serif"), size=8) + 
+  scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") + 
+  geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 1.5, ymax = 4.5), fill = "transparent", color="#1088a0", lwd = 1.5) + 
+  geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5), fill = "transparent", color="goldenrod3", lwd = 1.5) +
+  geom_rect(aes(xmin = 2.6, xmax = 5.4, ymin = 2.6, ymax = 4.4), fill = "transparent", color="red", lwd = 1.2) +
+  theme_void()  + 
+  scale_x_discrete(expand=c(0,0)) + scale_y_discrete(expand=c(0,0)) + 
+  labs(title = "Cell numbers") + 
+          theme(plot.title=element_text(size = 16, face = "bold", color = "black", family = "serif")) 
+
+
+# MATRIX DATA 
 m  <- matrix(1,nrow = 7, ncol = 7, byrow = TRUE)
 r   <- raster(m)
 nbs <- ngbList(r)
@@ -236,20 +236,8 @@ r[n2] <- 2
 r[43] <- 8
 
 m <- as.matrix(r)
-```
 
-## Types of classification rules
-
-In the following sections are introduced the types of rules that can be considered by `scapesClassification` functions. Additional information can be found in the documentation of the function `conditions()` and in the article ["Classification functions"]().
-
-The dummy raster of [figure 2](#figure2) will be used to illustrate the different types of classification rules. 
-
-<a id="figure2"></a>
-
-```{r figure2, message=FALSE, warning=FALSE, echo=FALSE}
-library(ggpubr)
-
-p1 <- test_plots(fcells = 32, m, cond = FALSE, plot_cnumb = TRUE, title_txt = "Cell numbers", txt_size = 7)
+# PLOT
 p2 <- test_plots(fcells = 32, m, cond = FALSE, title_txt = "Raster layer: 'dummy_var'", txt_size = 7)
 
 pn <- NULL
@@ -257,27 +245,37 @@ pn <- NULL
 ggarrange(p1, pn, p2, nrow = 1, widths = c(1,0.1,1))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** Example of a raster object. On the left, raster cell numbers; on the right raster data (included in the attribute table with the name `'dummy_var'`). The initial anchor cell is in blue.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1** - On the left, raster values correspond to cell numbers (`1:49`). **The focal cell** is cell number 32 (in blue). The **test cell** is cell number 25 (in yellow). **The focal cell neighborhood** is marked by the blue border (cells `24,25,26,31,33,38,39,40`). **The test cell neighborhood** is marked by the yellow border (cells `17,18,19,24,26,31,32,33`). **The directional neighborhood** is marked by the red border (cells `24,25,26,31,32,33`). On the right, a dummy raster layer named `'dummy_var'`.</span></div>
+
+
+## Types of classification rules
+
+The dummy raster of [figure 1](#figure1) will be used to illustrate the different types of classification rules used by `scapesClassification` functions. Additional information can be found in the documentation of the function `conditions()` and in the article ["classification functions"]().
 
 ### Absolute conditions
 
-Absolute conditions compare a test cell against a user-defined threshold value. 
+Absolute conditions compare a variable value against a user-defined threshold value. There are two types of absolute conditions: (i) _absolute test cell rule_ and (ii) _absolute neighborhood rule_ ([Figure 2](#figure2)). 
 
+i. **Absolute test cell rule.** Compares the _test cell_ value against a threshold value. Test cells are classified if the rule evaluation is true. 
+    
+ii. **Absolute neighborhood rule.** Compares the values of the _test cell_ and of its _neighborhood_ against a threshold value and has the following properties:
 
-There are two types of absolute conditions:
+    * It is identified by a variable name followed by curly brackets (e.g., `'dummy_var{}'`);
+    
+    * A maximum of 9 evaluations are performed for each test cell (the test cell itself and its neighborhood are compared against a threshold value);
+    
+    * Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. In [figure 2](#figure2) `fn_perc` is set to 60%, meaning that test cells are classified if the condition is true for at least 6 out of the 9 cells comprising the test cell and its neighborhood (60% of 9 evaluations is equal to 5.4 true evaluations);
+        
+    * Only one neighborhood rule is allowed for each condition string (e.g., it is not possible to have a condition string like `'dummy_var1{} > 0 & dummy_var2{} > 1'`).
 
-**1) Test cell rule.** Compares the _test cell_ value against a threshold value ([Figure 3](#figure3));
+<a id="figure2"></a>
 
-**2) Test cell neighborhood rule.** Compares the values of the cells in the _test cell neighborhood_ against a threshold value. The argument of the classification functions `fn_perc` determines the percentage of cells in the neighborhood for which the condition has to be true for the final evaluation to be positive ([Figure 3](#figure3)). 
-
-<a id="figure3"></a>
-
-```{r figure3a, message=FALSE, warning=FALSE, echo=FALSE}
+```{r figure2, message=FALSE, warning=FALSE, echo=FALSE}
 p1 <- test_plots(fcells = 32, m, cond = "dummy_var >= 3", mi = 1,
-                 title_txt = "Test cell rule", txt_size = 7)
+                 title_txt = "Absolute test cell rule", txt_size = 7)
 
 p2 <- test_plots(fcells = 32, m, cond = "dummy_var{} >= 3", fnp = 0.6, mi = 1,
-                 title_txt = "Test cell neighborhood rule (tag {})", txt_size = 7)
+                 title_txt = "Absolute neighborhood rule (tag {})", txt_size = 7)
 
 p1 <- p1 + labs(subtitle = "Rule: dummy_var >= 3 \nfn_perc = N/A") +
   theme(plot.subtitle=element_text(size = 12, color = "black", 
@@ -290,18 +288,52 @@ p2 <- p2 + labs(subtitle = "Rule: dummy_var{} >= 3 \nfn_perc = 60%") +
 ggarrange(p1, pn, p2, nrow = 1, widths = c(1,0.1,1))
 ```
 
-
-Absolute, test cell neighborhood condition.
-
-
-Relative, focal cell condition.
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Absolute conditions.** The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. **On the left**, absolute test cell rule `'dummy_var >= 3'`. Test cells are classified if their value is >= 3. **On the right**, absolute neighborhood rule `'dummy_var{} >= 3'` with `fn_perc = 60%`. Test cells are classified if at least 6 out of the 9 cells comprising the test cell and its neighborhood have values >= 3 (60% of 9 evaluations is equal to 5.4 true evaluations).</span></div>
 
 
-Relative, test cell neighborhood condition.
+### Relative conditions
 
+Relative conditions compare the values of contiguous cells. There are two types of relative conditions: (i) _relative focal cell rule_ and (ii) _relative neighborhood rule_ ([Figure 3](#figure3)). 
 
+i. **Relative focal cell rule.** Compares the _test cell_ value against the _focal cell_ value and has the following properties:
 
+    * It is identified by a variable name followed by square brackets (e.g., `'dummy_var[]'`);
+    
+    * Rules are defined repeating twice the same variable name, once with square brackets and once without. Square brackets indicate the focal cell value. In [figure 3](#figure3) the rule `'dummy_var < dummy_var[]'` compares the value of the the test cell (`dummy_var`) against the value of the focal cell (`dummy_var[]`);
+    
+    * Test cells are classified if the rule is true. 
+    
+ii. **Relative neighborhood rule.** Compares the values of the _test cell_ against the values of its _neighborhood_ and has the following properties:
 
+    * It is identified by a variable name followed by curly brackets (e.g., `'dummy_var{}'`);
+    
+    * Rules are defined repeating twice the same variable name, once with curly brabrackets and once without. Curly brackets indicate the test cell neighborhood. In [figure 3](#figure3) the rule `'dummy_var < dummy_var{}'` compares the value of the the test cell (`dummy_var`) against the values of the test cell neighborhood (`dummy_var{}`).
+
+    * Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. In [figure 3](#figure3) `fn_perc` is set to 60%, meaning that test cells are classified if the value of the test cell is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations); 
+    
+    * Only one neighborhood rule is allowed for each condition string (e.g., it is not possible to have a condition string like `'dummy_var1{} > dummy_var1 & dummy_var2{} > 1'`).
+
+<a id="figure3"></a>
+
+```{r figure3, message=FALSE, warning=FALSE, echo=FALSE}
+p1 <- test_plots(fcells = 32, m, cond = "dummy_var < dummy_var[]", mi = 1,
+                 title_txt = "Relative focal cell rule (tag [])")
+
+p1 <- p1 + labs(subtitle = "Rule: 'dummy_var < dummy_var[]' \nfn_perc = N/A") +
+  theme(plot.subtitle=element_text(size = 12, color = "black", 
+                                   family = "serif"))
+
+p2 <- test_plots(fcells = 32, m, cond = "dummy_var < dummy_var{}", fnp = 0.6, mi = 1,
+                 title_txt = "Relative neighborhood rule (tag {})")
+
+p2 <- p2 + labs(subtitle = "Rule: 'dummy_var < dummy_var{}' \nfn_perc = 60%") +
+  theme(plot.subtitle=element_text(size = 12, color = "black", 
+                                   family = "serif"))
+
+ggarrange(p1, pn, p2, nrow = 1, widths = c(1,0.1,1))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Relative conditions.** The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. **On the left**, relative focal cell rule `'dummy_var < dummy_var[]'`. Test cells are classified if their value is smaller than the value of the focal cell. **On the right**, relative neighborhood rule `'dummy_var < dummy_var{}'` with `fn_perc = 60%`. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span></div>
 
 
 

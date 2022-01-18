@@ -121,7 +121,7 @@
       <h1 data-toc-skip>Classification rules</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Fri 14, January, 2022</h4>
+            <h4 data-toc-skip class="date">Tue 18, January, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_3_ClassRules.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_3_ClassRules.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_3_ClassRules.Rmd</code></div>
@@ -130,47 +130,79 @@
 
     
     
-<p>In <code>scapesClassification</code>, geo-spaces are classified using user-defined classification rules presented in the form of <a href="https://en.wikipedia.org/wiki/Conditional_(computer_programming)" title="Wikipedia definition" class="external-link">conditional statements</a>. Classification rules evaluate either to true or false and determine, at each classification step, what raster cells are mapped to a class.</p>
-<p>Classifications start by converting single and multi-layer raster objects into <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute tables</a>. Each column of the attribute table represents a variable and contains the values of a raster layer. Classification rules can be built accessing by name the variables stored in the attribute table. For instance, if our attribute table has two columns named <code>"slope"</code> and <code>"height"</code> we could build the following classification rule: <code>"slope &gt; 5 &amp; height &gt; 1000"</code>.</p>
-<p>Rules are passed to a scapesClassification function as a single <strong><code>character string</code></strong>. They consist of combination of arithmetic (<code>+|-|*|/|^|%%|%/%</code>), relational (<code>&gt;|&lt;|&gt;=|&lt;=|==|!=|%/%</code>) and logic operators (<code>&amp;||</code>), base R functions (e.g., <code>abs(variable_name)</code>), variables names (i.e., <code>names(attTbl)</code>) and previous classifications (either stored as <code>"classVector"</code> or as rasters) (see <code><a href="../reference/conditions.html">?conditions</a></code>).</p>
+<p>In <code>scapesClassification</code>, geo-spaces are classified using user-defined classification rules presented in the form of <a href="https://en.wikipedia.org/wiki/Conditional_(computer_programming)" title="Wikipedia definition" class="external-link">conditional statements</a>. Classification rules evaluate either to true or false and determine what raster cells belong to a class.</p>
+<p>Classification rules access by name the variables stored in the attribute table (see the article <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">format inputs</a> and <code><a href="../reference/attTbl.html">?attTbl</a></code>). For instance, the classification rule <code>"slope &gt; 5 &amp; height &gt; 1000"</code> would refer to the values stored in the columns <code>"slope"</code> and <code>"height"</code> and compare them against the respective threshold value.</p>
+<p>ScapesClassification functions accept rules in the form of <strong><code>character string</code></strong>. Rules can include a combination of arithmetic (<code>+|-|*|/|^|%%|%/%</code>), relational (<code>&gt;|&lt;|&gt;=|&lt;=|==|!=|%/%</code>) and logic operators (<code>&amp;||</code>), base R functions (e.g., <code>abs(variable_name)</code>), variables names (i.e., <code>names(attTbl)</code>) and previous classifications (either stored as <code>"classVector"</code> or as rasters) (see <code><a href="../reference/conditions.html">?conditions</a></code>).</p>
 <div class="section level2">
 <h2 id="definitions">Definitions<a class="anchor" aria-label="anchor" href="#definitions"></a>
 </h2>
-<p>The different types of classification rules used by <code>scapesClassification</code> can be better explained considering <a href="#figure1">Figure 1</a> and the following definitions:</p>
+<p>The different types of classification rules used by <code>scapesClassification</code> can be better explained considering <a href="#figure1">figure 1</a> and the following definitions:</p>
 <ul>
-<li><p><strong>Cell neighborhood.</strong> The neighborhood of a raster cell with coordinates <code>(x, y)</code> counts 8 neighbors with coordinates <code>(x±1, y)</code>, <code>(x, y±1)</code> and <code>(x±1, y±1)</code>. Note that edge cells have less than 8 neighbors (see <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">“Format inputs”</a>). <em>In <a href="#figure1">Figure 1</a> are presented the focal and the test cells neighborhoods</em>.</p></li>
-<li><p><strong>Focal cell.</strong> Cell identified by a particular class. Cells in the neighborhood of a focal cell are evaluated against the classification rule(s). <em>In <a href="#figure2">Figure 1</a> there is one focal cell, cell number 25.</em></p></li>
-<li><p><strong>Test cell.</strong> The cell in the neighborhood of the focal cell that is being tested. At turns all cells in the neighborhood of a focal cell are tested against the classification rule(s). <em>In <a href="#figure1">Figure 1</a> the cell being tested is cell 17.</em></p></li>
-<li><p><strong>Directional neighborhood.</strong> It consists of the intersection between the focal and the test cell neighborhoods. <em>In <a href="#figure1">Figure 1</a> it is marked by a red border and includes cells <code>17, 18, 24, 25</code>.</em></p></li>
+<li><p><strong>Cell neighborhood.</strong> The neighborhood of a raster cell with coordinates <code>(x, y)</code> counts 8 neighbors with coordinates <code>(x±1, y)</code>, <code>(x, y±1)</code> and <code>(x±1, y±1)</code>. Note that edge cells have less than 8 neighbors (see the article <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">format inputs</a> and <a href="#figure1">figure 1</a>).</p></li>
+<li><p><strong>Focal cell.</strong> Cell identified by a particular class. Cells in the neighborhood of a focal cell are evaluated against the classification rule(s). <em>In <a href="#figure2">figure 1</a> there is one focal cell, cell number 32.</em></p></li>
+<li><p><strong>Test cell.</strong> The cell in the neighborhood of the focal cell that is being tested. At turns all cells in the neighborhood of a focal cell are tested against the classification rule(s). <em>In <a href="#figure1">figure 1</a> the cell being tested is cell 25.</em></p></li>
+<li><p><strong>Directional neighborhood.</strong> It consists of the intersection between the focal and the test cell neighborhoods. <em>In <a href="#figure1">figure 1</a> it is marked by a red border and includes cells <code>24, 25, 26, 31, 32 and 33</code>.</em></p></li>
 </ul>
 <p><a id="figure1"></a></p>
 <p><img src="scapesClassification_01_3_ClassRules_files/figure-html/def-1.png" width="99%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 1</strong> - Raster values correspond to cell numbers (<code>1:49</code>). <strong>The focal cell</strong> is cell number 25 (in blue). the <strong>test cell</strong> is cell number 17 (in yellow). <strong>The focal cell neighborhood</strong> is marked by the blue border (cells <code>17,18,19,24,26,31,32,33</code>). <strong>The test cell neighborhood</strong> is marked by the yellow border (cells <code>9,10,11,16,18,23,24,25</code>). <strong>The directional neighborhood</strong> is marked by the red border (cells <code>17,18,24,25</code>).</span>
+<span class="legend"><strong>Figure 1</strong> - On the left, raster values correspond to cell numbers (<code>1:49</code>). <strong>The focal cell</strong> is cell number 32 (in blue). The <strong>test cell</strong> is cell number 25 (in yellow). <strong>The focal cell neighborhood</strong> is marked by the blue border (cells <code>24,25,26,31,33,38,39,40</code>). <strong>The test cell neighborhood</strong> is marked by the yellow border (cells <code>17,18,19,24,26,31,32,33</code>). <strong>The directional neighborhood</strong> is marked by the red border (cells <code>24,25,26,31,32,33</code>). On the right, a dummy raster layer named <code>'dummy_var'</code>.</span>
 </div>
 </div>
 <div class="section level2">
 <h2 id="types-of-classification-rules">Types of classification rules<a class="anchor" aria-label="anchor" href="#types-of-classification-rules"></a>
 </h2>
-<p>In the following sections are introduced the types of rules that can be considered by <code>scapesClassification</code> functions. Additional information can be found in the documentation of the function <code><a href="../reference/conditions.html">conditions()</a></code> and in the article <a href="">“Classification functions”</a>.</p>
-<p>The dummy raster of <a href="#figure2">figure 2</a> will be used to illustrate the different types of classification rules.</p>
-<p><a id="figure2"></a></p>
-<p><img src="scapesClassification_01_3_ClassRules_files/figure-html/figure2-1.png" width="99%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 2 -</strong> Example of a raster object. On the left, raster cell numbers; on the right raster data (included in the attribute table with the name <code>'dummy_var'</code>). The initial anchor cell is in blue.</span>
-</div>
+<p>The dummy raster of <a href="#figure1">figure 1</a> will be used to illustrate the different types of classification rules used by <code>scapesClassification</code> functions. Additional information can be found in the documentation of the function <code><a href="../reference/conditions.html">conditions()</a></code> and in the article <a href="">“classification functions”</a>.</p>
 <div class="section level3">
 <h3 id="absolute-conditions">Absolute conditions<a class="anchor" aria-label="anchor" href="#absolute-conditions"></a>
 </h3>
-<p>Absolute conditions compare a test cell against a user-defined threshold value.</p>
-<p>There are two types of absolute conditions:</p>
-<p><strong>1) Test cell rule.</strong> Compares the <em>test cell</em> value against a threshold value (<a href="#figure3">Figure 3</a>);</p>
-<p><strong>2) Test cell neighborhood rule.</strong> Compares the values of the cells in the <em>test cell neighborhood</em> against a threshold value. The argument of the classification functions <code>fn_perc</code> determines the percentage of cells in the neighborhood for which the condition has to be true for the final evaluation to be positive (<a href="#figure3">Figure 3</a>).</p>
+<p>Absolute conditions compare a variable value against a user-defined threshold value. There are two types of absolute conditions: (i) <em>absolute test cell rule</em> and (ii) <em>absolute neighborhood rule</em> (<a href="#figure2">Figure 2</a>).</p>
+<ol style="list-style-type: lower-roman">
+<li><p><strong>Absolute test cell rule.</strong> Compares the <em>test cell</em> value against a threshold value. Test cells are classified if the rule evaluation is true.</p></li>
+<li>
+<p><strong>Absolute neighborhood rule.</strong> Compares the values of the <em>test cell</em> and of its <em>neighborhood</em> against a threshold value and has the following properties:</p>
+<ul>
+<li><p>It is identified by a variable name followed by curly brackets (e.g., <code>'dummy_var{}'</code>);</p></li>
+<li><p>A maximum of 9 evaluations are performed for each test cell (the test cell itself and its neighborhood are compared against a threshold value);</p></li>
+<li><p>Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument <code>fn_perc</code>. In <a href="#figure2">figure 2</a> <code>fn_perc</code> is set to 60%, meaning that test cells are classified if the condition is true for at least 6 out of the 9 cells comprising the test cell and its neighborhood (60% of 9 evaluations is equal to 5.4 true evaluations);</p></li>
+<li><p>Only one neighborhood rule is allowed for each condition string (e.g., it is not possible to have a condition string like <code>'dummy_var1{} &gt; 0 &amp; dummy_var2{} &gt; 1'</code>).</p></li>
+</ul>
+</li>
+</ol>
+<p><a id="figure2"></a></p>
+<p><img src="scapesClassification_01_3_ClassRules_files/figure-html/figure2-1.png" width="99%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 2 - Absolute conditions.</strong> The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. <strong>On the left</strong>, absolute test cell rule <code>'dummy_var &gt;= 3'</code>. Test cells are classified if their value is &gt;= 3. <strong>On the right</strong>, absolute neighborhood rule <code>'dummy_var{} &gt;= 3'</code> with <code>fn_perc = 60%</code>. Test cells are classified if at least 6 out of the 9 cells comprising the test cell and its neighborhood have values &gt;= 3 (60% of 9 evaluations is equal to 5.4 true evaluations).</span>
+</div>
+</div>
+<div class="section level3">
+<h3 id="relative-conditions">Relative conditions<a class="anchor" aria-label="anchor" href="#relative-conditions"></a>
+</h3>
+<p>Relative conditions compare the values of contiguous cells. There are two types of relative conditions: (i) <em>relative focal cell rule</em> and (ii) <em>relative neighborhood rule</em> (<a href="#figure3">Figure 3</a>).</p>
+<ol style="list-style-type: lower-roman">
+<li>
+<p><strong>Relative focal cell rule.</strong> Compares the <em>test cell</em> value against the <em>focal cell</em> value and has the following properties:</p>
+<ul>
+<li><p>It is identified by a variable name followed by square brackets (e.g., <code>'dummy_var[]'</code>);</p></li>
+<li><p>Rules are defined repeating twice the same variable name, once with square brackets and once without. Square brackets indicate the focal cell value. In <a href="#figure3">figure 3</a> the rule <code>'dummy_var &lt; dummy_var[]'</code> compares the value of the the test cell (<code>dummy_var</code>) against the value of the focal cell (<code>dummy_var[]</code>);</p></li>
+<li><p>Test cells are classified if the rule is true.</p></li>
+</ul>
+</li>
+<li>
+<p><strong>Relative neighborhood rule.</strong> Compares the values of the <em>test cell</em> against the values of its <em>neighborhood</em> and has the following properties:</p>
+<ul>
+<li><p>It is identified by a variable name followed by curly brackets (e.g., <code>'dummy_var{}'</code>);</p></li>
+<li><p>Rules are defined repeating twice the same variable name, once with curly brabrackets and once without. Curly brackets indicate the test cell neighborhood. In <a href="#figure3">figure 3</a> the rule <code>'dummy_var &lt; dummy_var{}'</code> compares the value of the the test cell (<code>dummy_var</code>) against the values of the test cell neighborhood (<code>dummy_var{}</code>).</p></li>
+<li><p>Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument <code>fn_perc</code>. In <a href="#figure3">figure 3</a> <code>fn_perc</code> is set to 60%, meaning that test cells are classified if the value of the test cell is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations);</p></li>
+<li><p>Only one neighborhood rule is allowed for each condition string (e.g., it is not possible to have a condition string like <code>'dummy_var1{} &gt; dummy_var1 &amp; dummy_var2{} &gt; 1'</code>).</p></li>
+</ul>
+</li>
+</ol>
 <p><a id="figure3"></a></p>
-<p><img src="scapesClassification_01_3_ClassRules_files/figure-html/figure3a-1.png" width="99%" style="display: block; margin: auto;"></p>
-<p>Absolute, test cell neighborhood condition.</p>
-<p>Relative, focal cell condition.</p>
-<p>Relative, test cell neighborhood condition.</p>
+<p><img src="scapesClassification_01_3_ClassRules_files/figure-html/figure3-1.png" width="99%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 2 - Relative conditions.</strong> The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. <strong>On the left</strong>, relative focal cell rule <code>'dummy_var &lt; dummy_var[]'</code>. Test cells are classified if their value is smaller than the value of the focal cell. <strong>On the right</strong>, relative neighborhood rule <code>'dummy_var &lt; dummy_var{}'</code> with <code>fn_perc = 60%</code>. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span>
+</div>
 </div>
 </div>
   </div>

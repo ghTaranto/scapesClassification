@@ -14,8 +14,8 @@ knitr::opts_chunk$set(out.width = "70%", echo = TRUE, fig.align='center', messag
 ```
 
 
-## Vectorized evaluation
-Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. `cell value > threshold`) or when we evaluate at what locations different spatial objects overlap (e.g., functions `cond.4.all()` and `anchor.svo()`). 
+## Global evaluation
+Classification rules can be applied to all raster cells. For instance, when we set one or more threshold values (e.g. `cell value > threshold`) or when we evaluate at what locations different spatial objects overlap (e.g., functions `cond.4.all()` and `anchor.svo()`). 
 
 <a id="figure1"></a>
 
@@ -73,7 +73,7 @@ gifski::save_gif(vect_eval(), "v_eval.gif", delay = 2.8, width = 800,
 knitr::include_graphics("v_eval.gif")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Vectorized evaluation**. All cells respecting the classification rule `"cell value > 1"` are classified simultaneously.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Global evaluation**. All cells respecting the classification rule `"cell value > 1"` are classified.</span></div>
 
 ## Focal evaluation
 In other cases it can be more fruitful to perform targeted evaluations where classification rules are only tested at specific positions on a raster. These positions can be identified based on their adjacency to particular raster cells that we will call **anchor cells**. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial objects.  

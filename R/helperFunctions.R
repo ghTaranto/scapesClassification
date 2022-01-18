@@ -195,6 +195,92 @@
 #'   [cond.reclass()], [classify.all()]
 #'
 #' @export
+#' @examples
+#' # TYPES OF CONDITIONS
+#'
+#' # As an example consider an attribute with the following columns
+#' names_attTbl <- c("bathymetry", "slope")
+#'
+#' # And the following conditions
+#' cond <- "bathymetry>10"
+#' conditions(names_attTbl, cond)
+#'
+#' cond <- "classVector != 1"
+#' conditions(names_attTbl, cond)
+#'
+#' cond <- "bathymetry[]>bathymetry | abs(slope{}) < 5"
+#' conditions(names_attTbl, cond)
+#'
+#' cond <- "bathymetry[]>bathymetry | abs(slope{}) < slope"
+#' conditions(names_attTbl, cond)
+#'
+#' \dontrun{
+#' # The function conditions detect syntax and spelling errors
+#'
+#' cond <- "bathymetry[]>10 & | abs(slope{}) < 5"
+#' conditions(names_attTbl, cond)
+#'
+#' cond <- "baxxxthymetryxxx[]>10 &  abs(slope{}) < 5"
+#' conditions(names_attTbl, cond)
+#' }
+#'
+#' # PREPARE PLOT
+#' library(scapesClassification)
+#' library(raster)
+#' library(ggplot2)
+#' library(reshape2)
+#' library(ggpubr)
+#'
+#' m     <- matrix(1:49, nrow = 7, ncol = 7, byrow = TRUE)
+#'
+#' r   <- raster(m)
+#' nbs <- ngbList(r)
+#'
+#' m <- t(m)[,nrow(m):1]
+#' m_long <- melt(m)
+#'
+#' m_long$tags[m_long$value == 32] <- "FC"
+#' m_long$tags[m_long$value == 25] <- "TC"
+#'
+#' npool <- unique(unlist(nbs[c("32", "25")]))
+#' m_long$whites[m_long$value %in% npool] <- m_long$value[m_long$value %in% npool]
+#'
+#' m_long$tags <- as.factor(m_long$tags)
+#'
+#' p1 <- ggplot(m_long, aes(x=Var1, y=Var2)) +
+#'  geom_tile(aes(fill=tags), colour="gray90", lwd=1.5, show.legend = FALSE) +
+#'  coord_fixed(ratio=1) +
+#'  geom_text(aes(label=value), color = "grey50", family=c("serif"), size=8, na.rm=TRUE) +
+#'  geom_text(aes(label=whites), color = "white", family=c("serif"), size=8, na.rm=TRUE) +
+#'  scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") +
+#'  geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 1.5, ymax = 4.5),
+#'  fill = "transparent", color="#1088a0", lwd = 1.5) +
+#'  geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5),
+#'  fill = "transparent", color="goldenrod3", lwd = 1.5) +
+#'  geom_rect(aes(xmin = 2.6, xmax = 5.4, ymin = 2.6, ymax = 4.4),
+#'  fill = "transparent", color="red", lwd = 1.2) +
+#'  theme_void()  +
+#'  scale_x_discrete(expand=c(0,0)) + scale_y_discrete(expand=c(0,0)) +
+#'  labs(title = "Cell numbers") +
+#'  theme(plot.title=element_text(size = 16, face = "bold", color = "black", family = "serif"))
+#'
+#' # FOCAL EVALUATION DEFINITIONS
+#'
+#' p1
+#' # FOCAL CELL
+#' # Cell 32
+#'
+#' # TEST CELL
+#' # Cell 25
+#'
+#' # FOCAL CELL NEIGHBORHOOD
+#' # Cells 24, 25, 26, 31, 33, 38, 39, 40
+#'
+#' # TEST CELL NEIGHBORHOOD
+#' # Cells 17, 18, 19, 24, 26, 31, 32, 33
+#'
+#' # DIRECTIONAL NEIGHBORHOOD
+#' # Cells 24, 25, 26, 31, 32, 33
 
 conditions <- function(names_attTbl,
                        cond,

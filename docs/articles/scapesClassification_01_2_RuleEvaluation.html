@@ -121,7 +121,7 @@
       <h1 data-toc-skip>Rule evaluation</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Fri 14, January, 2022</h4>
+            <h4 data-toc-skip class="date">Tue 18, January, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_2_RuleEvaluation.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_2_RuleEvaluation.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_2_RuleEvaluation.Rmd</code></div>
@@ -131,13 +131,13 @@
     
     
 <div class="section level2">
-<h2 id="vectorized-evaluation">Vectorized evaluation<a class="anchor" aria-label="anchor" href="#vectorized-evaluation"></a>
+<h2 id="global-evaluation">Global evaluation<a class="anchor" aria-label="anchor" href="#global-evaluation"></a>
 </h2>
-<p>Classification rules can be evaluated for all raster cells simultaneously. For instance, when we set one or more threshold values (e.g. <code>cell value &gt; threshold</code>) or when we evaluate at what locations different spatial objects overlap (e.g., functions <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> and <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code>).</p>
+<p>Classification rules can be applied to all raster cells. For instance, when we set one or more threshold values (e.g. <code>cell value &gt; threshold</code>) or when we evaluate at what locations different spatial objects overlap (e.g., functions <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> and <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code>).</p>
 <p><a id="figure1"></a></p>
 <p><img src="v_eval.gif" width="70%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 1 - Vectorized evaluation</strong>. All cells respecting the classification rule <code>"cell value &gt; 1"</code> are classified simultaneously.</span>
+<span class="legend"><strong>Figure 1 - Global evaluation</strong>. All cells respecting the classification rule <code>"cell value &gt; 1"</code> are classified.</span>
 </div>
 </div>
 <div class="section level2">
