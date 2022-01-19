@@ -1,0 +1,273 @@
+---
+title: "Classification functions"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Classification functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FALSE, out.width = "100%")
+```
+
+## Class vectors
+
+Class vectors map raster cells to numeric classes (or to NA-values if no class is attributed). The n^th^ element of a class vector corresponds to the raster cell stored in the n^th^ row of an [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table). Class vectors are used by classification functions to store the results of their classifications. 
+
+Class vectors can also be used as function inputs. As inputs, they provide information about what cells have been classified and allow to consider class contiguity and class continuity in rule evaluations (see the article ["rule evaluation"](scapesClassification_01_2_RuleEvaluation.html)). 
+
+When a class vector is provided as an input, classification functions do not attribute a class to classified cells  (non-NA cells in the class vector) unless the argument `overwrite_class = TRUE`. With the exception of the function `anchor.seed()`, every time a class vector is provided as a function input, it is updated by the function with the new classifications.
+
+## Dummy raster 
+
+In order to show the functioning of the different classification functions we will use a dummy raster converted into an [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table) and named `"dummy_var"`.
+
+<a id="figure1"></a>
+
+```{r def, message=FALSE, warning=FALSE, echo=TRUE}
+library(raster)
+library(scapesClassification)
+
+# CREATE A DUMMY RASTER 
+m   <- matrix(1, nrow = 7, ncol = 7, byrow = TRUE)
+r   <- raster(m)
+nbs <- ngbList(r)
+
+r[20] <- 10
+n1 <- nbs[["20"]]
+r[n1] <- 5
+
+n2 <- setdiff(unique(unlist(nbs[n1])), n1)
+
+r[n2] <- 3
+r[20] <- 10
+r[c(34,35)] <- 2
+
+r[43] <- 8
+n1 <- nbs[["43"]]
+r[n1] <- 5
+
+n2 <- setdiff(unique(unlist(nbs[n1])), n1)
+r[n2] <- 2
+r[43] <- 8
+```
+
+```{r def_at, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+head(at)
+```
+
+```{r dummy_rast_plot, message=FALSE, warning=FALSE, echo=TRUE}
+# PLOT RASTER
+par(mar = c(0.1, 2, 0.5, 0.1))
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Dummy raster used to illustrate `scapesClassification` functions.</span></div>
+
+## Anchor cell functions
+
+**Functions:** `anchor.svo()`, `anchor.cell()` and `cond.4.all()`.
+
+Anchor cells can be thought of as raster cells having particular characteristics from where the classification process can start. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics (e.g., flat areas), local maxima or minima (e.g., local peaks on a mountain ridge) or spatial objects (e.g., shapefiles).  
+
+Anchor cell functions can be easily identified because they do not necessarily require a class vector as an input. 
+
+### anchor.svo and anchor.cell
+
+To illustrate the functions `anchor.svo()` and `anchor.cell()` we will use the data stored within the package. These data include several raster layers around the central group of the Azores Islands and the shapefile of the islands (see the article [working example](scapesClassification_02_0_GMU.html) for additional details).  
+
+We will start by loading the data and the libraries and by computing the attribute table and the list of neighborhoods. 
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
+# LOAD LIBRARIES
+library(raster)
+library(scapesClassification)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- stack(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+
+# ISLAND SHAPEFILE PATH
+shp <- system.file("extdata", "Azores.shp", package = "scapesClassification")
+```
+
+The function `anchor.svo()` returns a vector of cell numbers extracted at the locations of a spatial vector object. In this case it will extract "land cells" at the locations of the island shapefile. 
+
+Function arguments:
+
+* `only_NAs = TRUE`, cell numbers extracted only at the locations of a spatial vector object that are not complete cases (i.e. have some missing values in some of the layers of the `Raster*` object).
+
+* `fill_NAs = TRUE`, cell numbers extracted also at locations contiguous to those of the spatial vector object that are not complete cases (i.e. have some missing values in some of the layers of the `Raster*` object). 
+
+```{r ISU_land, message=FALSE, warning=FALSE, collapse = TRUE}
+# EXTRACT LAND POSITIONS
+anchorLAND <- anchor.svo(rstack              = rstack, 
+                         spatial_vector_name = shp, 
+                         only_NAs            = TRUE, 
+                         fill_NAs            = TRUE, 
+                         plot                = FALSE)
+
+# CELL NUMBERS AT THE LOCATION OF `shp`
+head(anchorLAND)
+```
+
+The function `anchor.cell()` converts a vector of cell numbers into a class vector. In this case we want to attribute a classification number (argument `class = 1`) to cells adjacent to land cells.
+
+Function arguments:
+
+* `class2cell = FALSE`, the classification number is not attributed to cells included in the vector `anchorLAND`. 
+
+* `class2nbs = TRUE`, the classification number is attributed to cells adjacent to those included in the vector `anchorLAND`. 
+
+```{r ISU_anchor, message=FALSE, warning=FALSE, collapse = TRUE}
+# COMPUTE ANCHOR CELLS
+anchorCELL <- anchor.cell(attTbl     = atbl, 
+                          rstack     = rstack, 
+                          anchor     = anchorLAND, 
+                          class      = 1,
+                          class2cell = FALSE,
+                          class2nbs  = TRUE,
+                          plot       = FALSE) 
+
+# EXTRACT anchorCELL FROM THE ATTRIBUTE TABLE
+head( atbl$Cell[which(anchorCELL == 1)] )
+```
+
+Finally we can visualize our results using the packages `mapview` and `leaflet` ([Figure 2](#figure2)).
+
+<a id="figure2"></a>
+```{r leaflet, message=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(mapview)
+library(leaflet)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# ISU_anchor
+island <- rgdal::readOGR(dsn = shp, verbose = F)
+island <- sp::spTransform(island, raster::crs(rstack))
+island$BASE[c(5,4,49)] <- c("Pico", "Faial", "Sao Jorge") # mouseover labels
+
+rL  <- rstack[[1]]; rL[]  <- NA; rL[anchorLAND] <- 1
+rAC <- rstack[[1]]; rAC[] <- NA; rAC[atbl$Cell] <- anchorCELL
+
+# convert to polygon so that mapview projection does not affect visualization
+rL  <- rasterToPolygons(rL, dissolve = TRUE)
+rAC <- rasterToPolygons(rAC, dissolve = TRUE)
+
+# add a column so that mapview legend reads layer.name and not values
+rL$dummy  <- 1
+rAC$dummy <- 1
+
+mv <- 
+  mapview(rAC, alpha.regions = 1, 
+             col.regions = "orange", layer.name = "Anchor cell", popup = NULL, label = "Anchor Cell") + 
+  mapview(rL, alpha.regions = 1, 
+          col.regions = "black", layer.name = "Land cell", popup = NULL, label = "Land cell") + 
+  mapview(island, alpha.region = 0, col.regions = "cyan", color = "cyan", lwd = 2, label = "BASE", 
+          layer.name = "Island shapefile", popup = NULL)
+
+mv@map %>% 
+  setView(lng = -28.35, lat = 38.59, zoom = 10) %>%
+  addLayersControl(baseGroups = c("OpenStreetMap", "Esri.OceanBasemap"),
+                   overlayGroups = c("Anchor cell", "Land cell", "Island shapefile"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** **Anchor cell:** raster cells adjacent to a 'land cell'. **Land cell**: raster cells extracted at the locations of the 'island shapefile' that are not complete cases and all adjacent cells that are not complete cases either. **Island shapefile**: the shapefile of Faial, Pico and São Jorge Islands.</span></div>
+
+
+### cond.4.all()
+
+The function `cond.4.all()` can be used to evaluate absolute test cell conditions (see `?conditions` and the article ["classificaton rules"](scapesClassification_01_3_ClassRules.html)). It performs global evaluations (see the article ["rule evaluation"](scapesClassification_01_2_RuleEvaluation.html)). 
+
+Using the dummy raster as an example, we can identify all cells having a value of 1:
+
+```{r cond_4_all1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE CLASS VECTOR
+cv   <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 10)
+
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
+```
+
+The element `cv` is a class vector. The classification number `10` (argument `class = 10`) was assigned to all cells having a value equal to 1 (argument `conditions = "dummy_var == 1"`). 
+
+The element `r_cv` is the class vector `cv` converted into a raster by the function `cv.2.rast()`. It can be plotted and manipulated as a normal raster object ([Figure 3](#figure3)).
+
+<a id="figure3"></a>
+```{r cond_4_all1_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET PLOT LAYOUT
+par(mar = c(0.0, 0.0, 0.0, 0.0), mfcol=c(1, 2))
+
+# PLOT THE DUMMY RASTER 
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+
+# PLOT THE CLASS VECTOR
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="grey30", col=terrain.colors(1))
+text(r_cv)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells are recognizable by having associated a classification number (`10`); unclassified cells are showed in dark grey.</span></div>
+
+When no class vector is available, as for instance at the beginning of a classification process, the function `cond.4.all()` can be used to identify areas having particular characteristics (e.g., flat areas). 
+
+The function `cond.4.all()` can also be used when a class vector is already available. For instance, consider the rule `"dummy_var <= 3"`. This rule applied on our dummy raster would classify raster cells having values of 1, 2 and 3. However, if we consider the class vector `cv` as a previous classification step, raster cells equal to 1 would be ignored by the function. 
+
+```{r cond_4_all2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# UPDATE THE CLASS VECTOR
+
+# UPDATED CLASS VECTOR
+cv   <- cond.4.all(attTbl = at, conditions = "dummy_var <= 3", class = 1,
+                   
+                   # INITIAL CLASS VECTOR
+                   classVector = cv) 
+
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
+```
+
+The class vector `cv` presents now two classification numbers, number `10` assigned in the previous evaluation and number `1` assigned in the last evaluation ([Figure 4](#figure4)). 
+
+<a id="figure4"></a>
+```{r cond_4_all2_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET PLOT LAYOUT
+par(mar = c(0.0, 0.0, 0.0, 0.0), mfcol=c(1, 2))
+
+# PLOT THE DUMMY RASTER 
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+
+# PLOT THE CLASS VECTOR
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="grey30", col=terrain.colors(2))
+text(r_cv)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells are recognizable by having associated classification numbers (`10` and `1`); unclassified cells are showed in dark grey.</span></div>
+
+## User condition functions
+
+**Functions:** `cond.4.nofn()`, `cond.reclass()` and `cond.4.all()`.
+
+User condition functions present the `conditions` argument and generally require a class vector as input. Excluding the function `cond.4.all()` (that can be considered both an anchor cell and a user condition function), user condition functions always perform [focal evaluations](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation).
+
+
+

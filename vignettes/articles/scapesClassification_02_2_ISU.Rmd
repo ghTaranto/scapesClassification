@@ -140,7 +140,7 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = TRUE))
 ```
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** **Anchor cell:** raster cells adjacent to a 'land cell'. **Land cell**: raster cells extracted at the locations of the 'island shapefile' that are not complete cases and all adjacent cells that are not complete cases either. **Complete cases**: raster cells having no missing values in no layer of the stack ([Figure 1](#figure1)); note that no overlap exists between "land cell" and "complete cases". **Island shapefile**: the shapefile of Faial, Pico and São Jorge Islands.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** **Anchor cell:** raster cells adjacent to a 'land cell'. **Land cell**: raster cells extracted at the locations of the 'island shapefile' that are not complete cases and all adjacent cells that are not complete cases either. **Complete cases**: raster cells having no missing values in no layer of the stack; note that no overlap exists between "land cell" and "complete cases". **Island shapefile**: the shapefile of Faial, Pico and São Jorge Islands.</span></div>
 
 
 ## 2.3 ISU - Island shelf cells

@@ -1,16 +1,16 @@
-#' Set Anchor Cells from Spatial Vector Objects
+#' Anchor cells from spatial vector objects
 #'
-#' Returns a vector of cell numbers overlapping with the locations of spatial
-#' vector data. These cells can be used as anchor cells in other
-#' \code{scapesClassification} functions.
+#' Returns a vector of raster cell numbers extracted at the locations of a
+#' spatial vector object.
 #'
 #' @param rstack \code{Raster*} object.
 #' @param spatial_vector_name OGR data source name.
-#' @param only_NAs logic, return only cell numbers overlapping with the spatial
-#'   vector data that have missing values in rstack.
-#' @param fill_NAs logic, return cell numbers of cells adjacent to those
-#'   overlapping with the spatial vector data that have missing values in
-#'   rstack.
+#' @param only_NAs logic, cell numbers extracted only at the locations of a
+#'   spatial vector object that are not complete cases (i.e. have some missing
+#'   values in some of the layers of the \code{Raster*} object).
+#' @param fill_NAs logic, cell numbers extracted also at locations contiguous to
+#'   those of the spatial vector object that are not complete cases (i.e. have
+#'   some missing values in some of the layers of the \code{Raster*} object).
 #' @param plot logic, plot anchor points.
 #' @param saveRDS filename, if a file name is provided save the anchor cell
 #'   vector as an RDS file.
@@ -19,13 +19,11 @@
 #' @param overWrite logic, if RDS and raster names already exist, existing files
 #'   are overwritten.
 #'
-#' @return anchor cell vector.
+#' @return Numeric vector of raster cell numbers.
 #'
-#' @details When the arguments \code{only_NA} and \code{fillNAs} are FALSE the
+#' @details When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
 #'   output is equivalent to the output of the function \code{raster::extract()}
-#'   over a raster whose values are cell numbers. Cell numbers start with 1 in
-#'   the upper-left corner and increase from left to right and from top to
-#'   bottom.
+#'   over a raster whose values are cell numbers.
 #'
 #' @export
 #'
@@ -119,40 +117,43 @@ anchor.svo <- function(rstack,
 }
 
 
-#' Classify Raster Cells Based on Anchor Cells
+#' Class vector from cell numbers
 #'
-#' Return a classification vector based on anchor cells.
+#' Converts a vector of cell numbers into a class vector.
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
-#'   \code{\link{attTbl}}.
-#' @param rstack \code{RasterStack} or \code{RasterLayer} object used to compute
-#'   the attribute table (see \code{\link{attTbl}}).
-#' @param anchor integer vector, contains the cell numbers to be considered as
-#'   anchor points.
-#' @param class numeric, the class to attribute to cells meeting contiguity
-#'   conditions.
+#'   \code{\link{attTbl}} (see \code{\link{attTbl}}).
+#' @param rstack The \code{Raster*} object used to compute the attribute table
+#'   (see \code{\link{attTbl}}).
+#' @param anchor integer vector, vector of raster cell numbers.
+#' @param class numeric, the classification number to attribute to cells
+#'   indicated by the argument \code{anchor}.
 #' @param classVector numeric vector, defines the cells in the attribute table
-#'   that have already been classified.
-#' @param class2cell logic, attribute the new classification, defined by the
-#'   argument \code{class}, to \code{anchor} cells.
-#' @param class2nbs logic, attribute the new classification, defined by the
-#'   argument \code{class}, to the cells adjacent to \code{anchor} cells.
-#' @param overwrite_class logic, reclassify cells that have already been
+#'   that have already been classified. If provided, the function do not
+#'   attribute a class to cells that were already classified unless the argument
+#'   \code{overwrite_class = TRUE}.
+#' @param class2cell logic, attribute the classification number to the cells
+#'   indicated by argument \code{anchor}.
+#' @param class2nbs logic, attribute the classification number to the cells
+#'   adjacent to the ones indicated by argument \code{anchor}.
+#' @param overwrite_class logic, reclassify cells that had already been
 #'   classified.
 #' @param plot logic, plot \code{classVector}.
-#' @param writeRaster filename, if a raster name is provided save
-#'   \code{classVector} in a raster file.
+#' @param writeRaster filename, if a raster name is provided save the class
+#'   vector in a raster file.
 #' @param overWrite logic, if the raster names already exist, the existing file
 #'   is overwritten.
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. If no \code{classVector} was provided, the function return a
-#'   new classification vector.
+#'   new class vector.
 #'
-#' @details Classify cells of the \code{rstack} argument based on the anchor
-#'   cells provided by \code{anchor}. Return a classification vector that can be
-#'   indexed into \code{rstack} using the \code{Cell} column of the attribute
-#'   table.
+#' @details Converts a vector of cell numbers into a class vector. If a class
+#'   vector is provided as an input (argument \code{classVector}), then this
+#'   class vector is updated assigning a classification number to the cell
+#'   indicated by the argument \code{anchor}. The classification vector can
+#'   be indexed into the \code{rstack} using the \code{Cell} column of the
+#'   attribute table (see \code{\link{attTbl}}).
 #'
 #' @seealso [anchor.seed()], [anchor.svo()], [attTbl()]
 #'

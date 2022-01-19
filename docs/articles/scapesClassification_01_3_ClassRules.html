@@ -64,6 +64,9 @@
     <li>
       <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
     </li>
+    <li>
+      <a href="../articles/scapesClassification_01_4_ClassFunctions.html">Classification functions</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -121,7 +124,7 @@
       <h1 data-toc-skip>Classification rules</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Tue 18, January, 2022</h4>
+            <h4 data-toc-skip class="date">Wed 19, January, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_3_ClassRules.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_3_ClassRules.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_3_ClassRules.Rmd</code></div>
@@ -152,7 +155,7 @@
 <div class="section level2">
 <h2 id="types-of-classification-rules">Types of classification rules<a class="anchor" aria-label="anchor" href="#types-of-classification-rules"></a>
 </h2>
-<p>The dummy raster of <a href="#figure1">figure 1</a> will be used to illustrate the different types of classification rules used by <code>scapesClassification</code> functions. Additional information can be found in the documentation of the function <code><a href="../reference/conditions.html">conditions()</a></code> and in the article <a href="">“classification functions”</a>.</p>
+<p>The dummy raster of <a href="#figure1">figure 1</a> will be used to illustrate the different types of classification rules used by <code>scapesClassification</code> functions. Additional information can be found in the documentation of the function <code><a href="../reference/conditions.html">conditions()</a></code> and in the article <a href="scapesClassification_01_4_ClassFunctions.html">“classification functions”</a>.</p>
 <div class="section level3">
 <h3 id="absolute-conditions">Absolute conditions<a class="anchor" aria-label="anchor" href="#absolute-conditions"></a>
 </h3>
@@ -201,7 +204,7 @@
 <p><a id="figure3"></a></p>
 <p><img src="scapesClassification_01_3_ClassRules_files/figure-html/figure3-1.png" width="99%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 2 - Relative conditions.</strong> The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. <strong>On the left</strong>, relative focal cell rule <code>'dummy_var &lt; dummy_var[]'</code>. Test cells are classified if their value is smaller than the value of the focal cell. <strong>On the right</strong>, relative neighborhood rule <code>'dummy_var &lt; dummy_var{}'</code> with <code>fn_perc = 60%</code>. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span>
+<span class="legend"><strong>Figure 3 - Relative conditions.</strong> The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. <strong>On the left</strong>, relative focal cell rule <code>'dummy_var &lt; dummy_var[]'</code>. Test cells are classified if their value is smaller than the value of the focal cell. <strong>On the right</strong>, relative neighborhood rule <code>'dummy_var &lt; dummy_var{}'</code> with <code>fn_perc = 60%</code>. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span>
 </div>
 </div>
 </div>

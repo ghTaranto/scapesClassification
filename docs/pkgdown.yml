@@ -2,17 +2,18 @@ pandoc: 2.7.3
 pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
+  scapesClassification_01_0_classifications: scapesClassification_01_0_classifications.html
   scapesClassification_01_1_FormatInputs: scapesClassification_01_1_FormatInputs.html
   scapesClassification_01_2_RuleEvaluation: scapesClassification_01_2_RuleEvaluation.html
-  scapesClassification_01_3_classifications: scapesClassification_01_3_classifications.html
   scapesClassification_01_3_ClassRules: scapesClassification_01_3_ClassRules.html
+  scapesClassification_01_4_ClassFunctions: scapesClassification_01_4_ClassFunctions.html
   scapesClassification_02_0_GMU: scapesClassification_02_0_GMU.html
   scapesClassification_02_1_DATA: scapesClassification_02_1_DATA.html
   scapesClassification_02_2_ISU: scapesClassification_02_2_ISU.html
   scapesClassification_02_3_PKS: scapesClassification_02_3_PKS.html
   scapesClassification_02_4_OBJ: scapesClassification_02_4_OBJ.html
   scapesClassification_02_5_OBJ2: scapesClassification_02_5_OBJ2.html
-last_built: 2022-01-18T16:50Z
+last_built: 2022-01-19T14:07Z
 urls:
   reference: https://ghtaranto.github.io/scapesClassification/reference
   article: https://ghtaranto.github.io/scapesClassification/articles

@@ -2,7 +2,7 @@
 % Please edit documentation in R/helperFunctions.R
 \name{cv.2.rast}
 \alias{cv.2.rast}
-\title{Class Vector To Raster}
+\title{Class vector to raster}
 \usage{
 cv.2.rast(
   r,
@@ -14,29 +14,34 @@ cv.2.rast(
 )
 }
 \arguments{
-\item{r}{A \code{Raster*} object on which the values of \code{classVector}
-are assigned at the raster cell numbers indicated by \code{index}. To all
-remaining raster cells are assigned \code{NA values}.}
+\item{r}{The \code{Raster*} object used to compute the attribute table (see
+\code{\link{attTbl}}) or a generic \code{Raster*} object.}
 
-\item{index}{The cell numbers to which each element of \code{classVector}
-correspond. If \code{classVector} was computed with
-\code{scapesClassificaton} functions and with an attribute table
-\code{\link{attTbl}}, this argument correspond to the column
-\code{attTbl$Cell} of the attribute table.}
+\item{index}{numeric vector, the cell numbers of the argument \code{r} to
+which assign the values of the argument \code{classVector}. Within
+\code{scapesClassifications}, this argument normally correspond to the
+column \code{Cell} of the attribute table (see \code{\link{attTbl}}).}
 
-\item{classVector}{numeric vector, the values to be assigned at the raster
-cell numbers indicated by \code{index}.}
+\item{plot}{logic, plot the raster.}
 
-\item{plot}{logic, plot anchor \code{classVector}.}
+\item{writeRaster}{filename, if a raster name is provided save the raster to
+a file.}
 
-\item{writeRaster}{filename, if a raster name is provided save the
-\code{classVector} as a raster file.}
+\item{overWrite}{logic, if the raster names already exist, the existing file
+is overwritten.}
 
-\item{overWrite}{logic, overwrite existing raster.}
+\item{vector}{numeric vector, the values to be assigned to the cell numbers
+indicated by \code{index}.}
 }
 \value{
-The \code{classVector} transformed into a raster.
+A class vector or a generic vector transformed into a raster.
 }
 \description{
-Transform a class vector into a raster.
+Transform a class vector or a generic vector into a raster.
+}
+\details{
+The arguments \code{index} and \code{vector} need to have the same
+length. The function assign the values of \code{vector} at the positions of
+\code{index} to an empty raster having the same spatial properties of the
+raster \code{r}.
 }

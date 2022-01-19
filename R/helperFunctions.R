@@ -382,26 +382,30 @@ conditions <- function(names_attTbl,
   }
 }
 
-#' Class Vector To Raster
+#' Class vector to raster
 #'
-#' Transform a class vector into a raster.
+#' Transform a class vector or a generic vector into a raster.
 #'
-#' @param r A \code{Raster*} object on which the values of \code{classVector}
-#'   are assigned at the raster cell numbers indicated by \code{index}. To all
-#'   remaining raster cells are assigned \code{NA values}.
-#' @param index The cell numbers to which each element of \code{classVector}
-#'   correspond. If \code{classVector} was computed with
-#'   \code{scapesClassificaton} functions and with an attribute table
-#'   \code{\link{attTbl}}, this argument correspond to the column
-#'   \code{attTbl$Cell} of the attribute table.
-#' @param classVector numeric vector, the values to be assigned at the raster
-#'   cell numbers indicated by \code{index}.
-#' @param plot logic, plot anchor \code{classVector}.
-#' @param writeRaster filename, if a raster name is provided save the
-#'   \code{classVector} as a raster file.
-#' @param overWrite logic, overwrite existing raster.
+#' @param r The \code{Raster*} object used to compute the attribute table (see
+#'   \code{\link{attTbl}}) or a generic \code{Raster*} object.
+#' @param index numeric vector, the cell numbers of the argument \code{r} to
+#'   which assign the values of the argument \code{classVector}. Within
+#'   \code{scapesClassifications}, this argument normally correspond to the
+#'   column \code{Cell} of the attribute table (see \code{\link{attTbl}}).
+#' @param vector numeric vector, the values to be assigned to the cell numbers
+#'   indicated by \code{index}.
+#' @param plot logic, plot the raster.
+#' @param writeRaster filename, if a raster name is provided save the raster to
+#'   a file.
+#' @param overWrite logic, if the raster names already exist, the existing file
+#'   is overwritten.
 #'
-#' @return The \code{classVector} transformed into a raster.
+#' @details The arguments \code{index} and \code{vector} need to have the same
+#'   length. The function assign the values of \code{vector} at the positions of
+#'   \code{index} to an empty raster having the same spatial properties of the
+#'   raster \code{r}.
+#'
+#' @return A class vector or a generic vector transformed into a raster.
 #'
 #' @export
 cv.2.rast <- function(r, index, classVector, plot = FALSE, writeRaster = NULL, overWrite = FALSE){

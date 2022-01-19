@@ -250,7 +250,7 @@ ggarrange(p1, pn, p2, nrow = 1, widths = c(1,0.1,1))
 
 ## Types of classification rules
 
-The dummy raster of [figure 1](#figure1) will be used to illustrate the different types of classification rules used by `scapesClassification` functions. Additional information can be found in the documentation of the function `conditions()` and in the article ["classification functions"]().
+The dummy raster of [figure 1](#figure1) will be used to illustrate the different types of classification rules used by `scapesClassification` functions. Additional information can be found in the documentation of the function `conditions()` and in the article ["classification functions"](scapesClassification_01_4_ClassFunctions.html).
 
 ### Absolute conditions
 
@@ -333,7 +333,7 @@ p2 <- p2 + labs(subtitle = "Rule: 'dummy_var < dummy_var{}' \nfn_perc = 60%") +
 ggarrange(p1, pn, p2, nrow = 1, widths = c(1,0.1,1))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Relative conditions.** The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. **On the left**, relative focal cell rule `'dummy_var < dummy_var[]'`. Test cells are classified if their value is smaller than the value of the focal cell. **On the right**, relative neighborhood rule `'dummy_var < dummy_var{}'` with `fn_perc = 60%`. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Relative conditions.** The initial focal cell is showed in dark blue; cells in the focal cell neighborhood meeting the classification rule are showed in light blue. **On the left**, relative focal cell rule `'dummy_var < dummy_var[]'`. Test cells are classified if their value is smaller than the value of the focal cell. **On the right**, relative neighborhood rule `'dummy_var < dummy_var{}'` with `fn_perc = 60%`. Test cells are classified if their value is smaller than 5 or more neighbors (60% of 8 evaluations is equal to 4.8 true evaluations).</span></div>
 
 
 

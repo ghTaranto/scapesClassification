@@ -80,14 +80,38 @@ ggarrange(p1, p2, labels = c("Cell numbers", "Dummy data"), label.y=0.96, label.
 ```
 <div style="line-height: 0.8em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 1 -** Example of a raster object. On the left, raster cell numbers; on the right raster data.</span></div>
 
-We can compute the attribute table with the following code chunk. Note that raster cells 1 and 4 have missing values, therefore, they are not included in the attribute table.
+We can compute the attribute table with the following code chunk. 
+
 ```{r atbl, collapse=TRUE}
 # ATTRIBUTE TABLE
 library(scapesClassification)
 
-attTbl(r, var_names = c("dummy_var"))
+at <- attTbl(r, var_names = c("dummy_var"))
+
+at
 ```
 
+Note that raster cells 1 and 4 have missing values, therefore, they are not included in the attribute table. Note also that when missing values are present in the raster object, the direct correspondence between cell numbers and attribute table row indices is lost (e.g., cell 1 is not included in the table and cell 2 is in the 1^st^ row of the table).
+
+Any column of the attribute table can be indexed back into the original raster object using the `Cell` column or the function `cv.2.rast()`. 
+
+```{r atbl_2_rast, collapse=TRUE}
+# ClassVector or attribute table variable to raster
+r2 <- cv.2.rast(r, at$Cell, at$dummy_var)
+
+# OR
+
+r3          <- r
+r3[]        <- NA
+r3[at$Cell] <- at$dummy_var
+
+# r, r2 and r3 are equivalent
+all.equal(values(r), values(r2), values(r3))
+
+# PLOT r2 
+plot(r2, axes=FALSE, box=FALSE, legend = FALSE)
+text(r2)
+```
 
 ### List of neighborhoods 
 The values and classes existing in the neighborhood of a raster cell can be used to define classification rules. The function `ngbList()` speeds up the evaluation of classification rules by computing and storing in memory as a `list` raster cells' neighborhoods.  

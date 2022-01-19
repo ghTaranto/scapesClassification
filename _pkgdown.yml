@@ -68,6 +68,8 @@ navbar:
           href: articles/scapesClassification_01_2_RuleEvaluation.html
         - text: Classification rules
           href: articles/scapesClassification_01_3_ClassRules.html
+        - text: Classification functions
+          href: articles/scapesClassification_01_4_ClassFunctions.html
     workex:
       text: Working example
       menu:

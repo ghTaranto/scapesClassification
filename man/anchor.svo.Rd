@@ -2,7 +2,7 @@
 % Please edit documentation in R/anchorCells.R
 \name{anchor.svo}
 \alias{anchor.svo}
-\title{Set Anchor Cells from Spatial Vector Objects}
+\title{Anchor cells from spatial vector objects}
 \usage{
 anchor.svo(
   rstack,
@@ -20,12 +20,13 @@ anchor.svo(
 
 \item{spatial_vector_name}{OGR data source name.}
 
-\item{only_NAs}{logic, return only cell numbers overlapping with the spatial
-vector data that have missing values in rstack.}
+\item{only_NAs}{logic, cell numbers extracted only at the locations of a
+spatial vector object that are not complete cases (i.e. have some missing
+values in some of the layers of the \code{Raster*} object).}
 
-\item{fill_NAs}{logic, return cell numbers of cells adjacent to those
-overlapping with the spatial vector data that have missing values in
-rstack.}
+\item{fill_NAs}{logic, cell numbers extracted also at locations contiguous to
+those of the spatial vector object that are not complete cases (i.e. have
+some missing values in some of the layers of the \code{Raster*} object).}
 
 \item{plot}{logic, plot anchor points.}
 
@@ -39,17 +40,14 @@ cell vector as a raster file.}
 are overwritten.}
 }
 \value{
-anchor cell vector.
+Numeric vector of raster cell numbers.
 }
 \description{
-Returns a vector of cell numbers overlapping with the locations of spatial
-vector data. These cells can be used as anchor cells in other
-\code{scapesClassification} functions.
+Returns a vector of raster cell numbers extracted at the locations of a
+spatial vector object.
 }
 \details{
-When the arguments \code{only_NA} and \code{fillNAs} are FALSE the
+When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
 output is equivalent to the output of the function \code{raster::extract()}
-over a raster whose values are cell numbers. Cell numbers start with 1 in
-the upper-left corner and increase from left to right and from top to
-bottom.
+over a raster whose values are cell numbers.
 }
