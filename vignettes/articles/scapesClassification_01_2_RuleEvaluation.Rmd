@@ -76,7 +76,7 @@ knitr::include_graphics("v_eval.gif")
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Global evaluation**. All cells respecting the classification rule `"cell value > 1"` are classified.</span></div>
 
 ## Focal evaluation
-In other cases it can be more fruitful to perform targeted evaluations where classification rules are only tested at specific positions on a raster. These positions can be identified based on their adjacency to particular raster cells that we will call **anchor cells**. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial objects.  
+In other cases it can be more fruitful to perform targeted evaluations where classification rules are only tested at specific positions on a raster. These positions are identified based on their adjacency to particular raster cells that we will call **anchor cells**. Anchor cells can be derived by: previous classifications, environmental or geographic characteristics, local maxima or minima or spatial objects.  
 
 ### Class contiguity {#cc}
 An example of focal evaluation is when we have some anchor cell and we want to evaluate if its neighboring cells belong to the same class ([Figure 2](#figure2)). 

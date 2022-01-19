@@ -60,6 +60,10 @@ r[43] <- 8
 at <- attTbl(r, "dummy_var")
 
 head(at)
+
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
 ```
 
 ```{r dummy_rast_plot, message=FALSE, warning=FALSE, echo=TRUE}
@@ -222,11 +226,11 @@ plot(r, axes=FALSE, box=FALSE, legend = FALSE)
 text(r)
 
 # PLOT THE CLASS VECTOR
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="grey30", col=terrain.colors(1))
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col="#78b2c4")
 text(r_cv)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells are recognizable by having associated a classification number (`10`); unclassified cells are showed in dark grey.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells can be recognized by their classification number (`10`); unclassified cells are showed in grey.</span></div>
 
 When no class vector is available, as for instance at the beginning of a classification process, the function `cond.4.all()` can be used to identify areas having particular characteristics (e.g., flat areas). 
 
@@ -257,17 +261,115 @@ plot(r, axes=FALSE, box=FALSE, legend = FALSE)
 text(r)
 
 # PLOT THE CLASS VECTOR
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="grey30", col=terrain.colors(2))
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#1088a0", "#78b2c4"))
 text(r_cv)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells are recognizable by having associated classification numbers (`10` and `1`); unclassified cells are showed in dark grey.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. Classified cells can be recognized by their classification numbers (`10` and `1`); unclassified cells are showed in grey.</span></div>
 
 ## User condition functions
 
 **Functions:** `cond.4.nofn()`, `cond.reclass()` and `cond.4.all()`.
 
-User condition functions present the `conditions` argument and generally require a class vector as input. Excluding the function `cond.4.all()` (that can be considered both an anchor cell and a user condition function), user condition functions always perform [focal evaluations](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation).
+User condition functions present the `conditions` argument and generally require a class vector as input. Excluding the function `cond.4.all()` (that can be considered both an anchor cell and a user condition function), user condition functions always perform [focal evaluations](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation). In focal evaluations classification rules are only tested at specific positions on a raster. These positions are identified based on their adjacency to particular raster cells (anchor or focal cells). Anchor and focal cells are identified by the function argument `nofn`. 
+
+### cond.4.nofn
+
+The function `cond.4.nofn()` can be used to evaluate any type of classification rule (see `?conditions` and the article ["classificaton rules"](scapesClassification_01_3_ClassRules.html)). 
+
+To start we will set that the raster cell 32 is our initial focal cell ([Figure 5](#figure5)). In order to do so, we can create a class vector as a column of the attribute table. 
+
+```{r cond_4_nofn0, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET CELL 32 AS A FOCAL CELL WITH CLASS = 10
+at$cv[at$Cell == 32] <- 10
+
+# CONVERT at$cv TO A RASTER
+r_cv <- cv.2.rast(r, at$Cell, classVector = at$cv)
+```
+
+In focal evaluations classification rules are only tested at positions on a raster adjacent to focal cells. Focal cells are specified by the argument `nofn`. We can use the function `cond.4.nofn()` to find cells with `"dummy_var >= 3"` at locations adjacent to the focal cell ([Figure 5](figure5)).
+
+```{r cond_4_nofn1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(r)
+
+# COMPUTE THE CLASS VECTOR (do not consider class continuity)
+cv1 <- cond.4.nofn(attTbl = at, 
+                   ngbList = nbs, 
+                   
+                   # CLASS VECTOR - INPUT
+                   classVector = at$cv, 
+                   
+                   # FOCAL CELL CLASS
+                   nbs_of = 10, 
+                   
+                   # CLASSIFICATION NUMBER
+                   class = 20,  
+                   
+                   # CONDITION
+                   conditions = "dummy_var >= 3")
 
 
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv1 <- cv.2.rast(r, at$Cell,classVector = cv1, plot = FALSE)
+```
 
+<a id="figure5"></a>
+ 
+```{r cond_4_nofn1_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET PLOT LAYOUT
+par(mar = c(0.0, 0.0, 0.0, 0.0), mfcol=c(1, 2))
+
+# PLOT THE DUMMY RASTER 
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+
+# PLOT THE CLASS VECTOR
+plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#1088a0", "#78b2c4"))
+text(r_cv1)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. In dark blue and with the classification number `20` is the focal cell. **Cells contiguous** to the focal cell with values `>=3` are identified by the function `cond.4.nofn` with the classification number `20`. Unclassified cells are showed in grey.</span></div>
+
+When the classification number associated with the argument `class` is also included in the argument `nofn` classifications take into account class continuity ([Figure 6](#figure6)). Class continuity join into the same class cells that share the same property(ies) and that are connected to the same anchor cell(s) (see [class continuity](scapesClassification_01_2_RuleEvaluation.html#class-continuity)). 
+
+```{r cond_4_nofn2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE CLASS VECTOR (consider class continuity)
+cv2 <- cond.4.nofn(attTbl = at, 
+                   ngbList = nbs, 
+                   
+                   # CLASS VECTOR - INPUT
+                   classVector = at$cv, 
+                   
+                   # FOCAL CELL CLASS AND OF CELLS CLASSIFIED BY THE FUNCTION
+                   nbs_of = c(10, 20),
+                   
+                   # CLASSIFICATION NUMBER 
+                   class = 20,
+                   
+                   # CONDITION
+                   conditions = "dummy_var >= 3")
+
+
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv2 <- cv.2.rast(r, at$Cell,classVector = cv2, plot = FALSE)
+```
+
+<a id="figure6"></a>
+
+```{r cond_4_nofn2_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET PLOT LAYOUT
+par(mar = c(0.0, 0.0, 0.0, 0.0), mfcol=c(1, 2))
+
+# PLOT THE DUMMY RASTER 
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+
+# PLOT THE CLASS VECTOR
+plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#1088a0", "#78b2c4"))
+text(r_cv2)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 -** **On the left,** dummy raster layer. **On the right,** raster cell classification. In dark blue and with the classification number `20` is the focal cell. **Cells contiguous and continuous** to the focal cell with values `>=3` are identified by the function `cond.4.nofn` with the classification number `20`. Unclassified cells are showed in grey.</span></div>
+
+[Relative conditions](scapesClassification_01_3_ClassRules.html#relative-conditions) (conditions comparing the values of adjacent cells) can be evaluated by `cond.4.nofn`. 
