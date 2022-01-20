@@ -140,17 +140,18 @@ rule evaluation unless the argument <code>'overwrite_class = TRUE'</code>.</p></
 <li><p><strong>Global evaluation</strong> <br> Classification rules are applied to all raster
 cells (excluding the classified ones). This type of evaluation is common to
 classification functions that do not have the argument <code>nbs_of</code>. Only
-absolute conditions can have a global evaluation. See functions
-<code><a href="cond.4.all.html">cond.4.all</a></code> and <code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
+absolute conditions can have a global evaluation. See function
+<code><a href="cond.4.all.html">cond.4.all</a></code>.</p></li>
 <li><p><strong>Focal evaluation</strong> <br> Classification rules are applied only to raster
 cells contiguous to focal cells. This type of evaluation is common to
 classification functions that have the argument <code>nbs_of</code>. The argument
 <code>nbs_of</code> identifies the class(es) of the focal cells. See functions
-<code><a href="anchor.seed.html">anchor.seed</a></code> and <code><a href="cond.4.nofn.html">cond.4.nofn</a></code>.</p><ul><li><p>Focal evaluation can take into account both absolute and relative rules;</p></li>
+<code><a href="anchor.seed.html">anchor.seed</a></code>, <code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and
+<code><a href="cond.reclass.html">cond.reclass</a></code>.</p><ul><li><p>Focal evaluation can take into account both absolute and relative rules;</p></li>
 <li><p>Some classification functions do not have a <code>condition</code> argument.
-Classifications performed by these functions are focal and take into
-account only the expected spatial relationships existing among classified
-and unclassified cells. See functions <code><a href="reclass.nbs.html">reclass.nbs</a></code> and
+Classifications performed by these functions are based on focal evaluations
+and only take into account the spatial relationships existing among different
+groups of cells. See functions <code><a href="reclass.nbs.html">reclass.nbs</a></code> and
 <code><a href="classify.all.html">classify.all</a></code>.</p></li>
 </ul></li>
 </ul><p><br><strong>Focal evaluation, definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8

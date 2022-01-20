@@ -38,7 +38,7 @@ reference:
       - "`cond.4.nofn`"
       - "`cond.reclass`"
       - "`cond.4.all`"
-  - subtitle: Class contiguity and continuity
+  - subtitle: Neighbor only functions
     contents:
       - "`reclass.nbs`"
       - "`classify.all`"
