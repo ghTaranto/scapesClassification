@@ -56,9 +56,9 @@
 #'       * Focal evaluation can take into account both absolute and relative rules;
 #'
 #'       * Some classification functions do not have a \code{condition} argument.
-#'   Classifications performed by these functions are focal and take into
-#'   account only the expected spatial relationships existing among classified
-#'   and unclassified cells. See functions \code{\link{reclass.nbs}} and
+#'   Classifications performed by these functions are based on focal evaluations
+#'   and only take into account the spatial relationships existing among different
+#'   groups of cells. See functions \code{\link{reclass.nbs}} and
 #'   \code{\link{classify.all}}.
 #'
 #'   \cr **Focal evaluation, definitions**
