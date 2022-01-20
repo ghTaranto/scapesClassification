@@ -52,13 +52,14 @@ rule evaluation unless the argument \code{'overwrite_class = TRUE'}.
 \item \strong{Global evaluation} \cr Classification rules are applied to all raster
 cells (excluding the classified ones). This type of evaluation is common to
 classification functions that do not have the argument \code{nbs_of}. Only
-absolute conditions can have a global evaluation. See functions
-\code{\link{cond.4.all}} and \code{\link{cond.reclass}}.
+absolute conditions can have a global evaluation. See function
+\code{\link{cond.4.all}}.
 \item \strong{Focal evaluation} \cr Classification rules are applied only to raster
 cells contiguous to focal cells. This type of evaluation is common to
 classification functions that have the argument \code{nbs_of}. The argument
 \code{nbs_of} identifies the class(es) of the focal cells. See functions
-\code{\link{anchor.seed}} and \code{\link{cond.4.nofn}}.
+\code{\link{anchor.seed}}, \code{\link{cond.4.nofn}} and
+\code{\link{cond.reclass}}.
 \itemize{
 \item Focal evaluation can take into account both absolute and relative rules;
 \item Some classification functions do not have a \code{condition} argument.
