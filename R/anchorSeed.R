@@ -176,6 +176,7 @@ anchor.seed <- function(attTbl,
     ngbList <- ngbList[no_nas]
     fct     <- fct[no_nas]
 
+    ngbList <- split(ngbList, fct)
 
     rm(fct, no_nas)
   }
