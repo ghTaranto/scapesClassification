@@ -393,7 +393,7 @@ conditions <- function(names_attTbl,
 #'   which assign the values of the argument \code{classVector}. Within
 #'   \code{scapesClassifications}, this argument normally correspond to the
 #'   column \code{Cell} of the attribute table (see \code{\link{attTbl}}).
-#' @param vector numeric vector, the values to be assigned to the cell numbers
+#' @param classVector numeric vector, the values to be assigned to the cell numbers
 #'   indicated by \code{index}.
 #' @param plot logic, plot the raster.
 #' @param writeRaster filename, if a raster name is provided save the raster to

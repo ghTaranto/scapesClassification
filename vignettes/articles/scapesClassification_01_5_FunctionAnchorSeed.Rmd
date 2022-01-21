@@ -1,0 +1,181 @@
+---
+title: "Function anchor.seed"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Function anchor.seed}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FALSE, out.width = "100%")
+```
+
+The function `anchor.seed()` can be both used to (i) identify anchor cells at local maxima or minima or (ii) to identify raster objects. In the next sections we will illustrate how it can be used. 
+
+## Dummy raster
+
+We will use a dummy raster to illustrate the function `anchor.seed()` ([Figure 1](#figure1)). We can start by computing its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table), in which it is named `"dummy_var"`, and its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
+
+```{r def, message=FALSE, warning=FALSE, echo=TRUE}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(raster)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"), 
+                 pattern = "dummy_raster\\.tif", full.names = T)
+r <- raster(r)
+```
+
+```{r def_at, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+head(at, 3)
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+head(nbs, 3)
+```
+
+<a id="figure1"></a>
+
+```{r dummy_rast_plot, message=FALSE, warning=FALSE, echo=TRUE}
+# PLOT RASTER
+par(mar = c(0.1, 5, 0.5, 0.1))
+plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+text(r)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Dummy raster used to illustrate `scapesClassification` functions.</span></div>
+
+## Condition arguments
+
+The function `anchor.seed()` take as inputs four sets of conditions:
+
+1. **`cond.filter`**, the conditions to define what cells have to be evaluated by the function. 
+
+2. **`cond.seed`**, the conditions to identify, at each iteration, the _seed cell_. The seed cell is the cell around which growth and isolation conditions are applied.
+
+3. **`cond.growth`**, the conditions to define a buffer around the _seed cell_.
+
+4. **`cond.isol`**, the conditions to isolate one seed cell (and its buffer) from another. 
+
+
+## Condition evaluation
+
+The first set of condition to be evaluated is the `cond.filter`. The evaluation of the remaining sets of conditions is iterative. At each iteration the following process is repeated: 
+
+* A _seed cell_ is identified and receives a classification number (as specified by the argument `class`)
+
+* Cells [contiguous and continuous](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) with the seed cell meeting the conditions specified by `cond.growth` are assigned to the same class of the seed cell. 
+
+* Cells [contiguous and continuous](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) with cells belonging to the seed class meeting the conditions specified by `cond.isol` are assigned to an _isolation buffer_ (class = -1). Cells included in the isolation buffer are ignored in all following iterations. 
+
+## Find local maxima
+
+As an example we will identify the two local maxima existin on the dummy raster can find local using the following set of conditions [Figure 2](#figure2): 
+
+* `cond.filter = "dummy_var > 2"`
+
+* `cond.sed = "dummy_var == max(dummy_var)"`
+
+* `cond.growth = NULL`
+
+* `cond.isol = dummy_var < dummy_var[]`
+
+```{r anc_seed1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# ATTRIBUTE TABLE VARIABLES
+names(at)
+
+# COMPUTE THE CLASS VECTOR
+cv <- anchor.seed(at,
+                  nbs,
+                  
+                  class = 1,
+                  
+                  cond.filter = "dummy_var > 2",
+                  
+                  cond.seed = "dummy_var == max(dummy_var)",
+                  
+                  cond.isol = "dummy_var < dummy_var[]",
+                  
+                  lag.isol = 1, 
+                  
+                  isolationClass = TRUE, 
+                  
+                  silent = TRUE)
+
+
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
+```
+
+<a id="figure2"></a>
+```{r anc_seed1_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# CLASS VECTOR LEVELS
+unique(cv)
+
+# class = 1,  peaks
+# class = -1, isolation class
+# class = NA, unclassified cells
+
+# PLOT THE CLASS VECTOR
+par(mar = c(0.1, 0.1, 0.1, 0.1), par(mfrow=c(1,2)))
+plot(r, axes=FALSE, box=FALSE, legend = FALSE, col=c("grey"))
+text(r)
+
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#1088a0", "#cfad89"))
+text(r_cv)
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** Find local maxima using the function **anchor.seed**. **On the left** dummy raster. **On the right** classified cells. In **brown**, local peaks; in **blue** cells meeting isolation conditions; in **grey** cells not meeting filter condition (unclassified cells).</span></div>
+
+## Find raster objects
+
+```{r anc_seed2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# ATTRIBUTE TABLE VARIABLES
+names(at)
+
+# COMPUTE THE CLASS VECTOR
+cv <- anchor.seed(at,
+                  nbs,
+                  
+                  class = NULL,
+                  
+                  cond.filter = "dummy_var > 2",
+                  
+                  cond.seed = "dummy_var == max(dummy_var)",
+                  
+                  cond.growth = "dummy_var < dummy_var[]",
+                  
+                  lag.growth = 1,
+                  
+                  lag.isol = 1, 
+                  
+                  isolationClass = TRUE)
+
+# CONVERT THE CLASS VECTOR INTO A RASTER
+r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
+```
+
+```{r anc_seed2_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# CLASS VECTOR LEVELS
+unique(cv)
+
+# class = 1,  peaks
+# class = -1, isolation class
+# class = NA, unclassified cells
+
+# PLOT THE CLASS VECTOR
+par(mar = c(0.1, 0.1, 0.1, 0.1), par(mfrow=c(1,2)))
+plot(r, axes=FALSE, box=FALSE, legend = FALSE, col=c("grey"))
+text(r)
+
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#1088a0", "#cfad89"))
+text(r_cv)
+```

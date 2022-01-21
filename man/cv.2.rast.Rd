@@ -22,6 +22,9 @@ which assign the values of the argument \code{classVector}. Within
 \code{scapesClassifications}, this argument normally correspond to the
 column \code{Cell} of the attribute table (see \code{\link{attTbl}}).}
 
+\item{classVector}{numeric vector, the values to be assigned to the cell numbers
+indicated by \code{index}.}
+
 \item{plot}{logic, plot the raster.}
 
 \item{writeRaster}{filename, if a raster name is provided save the raster to
@@ -29,9 +32,6 @@ a file.}
 
 \item{overWrite}{logic, if the raster names already exist, the existing file
 is overwritten.}
-
-\item{vector}{numeric vector, the values to be assigned to the cell numbers
-indicated by \code{index}.}
 }
 \value{
 A class vector or a generic vector transformed into a raster.

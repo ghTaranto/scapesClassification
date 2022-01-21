@@ -70,6 +70,8 @@ navbar:
           href: articles/scapesClassification_01_3_ClassRules.html
         - text: Classification functions
           href: articles/scapesClassification_01_4_ClassFunctions.html
+        - text: Function anchor.seed
+          href: articles/scapesClassification_01_5_FunctionAnchorSeed.html
     workex:
       text: Working example
       menu:

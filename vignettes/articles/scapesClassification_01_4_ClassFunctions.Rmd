@@ -15,17 +15,19 @@ knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FA
 
 ## Class vectors
 
-Class vectors map raster cells to numeric classes (or to NA-values if no class is attributed). The n^th^ element of a class vector corresponds to the raster cell stored in the n^th^ row of an [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table). Class vectors are used by classification functions to store the results of their classifications. 
+* Class vectors map raster cells to numeric classes (or to NA-values if no class is attributed). The n^th^ element of a class vector corresponds to the raster cell stored in the n^th^ row of an [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table). Classification functions use class vectors to store the results of their classifications. 
 
-Class vectors can also be used as function inputs. As inputs, they provide information about what cells have been classified and allow to consider class contiguity and class continuity in rule evaluation (see the article ["rule evaluation"](scapesClassification_01_2_RuleEvaluation.html)). 
+* Class vectors are also used as function inputs. As inputs, they provide information about what cells have been classified and allow to consider class contiguity and class continuity in [rule evaluation](scapesClassification_01_2_RuleEvaluation.html). 
 
-When a class vector is provided as an input, classification functions assign a class only to unclassified cells (i.e. cells corresponding to NA values in the class vector). In this way class vectors are updated (and not overwritten) every time the are provided as a function input. The function `anchor.seed()` is the only exception. 
+* Classification functions were designed to assign a classification number only to _unclassified cells_ (NA-values in the class vector). Every time a class vector is provided as a function input, it is updated with the new classifications performed by the function, while previous classifications remain unchanged. 
+
+* The sequential update of a class vector allows user to design multi-step classifications. At each step new pools of cell can be identified based on how they spatially relate with cells classified in previous classification steps. 
 
 ## Anchor cell functions
 
 **Functions:** `anchor.svo()`, `anchor.cell()` and `cond.4.all()`.
 
-Anchor cells can be thought of as raster cells having particular characteristics from where the classification process can start. Anchor cells can be derived by: previous classifications, areas of constant environmental or geographic characteristics (e.g., flat areas), local maxima or minima (e.g., local peaks on a mountain ridge) or spatial objects (e.g., shapefiles).  
+[Anchor cells](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) can be thought of as raster cells having particular characteristics from where the classification process can start. Anchor cells can be derived by: previous classifications, areas of constant environmental or geographic characteristics (e.g., flat areas), local maxima or minima (e.g., local peaks on a mountain ridge) or spatial objects (e.g., shapefiles).  
 
 Anchor cell functions can be easily identified because they do not necessarily require a class vector as an input. 
 
@@ -146,7 +148,7 @@ mv@map %>%
 
 ### cond.4.all()
 
-To illustrate the function `cond.4.all()` and the other `scapesClassification` functions we will use a dummy raster ([Figure 2](#figure2)), compute its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table), in which it is named `"dummy_var"` and compute its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
+We will use a dummy raster to illustrate the function `cond.4.all()` and the other `scapesClassification` functions ([Figure 2](#figure2)). We can start by computing its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table), in which it is named `"dummy_var"`, and its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
 
 ```{r def, message=FALSE, warning=FALSE, echo=TRUE}
 # LOAD THE DUMMY RASTER
@@ -159,12 +161,12 @@ r <- raster(r)
 # COMPUTE THE ATTRIBUTE TABLE
 at <- attTbl(r, "dummy_var")
 
-head(at)
+head(at, 3)
 
 # COMPUTE THE LIST OF NEIGBORHOODS
 nbs <- ngbList(r)
 
-head(nbs)
+head(nbs, 3)
 ```
 
 <a id="figure2"></a>
@@ -180,9 +182,9 @@ text(r)
 
 ---
 
-The function `cond.4.all()` can be used to evaluate absolute test cell conditions (see `?conditions` and the article ["classificaton rules"](scapesClassification_01_3_ClassRules.html)) performing global evaluations (see the article ["rule evaluation"](scapesClassification_01_2_RuleEvaluation.html)). 
+The function `cond.4.all()` can be used to evaluate _absolute test cell conditions_ for all unclassified cells (see `?conditions`, [classificaton rules](scapesClassification_01_3_ClassRules.html) and [rule evaluations](scapesClassification_01_2_RuleEvaluation.html)). 
 
-Using the dummy raster as an example, we can identify all cells having a value of 1. Classification rules are built accessing by name the variables stored in the attribute table (classification rule: `"dummy_var == 1"`). 
+For example, we can identify all the cells of the dummy raster having a value of 1. Variables stored in the attribute table can be accessed by name, therefore we can write our condition as `"dummy_var == 1"`. 
 
 ```{r cond_4_all1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # ATTRIBUTE TABLE VARIABLES
@@ -195,7 +197,7 @@ cv   <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 10)
 r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
 ```
 
-The element `cv` is a class vector. The classification number `10` (argument `class = 10`) was assigned to all cells having a value equal to 1 (argument `conditions = "dummy_var == 1"`). 
+The element `cv` is a class vector having two unique values: (i) `10`, identifies cells having a value `=1`; `NA`, identifies unclassified cells.
 
 The element `r_cv` is the class vector `cv` converted into a raster by the function `cv.2.rast()`. It can be plotted and manipulated as a normal raster object ([Figure 3](#figure3)).
 
@@ -213,11 +215,13 @@ plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col="#78b2c4"
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** Raster cell classification using the function **cond.4.all** and the rule `conditions = "dummy_var == 1"`. In **blue**, classified cells (corresponding to the positions `cv == 10`). In **grey**, unclassified cells.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** Raster cell classification using the function **cond.4.all** and the rule `"dummy_var == 1"`. In **blue**, classified cells (corresponding to the positions `cv == 10`). In **grey**, unclassified cells.</span></div>
 
 ---
 
-When no class vector is available, the function `cond.4.all()` can be used to begin a classification process, but it can also be used at other stages of a classification process. For instance, consider the rule `"dummy_var <= 3"`. This rule applied on our dummy raster would classify raster cells having values of 1, 2 and 3. However, providing the class vector `cv` as a function input, the function would update the class vector ignoring classified cells (non-NA cells in the class vector) ([Figure 4](#figure4)).
+When no class vector is available, the function `cond.4.all()` can be used to start a classification process by identifying an initial group of anchor cells. Nevertheless, it can also be used at other stages of a classification process. 
+
+For instance, consider the rule `"dummy_var <= 3"`. This rule applied on our dummy raster would classify raster cells having values of 1, 2 and 3. However, if we provide the class vector `cv` as a function input, raster cells of value `=1` will be ignored because they were classified in a previous step ([Figure 4](#figure4)).
 
 ```{r cond_4_all2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # UPDATE THE CLASS VECTOR
@@ -232,7 +236,7 @@ cv   <- cond.4.all(attTbl = at, conditions = "dummy_var <= 3", class = 1,
 r_cv <- cv.2.rast(r, at$Cell, classVector = cv)
 ```
 
-The class vector `cv` presents now two classification numbers, number `10` assigned in the previous evaluation and number `1` assigned in the last evaluation. 
+The class vector `cv` presents now three unique values: (i) `10`, identifies cells having a value `=1`; (ii) `1`, identifies cells having a value `<=3 & !=1`; `NA`, identifies unclassified cells.
 
 <a id="figure4"></a>
 ```{r cond_4_all2_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
@@ -240,7 +244,7 @@ The class vector `cv` presents now two classification numbers, number `10` assig
 unique(cv)
 
 # class = 10, cell with values 'dummy_var == 1'
-# class = 1,  cell with values 'dummy_var =< 3'
+# class = 1,  cell with values 'dummy_var =< 3' (& dummy_var != 1 - implicit condition)
 # class = NA, unclassified cells
 
 # PLOT THE CLASS VECTOR
@@ -249,7 +253,7 @@ plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#cfad8
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** Two-step classification using the function **cond.4.all**. Step one (**light blue**), cells classified using the rule `conditions = "dummy_var == 1"`. Step two (**brown**), cells classified using the rule `conditions = "dummy_var <= 3"`. In **grey**, unclassified cells. Note that the rule of step two do not overwrite the classification of step one.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 -** Two-step classification using the function **cond.4.all**. Step one (**light blue**), cells classified using the rule `"dummy_var == 1"`. Step two (**brown**), cells classified using the rule `"dummy_var <= 3"`. In **grey**, unclassified cells. Note that the rule of step two do not overwrite the classification of step one.</span></div>
 
 ## User condition functions
 
@@ -261,9 +265,9 @@ A particular case of focal evaluation, is [class continuity](scapesClassificatio
 
 ### cond.4.nofn
 
-The function `cond.4.nofn()` can be used to evaluate both relative and absolute conditions (see `?conditions` and ["classificaton rules"](scapesClassification_01_3_ClassRules.html)). We will start by presenting some absolute conditions. 
+The function `cond.4.nofn()` can be used to evaluate both relative and absolute conditions (see `?conditions` and [classificaton rules](scapesClassification_01_3_ClassRules.html)). We will start by presenting some absolute conditions. 
 
-As all other user condition functions, `cond.4.nofn()` requires some focal cell class to be specified by the argument `nofn`. We can create an empty class vector and assume that `cell 25` is our initial focal cell. The focal cell will be identified by the numeric class `0` - but we could use any other number.
+As all other user condition functions, `cond.4.nofn()` requires some initial focal cell. We can create an empty class vector and assume that `cell 25` is our initial focal cell. The focal cell will be identified by the numeric class `0` - but we could use any other number.
 
 ```{r cond_4_nofn0, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # SET CELL 32 AS A FOCAL CELL
@@ -310,7 +314,7 @@ plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#78b2
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 -** Classification using the function **cond.4.nofn** and the rule `conditions = "dummy_var >= 3"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only **cells contiguous** to the focal cell with values `>=3` are identified by the function.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 -** Classification using the function **cond.4.nofn** and the rule `"dummy_var >= 3"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only **cells contiguous** to the focal cell with values `>=3` are identified by the function.</span></div>
 
 ---
 
@@ -354,11 +358,11 @@ plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#78b2
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 -** Classification using the function **cond.4.nofn** and the rule `conditions = "dummy_var >= 3"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only **cells contiguous AND continuous** to the focal cell with values `>=3` are identified by the function.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 -** Classification using the function **cond.4.nofn** and the rule `"dummy_var >= 3"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only **cells contiguous AND continuous** to the focal cell with values `>=3` are identified by the function.</span></div>
 
 ---
 
-[Absolute neighborhood condition](scapesClassification_01_3_ClassRules.html#absolute-conditions) are flagged by a variable name followed by curly brackets (`{}`). They compare the values of the test cell and of its neighborhood against a threshold value. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. 
+[_Absolute neighborhood condition_](scapesClassification_01_3_ClassRules.html#absolute-conditions) are flagged by a variable name followed by curly brackets (`{}`). They compare the values of the test cell and of its neighborhood against a threshold value. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. 
 
 In the following example we will use the function `cond.4.nofn()` with the arguments `conditions = "dummy_var{} >= 3"` and  `fn_perc = 1`. This means that the function will identify ([Figure 7](#figure7)):
 
@@ -409,11 +413,11 @@ plot(r_cv3, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#78b2
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 -** Classification using the function **cond.4.nofn**, the rule `conditions = "dummy_var{} >= 3"` and the argument `fn_perc = 1`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only cells with values `>=3`, with neighboring cells with values `>=3` and continuous with the focal cell are identified by the function.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 -** Classification using the function **cond.4.nofn**, the rule `"dummy_var{} >= 3"` and the argument `fn_perc = 1`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Only cells with values `>=3`, with neighboring cells with values `>=3` and continuous with the focal cell are identified by the function.</span></div>
 
 ---
 
-[Relative conditions](scapesClassification_01_3_ClassRules.html#relative-conditions) compare the values of contiguous cells. Relative focal cell conditions are flagged by a variable name followed by square brackets (`[]`) and compare the value of the test cell against the value of the focal cell. 
+[Relative conditions](scapesClassification_01_3_ClassRules.html#relative-conditions) compare the values of contiguous cells. _Relative focal cell conditions_ are flagged by a variable name followed by square brackets (`[]`). They compare the value of the test cell against the value of the focal cell (see `?conditions` and [definitions](scapesClassification_01_2_RuleEvaluation.html#cc)). 
 
 Note that if class continuity is considered, the pool of focal cells will change at each new iteration. Cell classified at one iteration will serve as focal cells in the next iteration (see [class continuity](scapesClassification_01_2_RuleEvaluation.html#class-continuity)). 
 
@@ -457,11 +461,11 @@ plot(r_cv4, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#78b2
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 8 -** Classification using the function **cond.4.nofn** and the rule `conditions = "dummy_var > dummy_var[]"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Note that at the 1^st^ iteration there are only two cells contiguous to the focal cell and with values `>3` (brown cells with values `=5`). In the 2^nd^ iteration the two brown cells of value 5 become focal cells; among their neighbors there is only one cell with a value `>5` (the brown cell with value `=10`). Among the neighbors of the brown cell of value 10, none has values `>10`. Therefore the function stops after the 2^nd^ iteration.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 8 -** Classification using the function **cond.4.nofn** and the rule `"dummy_var > dummy_var[]"`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Note that at the 1^st^ iteration there are only two cells contiguous to the focal cell and with values `>3` (brown cells with values `=5`). In the 2^nd^ iteration the two brown cells of value 5 become focal cells; among their neighbors there is only one cell with a value `>5` (the brown cell with value `=10`). Among the neighbors of the brown cell with value `=10`, none has values `>10`. Therefore the function stops after the 2^nd^ iteration.</span></div>
 
 ---
 
-[Relative neighborhood conditions](scapesClassification_01_3_ClassRules.html#relative-conditions) are flagged by a variable name followed by square brackets (`{}`). They compare the value of the test cell against the values of its neighborhood. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. 
+[_Relative neighborhood conditions_](scapesClassification_01_3_ClassRules.html#relative-conditions) are flagged by a variable name followed by square brackets (`{}`). They compare the value of the test cell against the values of its neighborhood. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument `fn_perc`. 
 
 In the following example we will use the function `cond.4.nofn()` with the arguments `conditions = "dummy_var > dummy_var{}"` and  `fn_perc = 0.6`. This means that the function will identify ([Figure 9](#figure9)):
 
@@ -512,13 +516,13 @@ plot(r_cv5, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792", col=c("#78b2
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 9 -** Classification using the function **cond.4.nofn**, the rule `conditions = "dummy_var > dummy_var{}"` and the argument `fn_perc = 0.6`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Note that in brown are only cells that present: (i) values greater than the values of 5 or more of their neighbors; (ii) continuity with the initial focal cell.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 9 -** Classification using the function **cond.4.nofn**, the rule `"dummy_var > dummy_var{}"` and the argument `fn_perc = 0.6`. In **light blue**, the initial focal cell; in **brown** cell meeting function conditions; in **grey**, unclassified cells. Note that in brown are only cells that present: (i) values greater than the values of 5 or more of their neighbors; (ii) continuity with the initial focal cell.</span></div>
 
 ### cond.reclass
 
-The function `cond.reclass()` evaluates conditions for cells of a class and reclassify them if conditions are true. It can consider [absolute conditions](scapesClassification_01_3_ClassRules.html#absolute-conditions) and [relative neighborhood conditions](scapesClassification_01_3_ClassRules.html#relative-conditions). 
+The function `cond.reclass()` evaluates conditions for cells of a class and reclassify them if conditions are true. It can consider [_absolute conditions_](scapesClassification_01_3_ClassRules.html#absolute-conditions) and [_relative neighborhood conditions_](scapesClassification_01_3_ClassRules.html#relative-conditions). 
 
-In the following example we will use the function `cond.reclass()` with the argument `conditions = "dummy_var{} >= 3"`. The class vector computed in the last example (`cv5` - [Figure 9](#figure9)) will be used as a function input. This class vector has classes `0` (initial focal cell) and `1` (classified cells). Cells of class 1 will be reclassified if their value and the value of all their neighbors is `>=3` (`conditions = "dummy_var{} >= 3"`; `fn_perc = 1`)([Figure 10](#figure10)).
+In the following example we will use the function `cond.reclass()` with the arguments `conditions = "dummy_var{} >= 3"` and `fn_perc = 1`. The class vector computed in the last example (`cv5` - [Figure 9](#figure9)) will be used as a function input. This vector has classes `0` (initial focal cell) and `1` (classified cells). Cells of class 1 will be reclassified if their value and the value of all their neighbors is `>=3` ([Figure 10](#figure10)).
 
 ```{r cond_reclass1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # RECLASSIFY
@@ -562,7 +566,7 @@ plot(r_cr, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 10 -** Cells classified in [figure 9](#figure9) and belonging to `class 1` are reclassified using the function **cond.reclass**, the rule `conditions = "dummy_var{} >= 3"` and the argument `fn_perc = 1`. In **light blue**, the initial focal cell; in **brown**, cell classified in [figure 9](#figure9); in **dark blue**, reclassified cell; in **grey**, unclassified cells. Cells are reclassified if their value and the value of all their neighbors is `>=3`.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 10 -** Cells classified in [figure 9](#figure9) are reclassified using the function **cond.reclass**, the rule `"dummy_var{} >= 3"` and the argument `fn_perc = 1`. In **light blue**, the initial focal cell; in **brown**, cell classified in [figure 9](#figure9); in **dark blue**, reclassified cell; in **grey**, unclassified cells. Cells are reclassified if their value and the value of all their neighbors is `>=3`.</span></div>
 
 ## Neighbor only functions
 
@@ -574,7 +578,7 @@ Neighbor only functions are based only on class contiguity and continuity and do
 
 The function `reclass.nbs()` evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. 
 
-In the following two examples we will use the class vector computed in [figure 9](#figure9) (`cv5`) as a function input. This class vector has classes `0` (initial focal cell) and `1` (classified cells). Cells of class `1` adjacent to the initial focal cell (class `0`) will be reclassified as cells of class `2` ([Figure 11](#figure11)). 
+In the following two examples we will use the class vector `cv5` ([figure 9](#figure9)) as a function input. This class vector has classes `0` (initial focal cell) and `1` (classified cells). Cells of class `1` adjacent to the initial focal cell (class `0`) will be reclassified as cells of class `2` ([Figure 11](#figure11)). 
 
 * In the 1^st^ example we use the argument `reclass_all = FALSE`, only cells of class `1` contiguous to the focal cell (class `0`) are reclassified as cells of class `2` ([Figure 11 - Left panel](#figure11)); 
 
@@ -634,7 +638,7 @@ r_cv_rec2 <- cv.2.rast(r, at$Cell,classVector = cv_rec2, plot = FALSE)
 # CLASS VECTOR LEVELS
 unique(cv_rec1) # ONLY CELLS ADJACENT TO THE FOCAL CELL ARE RECLASSIFIED
 
-unique(cv_rec2) # ALL CELL ARE RECLASSIFIED
+unique(cv_rec2) # ALL NON-NA CELL ARE RECLASSIFIED
 
 # class = 0,  focal cell
 # class = 1,  cells with values greater than the value of 60% of their neighbors
@@ -652,4 +656,4 @@ plot(r_cv_rec2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
 text(r)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 11 -** Reclassify cells using the function **reclass.nbs**. **On the left**, cells classified in [figure 9](#figure9) are reclassified it they are adjacent to the initial focal cell. In **brown**, cell classified in [figure 9](#figure9); in **light blue**, the initial focal cell; in **dark blue**, reclassified cell; in **grey**, unclassified cells. **On the right**, argument `reclass_all = TRUE`, all cells classified in [figure 9](#figure9) connected to a reclassified cell are also reclassified. In this case all cells are reclassified (no more brown cells).</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 11 -** Reclassify cells using the function **reclass.nbs**. **On the left**, - argument `reclass_all = FALSE` - cells classified in [figure 9](#figure9) are reclassified it they are adjacent to the initial focal cell. **On the right** - argument `reclass_all = TRUE` - cells classified in [figure 9](#figure9) are reclassified it they are adjacent to the initial focal cell; cells having the same class of a reclassified cell and connected to it are also reclassified. In **brown**, cell classified in [figure 9](#figure9); in **light blue**, the initial focal cell; in **dark blue**, reclassified cell; in **grey**, unclassified cells.</span></div>

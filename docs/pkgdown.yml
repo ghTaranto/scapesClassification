@@ -7,13 +7,14 @@ articles:
   scapesClassification_01_2_RuleEvaluation: scapesClassification_01_2_RuleEvaluation.html
   scapesClassification_01_3_ClassRules: scapesClassification_01_3_ClassRules.html
   scapesClassification_01_4_ClassFunctions: scapesClassification_01_4_ClassFunctions.html
+  scapesClassification_01_5_FunctionAnchorSeed: scapesClassification_01_5_FunctionAnchorSeed.html
   scapesClassification_02_0_GMU: scapesClassification_02_0_GMU.html
   scapesClassification_02_1_DATA: scapesClassification_02_1_DATA.html
   scapesClassification_02_2_ISU: scapesClassification_02_2_ISU.html
   scapesClassification_02_3_PKS: scapesClassification_02_3_PKS.html
   scapesClassification_02_4_OBJ: scapesClassification_02_4_OBJ.html
   scapesClassification_02_5_OBJ2: scapesClassification_02_5_OBJ2.html
-last_built: 2022-01-20T18:53Z
+last_built: 2022-01-21T18:38Z
 urls:
   reference: https://ghtaranto.github.io/scapesClassification/reference
   article: https://ghtaranto.github.io/scapesClassification/articles
