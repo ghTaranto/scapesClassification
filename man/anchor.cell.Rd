@@ -13,7 +13,7 @@ anchor.cell(
   class2cell = TRUE,
   class2nbs = TRUE,
   overwrite_class = FALSE,
-  plot = TRUE,
+  plot = FALSE,
   writeRaster = NULL,
   overWrite = FALSE
 )

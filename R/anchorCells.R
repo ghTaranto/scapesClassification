@@ -168,7 +168,7 @@ anchor.cell <-
            class2cell = TRUE,
            class2nbs = TRUE,
            overwrite_class = FALSE,
-           plot = TRUE,
+           plot = FALSE,
            writeRaster = NULL,
            overWrite = FALSE) {
     ###
@@ -220,6 +220,10 @@ anchor.cell <-
 
       }
 
+      if(!class2cell){
+        classVector[which(attTbl$Cell %in% anchor)] <- NA
+      }
+
     }
 
     r2   <- rstack[[1]]
@@ -234,7 +238,7 @@ anchor.cell <-
 
     return(classVector)
 
-}
+  }
 
 
 
