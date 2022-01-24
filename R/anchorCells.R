@@ -4,7 +4,7 @@
 #' spatial vector object.
 #'
 #' @param rstack \code{Raster*} object.
-#' @param spatial_vector_name OGR data source name.
+#' @param spatial_vector_name data source name (filename), sf or Spatial object.
 #' @param only_NAs logic, cell numbers extracted only at the locations of a
 #'   spatial vector object that are not complete cases (i.e. have some missing
 #'   values in some of the layers of the \code{Raster*} object).
@@ -28,12 +28,11 @@
 #' @export
 #'
 
-
 anchor.svo <- function(rstack,
                        spatial_vector_name,
                        only_NAs = FALSE,
                        fill_NAs = FALSE,
-                       plot = TRUE,
+                       plot = FALSE,
                        saveRDS = NULL,
                        writeRaster = NULL,
                        overWrite = FALSE) {
@@ -51,8 +50,20 @@ anchor.svo <- function(rstack,
 
   }
 
-  p <- rgdal::readOGR(dsn = spatial_vector_name, verbose = F)
-  p <- sp::spTransform(p, raster::crs(rstack))
+  if(is.character(spatial_vector_name)){
+
+    p <- rgdal::readOGR(dsn = spatial_vector_name, verbose = FALSE)
+    p <- sp::spTransform(p, raster::crs(rstack))
+
+  } else if(methods::is(spatial_vector_name, "sf")|methods::is(spatial_vector_name, "Spatial")){
+
+    p <- spatial_vector_name
+
+  } else {
+
+    stop("spatial_vector_name must be a data source name OR an 'sf' object OR a 'Spatial' object")
+
+  }
 
   r2     <-
     raster::raster(
@@ -151,13 +162,82 @@ anchor.svo <- function(rstack,
 #' @details Converts a vector of cell numbers into a class vector. If a class
 #'   vector is provided as an input (argument \code{classVector}), then this
 #'   class vector is updated assigning a classification number to the cell
-#'   indicated by the argument \code{anchor}. The classification vector can
-#'   be indexed into the \code{rstack} using the \code{Cell} column of the
+#'   indicated by the argument \code{anchor}. The classification vector can be
+#'   indexed into the \code{rstack} using the \code{Cell} column of the
 #'   attribute table (see \code{\link{attTbl}}).
 #'
 #' @seealso [anchor.seed()], [anchor.svo()], [attTbl()]
 #'
 #' @export
+#' @examples
+#'
+#' \dontrun{
+#' # LOAD LIBRARIES AND DATA
+#' library(raster)
+#' library(scapesClassification)
+#'
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
+#' r <- raster(r)
+#'
+#' # SET RASTER DATA EQUAL TO CELL NUMBERS
+#' r[]<- 1:49
+#'
+#' # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
+#' at  <- attTbl(r, "dummy_var")
+#' nbs <- ngbList(r)
+#'
+#' # CELLS FROM 1:7 IN THE `anchor` ARGUMENT
+#' anch <-  1:7
+#'
+#'
+#' # class2cell = TRUE & class2nbs = FALSE
+#' cv <- anchor.cell(attTbl = at,
+#'                   rstack = r,
+#'                   anchor = anch,
+#'                   class  = 10,
+#'                   class2cell = TRUE,
+#'                   class2nbs  = FALSE)
+#'
+#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#'
+#' # PLOT RASTER AND CELL NUMBERS
+#' plot(r_cv, axes=FALSE, legend = FALSE,
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=FALSE")
+#' text(r)
+#'
+#'
+#' # class2cell = FALSE & class2nbs = TRUE
+#' cv <- anchor.cell(attTbl = at,
+#'                   rstack = r,
+#'                   anchor = anch,
+#'                   class  = 10,
+#'                   class2cell = FALSE,
+#'                   class2nbs  = TRUE)
+#'
+#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#'
+#' # PLOT RASTER AND CELL NUMBERS
+#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=FALSE & class2nbs=TRUE")
+#' text(r)
+#'
+#'
+#' # class2cell = TRUE & class2nbs = TRUE
+#' cv <- anchor.cell(attTbl = at,
+#'                   rstack = r,
+#'                   anchor = anch,
+#'                   class  = 10,
+#'                   class2cell = TRUE,
+#'                   class2nbs  = TRUE)
+#'
+#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#'
+#' # PLOT RASTER AND CELL NUMBERS
+#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=TRUE")
+#' text(r)
+#' }
 
 anchor.cell <-
   function(attTbl,

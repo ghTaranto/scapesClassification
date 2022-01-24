@@ -64,9 +64,79 @@ Converts a vector of cell numbers into a class vector.
 Converts a vector of cell numbers into a class vector. If a class
 vector is provided as an input (argument \code{classVector}), then this
 class vector is updated assigning a classification number to the cell
-indicated by the argument \code{anchor}. The classification vector can
-be indexed into the \code{rstack} using the \code{Cell} column of the
+indicated by the argument \code{anchor}. The classification vector can be
+indexed into the \code{rstack} using the \code{Cell} column of the
 attribute table (see \code{\link{attTbl}}).
+}
+\examples{
+
+\dontrun{
+# LOAD LIBRARIES AND DATA
+library(raster)
+library(scapesClassification)
+
+r <- list.files(system.file("extdata", package = "scapesClassification"),
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
+r <- raster(r)
+
+# SET RASTER DATA EQUAL TO CELL NUMBERS
+r[]<- 1:49
+
+# COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
+at  <- attTbl(r, "dummy_var")
+nbs <- ngbList(r)
+
+# CELLS FROM 1:7 IN THE `anchor` ARGUMENT
+anch <-  1:7
+
+
+# class2cell = TRUE & class2nbs = FALSE
+cv <- anchor.cell(attTbl = at,
+                  rstack = r,
+                  anchor = anch,
+                  class  = 10,
+                  class2cell = TRUE,
+                  class2nbs  = FALSE)
+
+r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+
+# PLOT RASTER AND CELL NUMBERS
+plot(r_cv, axes=FALSE, legend = FALSE,
+     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=FALSE")
+text(r)
+
+
+# class2cell = FALSE & class2nbs = TRUE
+cv <- anchor.cell(attTbl = at,
+                  rstack = r,
+                  anchor = anch,
+                  class  = 10,
+                  class2cell = FALSE,
+                  class2nbs  = TRUE)
+
+r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+
+# PLOT RASTER AND CELL NUMBERS
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+     colNA="#818792", col="#78b2c4", main = "class2cell=FALSE & class2nbs=TRUE")
+text(r)
+
+
+# class2cell = TRUE & class2nbs = TRUE
+cv <- anchor.cell(attTbl = at,
+                  rstack = r,
+                  anchor = anch,
+                  class  = 10,
+                  class2cell = TRUE,
+                  class2nbs  = TRUE)
+
+r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+
+# PLOT RASTER AND CELL NUMBERS
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=TRUE")
+text(r)
+}
 }
 \seealso{
 \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=anchor.svo]{anchor.svo()}}, \code{\link[=attTbl]{attTbl()}}

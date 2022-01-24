@@ -9,7 +9,7 @@ anchor.svo(
   spatial_vector_name,
   only_NAs = FALSE,
   fill_NAs = FALSE,
-  plot = TRUE,
+  plot = FALSE,
   saveRDS = NULL,
   writeRaster = NULL,
   overWrite = FALSE
@@ -18,7 +18,7 @@ anchor.svo(
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{spatial_vector_name}{OGR data source name.}
+\item{spatial_vector_name}{data source name (filename), sf or Spatial object.}
 
 \item{only_NAs}{logic, cell numbers extracted only at the locations of a
 spatial vector object that are not complete cases (i.e. have some missing
