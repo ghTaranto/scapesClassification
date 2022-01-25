@@ -67,11 +67,11 @@ __`anchor.svo()`:__ returns a vector of cell numbers extracted at the locations 
 shp <- system.file("extdata", "Azores.shp", package = "scapesClassification")
 
 # EXTRACT LAND POSITIONS
-anchorLAND <- anchor.svo(rstack              = rstack, 
-                         spatial_vector_name = shp, 
-                         only_NAs            = TRUE, 
-                         fill_NAs            = TRUE, 
-                         plot                = FALSE)
+anchorLAND <- anchor.svo(rstack   = rstack, 
+                         dsn      = shp, 
+                         only_NAs = TRUE, 
+                         fill_NAs = TRUE, 
+                         plot     = FALSE)
 ```
 
 __`anchor.cell()`:__ converts a vector of cell numbers into a **class vector**. In this example, all cells adjacent to _'land cells'_ (arg. `class2cell = F` and `class2nbs = T`) will be considered as _'ISU-anchor cells'_ ([Figure 1](#figure1)).

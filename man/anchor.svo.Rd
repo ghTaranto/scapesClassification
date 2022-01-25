@@ -6,7 +6,7 @@
 \usage{
 anchor.svo(
   rstack,
-  spatial_vector_name,
+  dsn,
   only_NAs = FALSE,
   fill_NAs = FALSE,
   plot = FALSE,
@@ -18,15 +18,14 @@ anchor.svo(
 \arguments{
 \item{rstack}{\code{Raster*} object.}
 
-\item{spatial_vector_name}{data source name (filename), sf or Spatial object.}
+\item{dsn}{data source name (filename) or an \code{sf} or a \code{Spatial} object.}
 
-\item{only_NAs}{logic, cell numbers extracted only at the locations of a
-spatial vector object that are not complete cases (i.e. have some missing
-values in some of the layers of the \code{Raster*} object).}
+\item{only_NAs}{logic, cell numbers extracted only for incomplete cases at
+the locations of a spatial object. Incomplete cases are cells having an
+NA-value in one or more layers of the \code{Raster*} object.}
 
-\item{fill_NAs}{logic, cell numbers extracted also at locations contiguous to
-those of the spatial vector object that are not complete cases (i.e. have
-some missing values in some of the layers of the \code{Raster*} object).}
+\item{fill_NAs}{logic, cell numbers extracted at the locations of a spatial
+object \emph{and} at contiguous locations that are incomplete cases.}
 
 \item{plot}{logic, plot anchor points.}
 
@@ -44,10 +43,78 @@ Numeric vector of raster cell numbers.
 }
 \description{
 Returns a vector of raster cell numbers extracted at the locations of a
-spatial vector object.
+spatial object.
 }
 \details{
 When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
-output is equivalent to the output of the function \code{raster::extract()}
-over a raster whose values are cell numbers.
+numeric output is equivalent to the output of the function
+\code{raster::extract()} over a raster whose values are cell numbers.
+}
+\examples{
+
+# NOT RUN
+\dontrun{
+# LOAD LIBRARIES AND DATA
+library(raster)
+library(scapesClassification)
+
+# CELL NUMBERS OF A DUMMY RASTER (7X7)
+r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
+
+# SET SOME NA-VALUE
+r_cn[c(9, 10, 11, 17, 18)] <- NA
+
+# BULD A DUMMY POLYGON
+pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
+pol <- spPolygons(pol)
+
+# EMPTY RASTER TO PLOT anchor.svo RESULTS
+r2 <- r_cn; r2[] <- NA
+
+# SET PLOT LAYOUT
+par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
+
+# PLOT 1
+################################################################################
+# only_NAs = FALSE; fill_NAs = FALSE
+ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
+r2[ac] <- 1
+
+plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+     main = "only_NAs = FALSE; fill_NAs = FALSE", xlim = c(0,1))
+text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+################################################################################
+
+# PLOT 2
+################################################################################
+# only_NAs = TRUE; fill_NAs = FALSE
+ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
+r2[]   <- NA; r2[ac] <- 1
+
+plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+     main = "only_NAs = TRUE; fill_NAs = FALSE")
+text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+################################################################################
+
+# PLOT 3
+################################################################################
+# only_NAs = FALSE; fill_NAs = TRUE
+ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
+r2[]   <- NA; r2[ac] <- 1
+
+plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+     main = "only_NAs = FALSE; fill_NAs = TRUE")
+text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+################################################################################
+
+# PLOT 4
+################################################################################
+# only_NAs = TRUE; fill_NAs = TRUE
+ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
+r2[]   <- NA; r2[ac] <- 1
+
+plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+     main = "only_NAs = TRUE; fill_NAs = TRUE")
+text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+}
 }

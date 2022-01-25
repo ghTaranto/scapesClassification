@@ -108,7 +108,7 @@
   class2cell <span class="op">=</span> <span class="cn">TRUE</span>,
   class2nbs <span class="op">=</span> <span class="cn">TRUE</span>,
   overwrite_class <span class="op">=</span> <span class="cn">FALSE</span>,
-  plot <span class="op">=</span> <span class="cn">TRUE</span>,
+  plot <span class="op">=</span> <span class="cn">FALSE</span>,
   writeRaster <span class="op">=</span> <span class="cn">NULL</span>,
   overWrite <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
@@ -161,8 +161,8 @@ new class vector.</p>
     <p>Converts a vector of cell numbers into a class vector. If a class
 vector is provided as an input (argument <code>classVector</code>), then this
 class vector is updated assigning a classification number to the cell
-indicated by the argument <code>anchor</code>. The classification vector can
-be indexed into the <code>rstack</code> using the <code>Cell</code> column of the
+indicated by the argument <code>anchor</code>. The classification vector can be
+indexed into the <code>rstack</code> using the <code>Cell</code> column of the
 attribute table (see <code><a href="attTbl.html">attTbl</a></code>).</p>
     </div>
     <div id="see-also">
@@ -170,6 +170,80 @@ attribute table (see <code><a href="attTbl.html">attTbl</a></code>).</p>
     <div class="dont-index"><p><code><a href="anchor.seed.html">anchor.seed()</a></code>, <code><a href="anchor.svo.html">anchor.svo()</a></code>, <code><a href="attTbl.html">attTbl()</a></code></p></div>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
+<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<span class="r-in"><span class="co"># LOAD LIBRARIES AND DATA</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># CELL NUMBERS OF A DUMMY RASTER (7X7)</span></span>
+<span class="r-in"><span class="va">r_cn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">49</span>, nrow <span class="op">=</span> <span class="fl">7</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS</span></span>
+<span class="r-in"><span class="va">at</span>  <span class="op">&lt;-</span> <span class="fu"><a href="attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r_cn</span>, <span class="st">"dummy_var"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">nbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r_cn</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># SET PLOT LAYOUT</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># PLOT 1</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="co"># class2cell   = TRUE &amp; class2nbs = FALSE</span></span>
+<span class="r-in"><span class="co"># anchor cells = 1:7</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu">anchor.cell</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>,</span>
+<span class="r-in">                  rstack <span class="op">=</span> <span class="va">r_cn</span>,</span>
+<span class="r-in">                  anchor <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,</span>
+<span class="r-in">                  class  <span class="op">=</span> <span class="fl">10</span>,</span>
+<span class="r-in">                  class2cell <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span class="r-in">                  class2nbs  <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span>r <span class="op">=</span> <span class="va">r_cn</span>, index <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="st">"#78b2c4"</span>, main <span class="op">=</span> <span class="st">"class2cell=TRUE; class2nbs=FALSE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r_cn</span><span class="op">)</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># PLOT 2</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="co"># class2cell   = FALSE &amp; class2nbs = TRUE</span></span>
+<span class="r-in"><span class="co"># anchor cells = 1:7</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu">anchor.cell</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>,</span>
+<span class="r-in">                  rstack <span class="op">=</span> <span class="va">r_cn</span>,</span>
+<span class="r-in">                  anchor <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,</span>
+<span class="r-in">                  class  <span class="op">=</span> <span class="fl">10</span>,</span>
+<span class="r-in">                  class2cell <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span class="r-in">                  class2nbs  <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span>r <span class="op">=</span> <span class="va">r_cn</span>, index <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="st">"#78b2c4"</span>, main <span class="op">=</span> <span class="st">"class2cell=FALSE; class2nbs=TRUE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r_cn</span><span class="op">)</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># PLOT 3</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="co"># class2cell   = TRUE &amp; class2nbs = TRUE</span></span>
+<span class="r-in"><span class="co"># anchor cells = 1:7</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu">anchor.cell</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>,</span>
+<span class="r-in">                  rstack <span class="op">=</span> <span class="va">r_cn</span>,</span>
+<span class="r-in">                  anchor <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,</span>
+<span class="r-in">                  class  <span class="op">=</span> <span class="fl">10</span>,</span>
+<span class="r-in">                  class2cell <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span class="r-in">                  class2nbs  <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span>r <span class="op">=</span> <span class="va">r_cn</span>, index <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># PLOT RASTER AND CELL NUMBERS</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="st">"#78b2c4"</span>, main <span class="op">=</span> <span class="st">"class2cell=TRUE; class2nbs=TRUE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r_cn</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">}</span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

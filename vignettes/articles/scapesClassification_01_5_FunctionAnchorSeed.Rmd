@@ -76,6 +76,11 @@ The first set of condition to be evaluated is the `cond.filter`. The evaluation 
 
 * Cells [contiguous and continuous](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) with cells belonging to the seed class meeting the conditions specified by `cond.isol` are assigned to an _isolation buffer_ (class = -1). Cells included in the isolation buffer are ignored in all following iterations. 
 
+
+## Relative conditions - Lag
+
+The function arguments `lag.growth` and `lag.isol` 
+
 ## Find local maxima
 
 As an example we will identify the two local maxima existin on the dummy raster can find local using the following set of conditions [Figure 2](#figure2): 

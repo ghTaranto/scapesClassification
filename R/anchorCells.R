@@ -1,16 +1,15 @@
 #' Anchor cells from spatial vector objects
 #'
 #' Returns a vector of raster cell numbers extracted at the locations of a
-#' spatial vector object.
+#' spatial object.
 #'
 #' @param rstack \code{Raster*} object.
-#' @param spatial_vector_name data source name (filename), sf or Spatial object.
-#' @param only_NAs logic, cell numbers extracted only at the locations of a
-#'   spatial vector object that are not complete cases (i.e. have some missing
-#'   values in some of the layers of the \code{Raster*} object).
-#' @param fill_NAs logic, cell numbers extracted also at locations contiguous to
-#'   those of the spatial vector object that are not complete cases (i.e. have
-#'   some missing values in some of the layers of the \code{Raster*} object).
+#' @param dsn data source name (filename) or an `sf` or a `Spatial` object.
+#' @param only_NAs logic, cell numbers extracted only for incomplete cases at
+#'   the locations of a spatial object. Incomplete cases are cells having an
+#'   NA-value in one or more layers of the \code{Raster*} object.
+#' @param fill_NAs logic, cell numbers extracted at the locations of a spatial
+#'   object _and_ at contiguous locations that are incomplete cases.
 #' @param plot logic, plot anchor points.
 #' @param saveRDS filename, if a file name is provided save the anchor cell
 #'   vector as an RDS file.
@@ -22,14 +21,80 @@
 #' @return Numeric vector of raster cell numbers.
 #'
 #' @details When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
-#'   output is equivalent to the output of the function \code{raster::extract()}
-#'   over a raster whose values are cell numbers.
+#'   numeric output is equivalent to the output of the function
+#'   \code{raster::extract()} over a raster whose values are cell numbers.
 #'
 #' @export
+#' @examples
 #'
+#' # NOT RUN
+#' \dontrun{
+#' # LOAD LIBRARIES AND DATA
+#' library(raster)
+#' library(scapesClassification)
+#'
+#' # CELL NUMBERS OF A DUMMY RASTER (7X7)
+#' r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
+#'
+#' # SET SOME NA-VALUE
+#' r_cn[c(9, 10, 11, 17, 18)] <- NA
+#'
+#' # BULD A DUMMY POLYGON
+#' pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
+#' pol <- spPolygons(pol)
+#'
+#' # EMPTY RASTER TO PLOT anchor.svo RESULTS
+#' r2 <- r_cn; r2[] <- NA
+#'
+#' # SET PLOT LAYOUT
+#' par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
+#'
+#' # PLOT 1
+#' ################################################################################
+#' # only_NAs = FALSE; fill_NAs = FALSE
+#' ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
+#' r2[ac] <- 1
+#'
+#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+#'      main = "only_NAs = FALSE; fill_NAs = FALSE", xlim = c(0,1))
+#' text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+#' ################################################################################
+#'
+#' # PLOT 2
+#' ################################################################################
+#' # only_NAs = TRUE; fill_NAs = FALSE
+#' ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
+#' r2[]   <- NA; r2[ac] <- 1
+#'
+#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+#'      main = "only_NAs = TRUE; fill_NAs = FALSE")
+#' text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+#' ################################################################################
+#'
+#' # PLOT 3
+#' ################################################################################
+#' # only_NAs = FALSE; fill_NAs = TRUE
+#' ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
+#' r2[]   <- NA; r2[ac] <- 1
+#'
+#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+#'      main = "only_NAs = FALSE; fill_NAs = TRUE")
+#' text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+#' ################################################################################
+#'
+#' # PLOT 4
+#' ################################################################################
+#' # only_NAs = TRUE; fill_NAs = TRUE
+#' ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
+#' r2[]   <- NA; r2[ac] <- 1
+#'
+#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
+#'      main = "only_NAs = TRUE; fill_NAs = TRUE")
+#' text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+#' }
 
 anchor.svo <- function(rstack,
-                       spatial_vector_name,
+                       dsn,
                        only_NAs = FALSE,
                        fill_NAs = FALSE,
                        plot = FALSE,
@@ -50,14 +115,14 @@ anchor.svo <- function(rstack,
 
   }
 
-  if(is.character(spatial_vector_name)){
+  if(is.character(dsn)){
 
-    p <- rgdal::readOGR(dsn = spatial_vector_name, verbose = FALSE)
+    p <- rgdal::readOGR(dsn = dsn, verbose = FALSE)
     p <- sp::spTransform(p, raster::crs(rstack))
 
-  } else if(methods::is(spatial_vector_name, "sf")|methods::is(spatial_vector_name, "Spatial")){
+  } else if(methods::is(dsn, "sf")|methods::is(dsn, "Spatial")){
 
-    p <- spatial_vector_name
+    p <- dsn
 
   } else {
 
@@ -176,67 +241,69 @@ anchor.svo <- function(rstack,
 #' library(raster)
 #' library(scapesClassification)
 #'
-#' r <- list.files(system.file("extdata", package = "scapesClassification"),
-#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
-#' r <- raster(r)
-#'
-#' # SET RASTER DATA EQUAL TO CELL NUMBERS
-#' r[]<- 1:49
+#' # CELL NUMBERS OF A DUMMY RASTER (7X7)
+#' r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
 #'
 #' # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
-#' at  <- attTbl(r, "dummy_var")
-#' nbs <- ngbList(r)
+#' at  <- attTbl(r_cn, "dummy_var")
+#' nbs <- ngbList(r_cn)
 #'
-#' # CELLS FROM 1:7 IN THE `anchor` ARGUMENT
-#' anch <-  1:7
+#' # SET PLOT LAYOUT
+#' par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
 #'
-#'
-#' # class2cell = TRUE & class2nbs = FALSE
+#' # PLOT 1
+#' ################################################################################
+#' # class2cell   = TRUE & class2nbs = FALSE
+#' # anchor cells = 1:7
 #' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r,
-#'                   anchor = anch,
+#'                   rstack = r_cn,
+#'                   anchor = 1:7,
 #'                   class  = 10,
 #'                   class2cell = TRUE,
 #'                   class2nbs  = FALSE)
 #'
-#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 #'
-#' # PLOT RASTER AND CELL NUMBERS
-#' plot(r_cv, axes=FALSE, legend = FALSE,
-#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=FALSE")
-#' text(r)
+#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=FALSE")
+#' text(r_cn)
+#' ################################################################################
 #'
-#'
-#' # class2cell = FALSE & class2nbs = TRUE
+#' # PLOT 2
+#' ################################################################################
+#' # class2cell   = FALSE & class2nbs = TRUE
+#' # anchor cells = 1:7
 #' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r,
-#'                   anchor = anch,
+#'                   rstack = r_cn,
+#'                   anchor = 1:7,
 #'                   class  = 10,
 #'                   class2cell = FALSE,
 #'                   class2nbs  = TRUE)
 #'
-#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 #'
-#' # PLOT RASTER AND CELL NUMBERS
 #' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
-#'      colNA="#818792", col="#78b2c4", main = "class2cell=FALSE & class2nbs=TRUE")
-#' text(r)
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=FALSE; class2nbs=TRUE")
+#' text(r_cn)
+#' ################################################################################
 #'
-#'
-#' # class2cell = TRUE & class2nbs = TRUE
+#' # PLOT 3
+#' ################################################################################
+#' # class2cell   = TRUE & class2nbs = TRUE
+#' # anchor cells = 1:7
 #' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r,
-#'                   anchor = anch,
+#'                   rstack = r_cn,
+#'                   anchor = 1:7,
 #'                   class  = 10,
 #'                   class2cell = TRUE,
 #'                   class2nbs  = TRUE)
 #'
-#' r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 #'
 #' # PLOT RASTER AND CELL NUMBERS
 #' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
-#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=TRUE")
-#' text(r)
+#'      colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=TRUE")
+#' text(r_cn)
 #' }
 
 anchor.cell <-

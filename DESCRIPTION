@@ -15,7 +15,6 @@ Description: The R-package scapesClassification is designed to translate
   objects.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
@@ -34,10 +33,11 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    methods,
     raster,
     rgdal (>= 1.2),
     sp,
     stringr
 VignetteBuilder: knitr
-URL: https://github.com/ghTaranto/scapesClassification
+URL: https://github.com/ghTaranto/scapesClassification, https://ghtaranto.github.io/scapesClassification
 BugReports: https://github.com/ghTaranto/scapesClassification/issues

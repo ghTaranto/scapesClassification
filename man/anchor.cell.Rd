@@ -75,67 +75,69 @@ attribute table (see \code{\link{attTbl}}).
 library(raster)
 library(scapesClassification)
 
-r <- list.files(system.file("extdata", package = "scapesClassification"),
-                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
-r <- raster(r)
-
-# SET RASTER DATA EQUAL TO CELL NUMBERS
-r[]<- 1:49
+# CELL NUMBERS OF A DUMMY RASTER (7X7)
+r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
 
 # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
-at  <- attTbl(r, "dummy_var")
-nbs <- ngbList(r)
+at  <- attTbl(r_cn, "dummy_var")
+nbs <- ngbList(r_cn)
 
-# CELLS FROM 1:7 IN THE `anchor` ARGUMENT
-anch <-  1:7
+# SET PLOT LAYOUT
+par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
 
-
-# class2cell = TRUE & class2nbs = FALSE
+# PLOT 1
+################################################################################
+# class2cell   = TRUE & class2nbs = FALSE
+# anchor cells = 1:7
 cv <- anchor.cell(attTbl = at,
-                  rstack = r,
-                  anchor = anch,
+                  rstack = r_cn,
+                  anchor = 1:7,
                   class  = 10,
                   class2cell = TRUE,
                   class2nbs  = FALSE)
 
-r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 
-# PLOT RASTER AND CELL NUMBERS
-plot(r_cv, axes=FALSE, legend = FALSE,
-     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=FALSE")
-text(r)
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
+     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=FALSE")
+text(r_cn)
+################################################################################
 
-
-# class2cell = FALSE & class2nbs = TRUE
+# PLOT 2
+################################################################################
+# class2cell   = FALSE & class2nbs = TRUE
+# anchor cells = 1:7
 cv <- anchor.cell(attTbl = at,
-                  rstack = r,
-                  anchor = anch,
+                  rstack = r_cn,
+                  anchor = 1:7,
                   class  = 10,
                   class2cell = FALSE,
                   class2nbs  = TRUE)
 
-r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 
-# PLOT RASTER AND CELL NUMBERS
 plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
-     colNA="#818792", col="#78b2c4", main = "class2cell=FALSE & class2nbs=TRUE")
-text(r)
+     colNA="#818792", col="#78b2c4", main = "class2cell=FALSE; class2nbs=TRUE")
+text(r_cn)
+################################################################################
 
-
-# class2cell = TRUE & class2nbs = TRUE
+# PLOT 3
+################################################################################
+# class2cell   = TRUE & class2nbs = TRUE
+# anchor cells = 1:7
 cv <- anchor.cell(attTbl = at,
-                  rstack = r,
-                  anchor = anch,
+                  rstack = r_cn,
+                  anchor = 1:7,
                   class  = 10,
                   class2cell = TRUE,
                   class2nbs  = TRUE)
 
-r_cv <- cv.2.rast(r = r, index = at$Cell, classVector = cv)
+r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
 
 # PLOT RASTER AND CELL NUMBERS
 plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
-     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE & class2nbs=TRUE")
-text(r)
+     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=TRUE")
+text(r_cn)
 }
 }
 \seealso{
