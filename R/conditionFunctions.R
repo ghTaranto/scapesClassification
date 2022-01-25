@@ -1,60 +1,221 @@
-#' Test Conditions for Neighbors and Neighbors of Neighbors
+#' Test conditions for neighbors and neighbors of neighbors
 #'
 #' Evaluate conditions for cells neighboring specific classes and classify them
-#' if conditions are \code{TRUE}.
+#' if conditions are true.
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
-#' @param ngbList list, it has to contain the list of 8-neighbors of each cell
-#'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
-#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
-#'   in the attribute table (see \code{\link{ngbList}}).
+#' @param ngbList list, the list of neighborhoods returned by the function
+#'   \code{\link{ngbList}}.
+#' @param rNumb logic, the neighborhoods of the argument \code{ngbList} are
+#'   identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
+#'   (\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
+#'   numbers for large rasters.
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
-#' @param nbs_of numeric or numeric vector, indicates the neighbors of the
-#'   classes that have to be evaluated. If it includes the class of the argument
-#'   \code{class}, the function will evaluate the conditions also for the
-#'   neighbors of the neighbors.
+#' @param nbs_of numeric or numeric vector, indicates the class(es) of focal and
+#'   anchor cells. Conditions are only evaluated at positions adjacent to anchor
+#'   and focal cells. If the classification number assigned with the argument
+#'   \code{class} is also included in the argument \code{nbs_of}, the function
+#'   takes into account _class continuity_ (see \code{\link{conditions}}).
 #' @param conditions character string, the conditions a cell have to meet to be
-#'   classified as indicated by the argument \code{class}. Absolute, focal cell
-#'   and focal neighborhood conditions can be used. Condition strings can
-#'   include only one neighborhood condition (see \code{\link{conditions}}).
-#' @param class numeric, the numeric class to attribute to the cells meeting
-#'   conditions.
-#' @param min.border numeric value between 0 and 1. It indicates the minimum
-#'   percentage of cells adjacent to the cell in evaluation that have to belong
-#'   to one of the classes in \code{nbs_of}. If one, then all neighboring cells
-#'   have to belong to one of the classes in \code{nbs_of} for the cell in
-#'   evaluation being classified as \code{class}.
-#' @param overwrite_class logic, reclassify cells that have already been
-#'   classified.
+#'   classified as indicated by the argument \code{class}. The classification
+#'   number is only assigned to \code{classVector} NA-cells unless the argument
+#'   \code{overwrite_class = TRUE}.
+#' @param class numeric, the classification number to assign to all cells that
+#'   meet the function conditions.
+#' @param min.border numeric value between 0 and 1. A test cell is classified if
+#'   conditions are true and if at least as many neighbors as the percentage
+#'   specified by \code{min.border} belong to one of the classes of
+#'   \code{nbs_of}. Percentages are computed counting only valid neighbors
+#'   (i.e., neighbors with complete cases).
+#' @param overwrite_class logic, reclassify cells that were already classified
+#'   and that meet the function conditions.
 #' @param max.iter integer, the maximum number of iterations.
-#' @param fn_perc numeric value between 0 and 1. If neighborhood conditions are
-#'   considered, it determines the percentage of cells in the neighborhood for
-#'   which the conditions have to be true in order to classify the cell being
-#' evaluated as indicted by the argument \code{class} (see
-#' \code{\link{conditions}}).
-#' @param directional logic, only directional neighbors are considered to test
-#'   neighborhood conditions. The argument \code{fn_perc} will also consider
-#'   only directional neighbors (see \code{\link{conditions}}).
+#' @param fn_perc numeric value between 0 and 1. If _absolute or relative
+#'   neighborhood conditions_ are considered, test cells are classified if the
+#'   conditions are true for at least as many evaluations as the ones specified
+#'   by the argument \code{fn_perc} (see \code{\link{conditions}}).
+#' @param directional logic, absolute or relative neighborhood conditions are
+#'   tested using the _directional neighborhood_ (see \code{\link{conditions}}).
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function.
 #'
-#' @details The function evaluates the conditions of the argument
-#'   \code{\link{conditions}} for all cells neighboring cells classified as one
-#'   of the classes included in \code{nbs_of}. If the argument \code{nbs_of}
-#'   includes the class of the argument \code{class}, then at each iteration the
-#'   function will evaluate if among the neighbors of the newly classified cells
-#'   there are cells meeting conditions and it will classify them accordingly.
+#' @details \itemize{ \item The function evaluates the conditions of the
+#'   argument \code{conditions} for all unclassified cells (i.e.,
+#'   \code{classVector} NA-cells) included in the neighborhood of focal and
+#'   anchor cells (specified by the argument \code{nbs_of}).
+#'
+#'   \item Cells that meet the function conditions are classified as indicted by
+#'   the argument \code{class}.
+#'
+#'   \item _Class continuity_ is considered if the classification number
+#'   assigned with the argument \code{class} is also included in the argument
+#'   \code{nbs_of} (see \code{\link{conditions}}).
+#'
+#'   \item All types of conditions can be used. The condition string can only
+#'   include one neighborhood condition (\code{'{}'}) (see
+#'   \code{\link{conditions}}).}
 #'
 #' @seealso [conditions()], [attTbl()], [ngbList()]
 #'
 #' @export
+#' @examples
+#' # NOT RUN
+#' \dontrun{
+#' # LOAD LIBRARIES
+#' library(raster)
+#' library(scapesClassification)
+#'
+#' # LOAD THE DUMMY RASTER
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = T)
+#' r <- raster(r)
+#'
+#' # COMPUTE THE ATTRIBUTE TABLE
+#' at <- attTbl(r, "dummy_var")
+#'
+#' # COMPUTE THE LIST OF NEIGBORHOODS
+#' nbs <- ngbList(r)
+#'
+#' # SET A DUMMY FOCAL CELL (CELL #25)
+#' at$cv[at$Cell == 25] <- 0
+#'
+#' # ABSOLUTE TEST CELL CONDITION - NO CLASS CONTINUITY
+#' ################################################################################
+#' # conditions: "dummy_var >= 3"
+#'
+#' cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
+#'
+#'                    # CLASS VECTOR - INPUT
+#'                    classVector = at$cv,
+#'
+#'                    # FOCAL CELL CLASS
+#'                    nbs_of = 0,
+#'
+#'                    # CLASSIFICATION NUMBER
+#'                    class = 1,
+#'
+#'                    # ABSOLUTE TEST CELL CONDITION
+#'                    conditions = "dummy_var >= 3")
+#'
+#' # CONVERT THE CLASS VECTOR INTO A RASTER
+#' r_cv1 <- cv.2.rast(r, at$Cell,classVector = cv1, plot = FALSE)
+#'
+#' # PLOT
+#' plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+#'      col=c("#78b2c4", "#cfad89"),
+#'      main = "dummy_var >= 3\n(no class continuity)")
+#' legend("right", legend = c("Focal cell", "Classified cells", "Unclassified cells"),
+#'        fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#' text(r)
+#' ################################################################################
+#'
+#' # ABSOLUTE TEST CELL CONDITION - WITH CLASS CONTINUITY
+#' ################################################################################
+#' # conditions: "dummy_var >= 3"
+#'
+#' cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
+#'
+#'                    nbs_of = c(0,  # FOCAL CELL CLASS
+#'                               1), # CLASSIFICATION NUMBER
+#'
+#'                   # CLASSIFICATION NUMBER
+#'                    class = 1,     # CLASSIFICATION NUMBER
+#'
+#'                    # ABSOLUTE CONDITION
+#'                    conditions = "dummy_var >= 3")
+#'
+#' # CONVERT THE CLASS VECTOR INTO A RASTER
+#' r_cv2 <- cv.2.rast(r, at$Cell,classVector = cv2, plot = FALSE)
+#'
+#' # PLOT
+#' plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+#'      col=c("#78b2c4", "#cfad89"),
+#'      main = "dummy_var >= 3\n(with class continuity)")
+#' legend("right", legend = c("Focal cell", "Classified cells", "Unclassified cells"),
+#'        fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#' text(r)
+#' ################################################################################
+#'
+#' # ABSOLUTE NEIGHBORHOOD CONDITION
+#' ################################################################################
+#' # conditions: "dummy_var{} >= 3"
+#'
+#' cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
+#'                    nbs_of = c(0,1), class = 1,
+#'
+#'                    # ABSOLUTE NEIGHBORHOOD CONDITION
+#'                    conditions = "dummy_var{} >= 3",
+#'
+#'                    # RULE HAS TO BE TRUE FOR 100% OF THE EVALUATIONS
+#'                    fn_perc = 1)
+#'
+#' # CONVERT THE CLASS VECTOR INTO A RASTER
+#' r_cv3 <- cv.2.rast(r, at$Cell,classVector = cv3, plot = FALSE)
+#'
+#' #PLOT
+#' plot(r_cv3, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+#'      col=c("#78b2c4", "#cfad89"),
+#'      main = "dummy_var{ } >= 3\n{ } = neighborhood")
+#' legend("right", legend = c("Focal cell", "Classified cells", "Unclassified cells"),
+#'        fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#' text(r)
+#' ################################################################################
+#'
+#' # RELATIVE NEIGHBORHOOD CONDITION
+#' ################################################################################
+#' # conditions: "dummy_var > dummy_var{}"
+#'
+#' cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
+#'                    nbs_of = c(0,1), class = 1,
+#'
+#'                    # RELATIVE NEIGHBORHOOD CONDITION
+#'                    conditions = "dummy_var > dummy_var{}",
+#'
+#'                    # RULE HAS TO BE TRUE FOR AT LEAST 60% OF THE EVALUATIONS
+#'                    fn_perc = 0.6)
+#'
+#'
+#' # CONVERT THE CLASS VECTOR INTO A RASTER
+#' r_cv4 <- cv.2.rast(r, at$Cell, classVector = cv4, plot = FALSE)
+#'
+#' #PLOT
+#' plot(r_cv4, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+#'      col=c("#78b2c4", "#cfad89"),
+#'      main = "dummy_var > dummy_var{ }\n{ } = neighborhood condition")
+#' legend("right", legend = c("Focal cell", "Classified cells", "Unclassified cells"),
+#'        fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#' text(r)
+#' ################################################################################
+#'
+#' # RELATIVE FOCAL CELL CONDITION
+#' ################################################################################
+#' # conditions: "dummy_var > dummy_var[]"
+#'
+#' cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
+#'                    nbs_of = c(0,1), class = 1,
+#'
+#'                    # RELATIVE FOCAL CELL CONDITION
+#'                    conditions = "dummy_var > dummy_var[]")
+#'
+#'
+#' # CONVERT THE CLASS VECTOR INTO A RASTER
+#' r_cv5 <- cv.2.rast(r, at$Cell,classVector = cv5, plot = FALSE)
+#'
+#' #PLOT
+#' plot(r_cv5, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+#'      col=c("#78b2c4", "#cfad89"),
+#'      main = "dummy_var > dummy_var[ ]\n[ ] = focal cell")
+#' legend("right", legend = c("Focal cell", "Classified cells", "Unclassified cells"),
+#'        fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#' text(r)
+#' }
 
 cond.4.nofn <- function(attTbl,
                         ngbList,
-                        nbsIndex = FALSE,
+                        rNumb = FALSE,
                         classVector,
                         nbs_of,
                         conditions,
@@ -171,7 +332,7 @@ cond.4.nofn <- function(attTbl,
 
 
   ## CONVERT NBS FORM CELL IDS TO CELL INDECES
-  if(!nbsIndex){
+  if(!rNumb){
     fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
     ngbList <- match(unlist(ngbList), attTbl$Cell)
     no_nas  <- !is.na(ngbList)
@@ -404,7 +565,7 @@ cond.4.nofn <- function(attTbl,
 #'   in \code{attTbl$Cell} (see \code{\link{ngbList}}). If conditions do not
 #'   include focal neighborohood conditions this argument can be \code{NULL}
 #'   (see \code{\link{conditions}}).
-#' @param nbsIndex logic, \code{ngbList} contain the neighbors index position
+#' @param rNumb logic, \code{ngbList} contain the neighbors index position
 #'   in the attribute table (see \code{\link{ngbList}}).
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified.
@@ -435,7 +596,7 @@ cond.4.nofn <- function(attTbl,
 
 cond.reclass <- function(attTbl,
                          ngbList = NULL,
-                         nbsIndex = FALSE,
+                         rNumb = FALSE,
                          classVector,
                          conditions,
                          class,
@@ -483,7 +644,7 @@ cond.reclass <- function(attTbl,
   }
 
   # CONVERT NBS FORM CELL IDS TO CELL INDECES
-  if(!nbsIndex){
+  if(!rNumb){
     fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
     ngbList <- match(unlist(ngbList), attTbl$Cell)
     no_nas  <- !is.na(ngbList)
@@ -548,63 +709,3 @@ cond.reclass <- function(attTbl,
   return(classVector)
 
 }
-
-
-#' Test Conditions for All Cells
-#'
-#' Evaluate conditions for cells that have not already been classified and
-#' classify them if conditions are true.
-#'
-#' @param attTbl data.frame, the attribute table returned by the function
-#'   \code{\link{attTbl}}.
-#' @param conditions character string, the conditions a cell have to meet to be
-#'   classified as indicated by the argument \code{class}. Absolute conditions
-#'   can be used (see \code{\link{conditions}}).
-#' @param classVector numeric vector, defines the cells in the attribute table
-#'   that have already been classified.
-#' @param class numeric, the numeric class to attribute to the cells meeting
-#'   conditions.
-#' @param overwrite_class logic, reclassify cells that have already been
-#'   classified.
-#'
-#' @return Update \code{classVector} with the new cells that were classified by
-#'   the function. If no \code{classVector} was provided, the function return a
-#'   new classification vector.
-#'
-#' @details The function evaluates the conditions of the argument
-#'   \code{\link{conditions}} for all cells that have not already been
-#'   classified. The cells for which \code{\link{conditions}} are \code{TRUE}
-#'   are classified as indicted by the argument \code{class}.
-#'
-#' @seealso [conditions()], [attTbl()]
-#'
-#' @export
-
-cond.4.all <- function(attTbl,
-                       conditions,
-                       classVector = NULL,
-                       class,
-                       overwrite_class = FALSE) {
-  if (is.null(classVector)) {
-    classVector <- rep(as.integer(NA), NROW(attTbl))
-  }
-
-  if (!overwrite_class) {
-    conditions <- paste("(", conditions, ")", "& is.na(classVector)")
-  }
-
-  v_ab <-
-    names(attTbl)[stringr::str_detect(conditions, paste0("\\b", names(attTbl), "\\b"))]
-  for (v in v_ab) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0("\\b", v, "\\b"), paste0("attTbl$", v))
-  }
-
-  classVector[which(eval(parse(text = conditions)))] <- class
-
-  return(classVector)
-
-}
-
-
-

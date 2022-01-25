@@ -202,8 +202,8 @@ anchor.svo <- function(rstack,
 #' @param rstack the \code{Raster*} object used to compute the
 #'   \code{\link{attTbl}}.
 #' @param anchor integer vector of raster cell numbers.
-#' @param class numeric, the classification number to attribute to all cells
-#'   that meet the function conditions.
+#' @param class numeric, the classification number to assign to all cells that
+#'   meet the function conditions.
 #' @param classVector numeric vector, if provided, it defines the cells in the
 #'   attribute table that have already been classified and that have to be
 #'   ignored by the function (unless the argument \code{overwrite_class =
@@ -225,7 +225,7 @@ anchor.svo <- function(rstack,
 #'   is overwritten.
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
-#'   the function. If there is no \code{classVector} input, the function return
+#'   the function. If there is no \code{classVector} input, the function returns
 #'   a new class vector.
 #'
 #' @details Converts a vector of cell numbers into a class vector. If there is a
@@ -237,6 +237,7 @@ anchor.svo <- function(rstack,
 #' @export
 #' @examples
 #'
+#' # NOT RUN
 #' \dontrun{
 #' # LOAD LIBRARIES AND DATA
 #' library(raster)

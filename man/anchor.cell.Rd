@@ -27,8 +27,8 @@ anchor.cell(
 
 \item{anchor}{integer vector of raster cell numbers.}
 
-\item{class}{numeric, the classification number to attribute to all cells
-that meet the function conditions.}
+\item{class}{numeric, the classification number to assign to all cells that
+meet the function conditions.}
 
 \item{classVector}{numeric vector, if provided, it defines the cells in the
 attribute table that have already been classified and that have to be
@@ -58,7 +58,7 @@ is overwritten.}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
-the function. If there is no \code{classVector} input, the function return
+the function. If there is no \code{classVector} input, the function returns
 a new class vector.
 }
 \description{
@@ -71,6 +71,7 @@ classification number to all cells that meet the function conditions.
 }
 \examples{
 
+# NOT RUN
 \dontrun{
 # LOAD LIBRARIES AND DATA
 library(raster)
