@@ -4,7 +4,7 @@
 \alias{classify.all}
 \title{Classify All Unclassified Cells}
 \usage{
-classify.all(attTbl, ngbList, nbsIndex = FALSE, classVector)
+classify.all(attTbl, ngbList, rNumb = FALSE, classVector)
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
@@ -13,7 +13,7 @@ classify.all(attTbl, ngbList, nbsIndex = FALSE, classVector)
 \item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
 in \code{attTbl$Cell} (see \code{\link{ngbList}}).}
 
-\item{nbsIndex}{logic, \code{ngbList} contain the neighbors index position
+\item{rNumb}{logic, \code{ngbList} contain the neighbors index position
 in the attribute table (see \code{\link{ngbList}}).}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table

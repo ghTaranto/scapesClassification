@@ -2,12 +2,12 @@
 % Please edit documentation in R/classContiguity.R
 \name{reclass.nbs}
 \alias{reclass.nbs}
-\title{Reclassify Neighbors}
+\title{Reclassify neighbors}
 \usage{
 reclass.nbs(
   attTbl,
   ngbList,
-  nbsIndex = FALSE,
+  rNumb = FALSE,
   classVector,
   nbs_of,
   class,
@@ -19,45 +19,164 @@ reclass.nbs(
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
-in \code{attTbl$Cell} (see \code{\link{ngbList}}).}
+\item{ngbList}{list, the list of neighborhoods returned by the function
+\code{\link{ngbList}}.}
 
-\item{nbsIndex}{logic, \code{ngbList} contain the neighbors index position
-in the attribute table (see \code{\link{ngbList}}).}
+\item{rNumb}{logic, the neighborhoods of the argument \code{ngbList} are
+identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
+(\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
+numbers for large rasters.}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table
 that have already been classified.}
 
-\item{nbs_of}{numeric or numeric vector, if a cell classified as \code{class}
-is adjacent to a cell classified as indicated by the argument
-\code{nbs_of}, then it is reclassified as indicated by the argument
-\code{reclass}.}
+\item{nbs_of}{numeric or numeric vector, indicates the class(es) of focal and
+anchor cells.}
 
-\item{class}{numeric or numeric vector, indicates the classes for which
-adjacent neighbors have to be evaluated.}
+\item{class}{numeric or numeric vector, cells of classes \code{class}
+adjacent to cells belonging to one of the classes of \code{nbs_of} are
+reclassified as indicated by the argument \code{reclass}.}
 
-\item{reclass}{numeric, the numeric class to attribute to the cells meeting
-contiguity conditions.}
+\item{reclass}{numeric, the classification number to assign to all cells that
+meet the function conditions.}
 
-\item{reclass_all}{logic, all cells adjacent to a reclassified cell
-classified as \code{class} are reclassified as indicated by the argument
-\code{reclass}.}
+\item{reclass_all}{logic, all cells of class \code{class} are also
+reclassified if they are connected to a reclassified cell.}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
 the function.
 }
 \description{
-If members of two classes are contiguous, one of them is reclassified.
+Evaluate if members of two classes are contiguous and, if they are, one of
+them is reclassified.
 }
 \details{
-The function evaluates if a cell of class \code{class} is adjacent
-to one of the classes of the argument \code{nbs_of} and, if \code{TRUE},
-reclassifies it as indicated by the argument \code{reclass}. If the argument
-\code{reclass_all} is \code{TRUE}, then all cells adjacent to a
-reclassified cell classified as \code{class} are also reclassified.
+\itemize{ \item The function evaluates if a cell of class
+\code{class} is adjacent to a cell of class \code{nbs_of} and, if it is, it
+is reclassifies as indicated by the argument \code{reclass}.
+
+\item If the argument \code{reclass_all = TRUE}, all cells of class
+\code{class} are also reclassified if they are connected to a reclassified
+cell.}
+}
+\examples{
+
+# NOT RUN
+\dontrun{
+library(raster)
+library(scapesClassification)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"),
+                pattern = "dummy_raster\\\\.tif", full.names = T)
+r <- raster(r)
+
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+# COMPUTE A CLASS VECTOR
+################################################################################
+# conditions: "dummy_var > 5"
+# class: 1
+
+cv <- cond.4.all(attTbl = at, conditions = "dummy_var > 5", class = 1)
+
+# UPDATE THE CLASS VECTOR
+################################################################################
+# conditions: "dummy_var > 3"
+# class: 2
+
+cv <- cond.4.all(attTbl = at, conditions = "dummy_var >= 2", class = 2,
+
+                 classVector = cv)
+
+
+# RECLASSIFY CELL OF CLASS 2 ADJACENT TO CELL OF CLASS 1
+################################################################################
+# class: 2
+# adjacent to class: 1
+# new class: 3
+# reclass_all = FALSE
+
+# RECLASSIFY NEIGHBORS
+rc1 <- reclass.nbs(attTbl = at,
+                   ngbList = nbs,
+
+                   # CLASS VECTOR COMPUTED WITH THE RULE "dummy_var > dummy_var{}"
+                   classVector = cv,
+
+                   # CELLS OF CLASS...
+                   class = 2,
+
+                   # ...ADJACENT TO CELLS OF ANOTHER CLASS...
+                   nbs_of = 1,
+
+                   # ...WILL BE RECLASSIFIED...
+                   reclass = 3,
+
+                   # NO MORE RECLASSIFICATIONS
+                   reclass_all = FALSE)
+
+# reclass_all = TRUE
+
+# RECLASSIFY ALL NEIGHBORS
+rc2 <- reclass.nbs(attTbl = at,
+                   ngbList = nbs,
+
+                   # CLASS VECTOR COMPUTED WITH THE RULE "dummy_var > dummy_var{}"
+                   classVector = cv,
+
+                   # CELLS OF CLASS...
+                   class = 2,
+
+                   # ...ADJACENT TO CELLS OF ANOTHER CLASS...
+                   nbs_of = 1,
+
+                   # ...WILL BE RECLASSIFIED...
+                   reclass = 3,
+
+                   # ...AND SO ALL CELLS OF CLASS 1 CONNECTED TO A RECLASSIFIED CELL
+                   reclass_all = TRUE)
+################################################################################
+
+# CONVERT CLASS VECTORs INTO RASTERS
+r_cv  <- cv.2.rast(r, at$Cell,classVector = cv, plot = FALSE)
+r_rc1 <- cv.2.rast(r, at$Cell,classVector = rc1, plot = FALSE)
+r_rc2 <- cv.2.rast(r, at$Cell,classVector = rc2, plot = FALSE)
+
+# SET PLOT LAYOUT
+par(mfrow=c(2,2), mar=c(1, 0, 2.3, 0))
+
+# PLOT RESULTS
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+     col=c("#1088a0", "#78b2c4"), main = "Class vector 'cv'\nClasses: 1 and 2")
+text(r)
+legend("bottom", inset = 0.05, ncol = 2,
+       legend = c("Class 1", "Class 2", "Unclassified cells"),
+       fill = c("#1088a0", "#78b2c4", "#818792"))
+
+plot(r_rc1, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+     col=c("#1088a0", "#78b2c4", "#cfad89"),
+     main = "Reclassify 'cv'\nreclass_all = FALSE")
+text(r)
+legend("bottom", inset = 0.05, ncol = 2,
+       legend = c("Class 1", "Class 2", "Reclassified cells",
+                  "Unclassified cells"),
+       fill = c("#1088a0", "#78b2c4", "#cfad89", "#818792"))
+plot(r_rc2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
+     col=c("#1088a0", "#78b2c4", "#cfad89"),
+     main = "Reclassify 'cv'\nreclass_all = TRUE")
+text(r)
+legend("bottom", inset = 0.05, ncol = 2,
+       legend = c("Class 1", "Reclassified cells",
+                  "Unclassified cells"),
+       fill = c("#1088a0", "#cfad89", "#818792"))
+}
 }
 \seealso{
-\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=cond.reclass]{cond.reclass()}} and contiguity functions
-in \code{\link[=conditions]{conditions()}}
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=cond.reclass]{cond.reclass()}}, \code{\link[=classify.all]{classify.all()}}
 }
