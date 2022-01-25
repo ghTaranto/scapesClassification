@@ -88,7 +88,7 @@ The core of a prominent RU-object can be defined by areas contiguous and continu
 
 ```{r CORE_1, message=FALSE, warning=FALSE}
 # RU CORE, STEP 1
-atbl$RU_core <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+atbl$RU_core <- cond.4.nofn(atbl, nbs, rNumb = TRUE, 
                         
                             # `atbl$PKS` class vector 
                             classVector = atbl$PKS,
@@ -108,7 +108,7 @@ We can now consider that among regionally relevant areas (`regional_bpi > 100`),
 
 ```{r CORE_2, message=FALSE, warning=FALSE}
 # RU CORE,  STEP 2
-atbl$RU_core <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+atbl$RU_core <- cond.4.nofn(atbl, nbs, rNumb = TRUE, 
                         
                             # `atbl$PKS` class vector 
                             classVector = atbl$RU_core,
@@ -133,7 +133,7 @@ We can now consider each non-continuous core area as an independent RU-object. T
 # RU-OBJECTS
 atbl$RU_obj <- anchor.seed(
   
-  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+  attTbl = atbl, ngbList = nbs, rNumb = TRUE,  silent = TRUE,
   
   # `class = NULL` -> A NEW ID IS GENERATED AT EACH ITERATION
   class = NULL,
@@ -268,7 +268,7 @@ We will use the same sets of rules we used to define [ISU-slopes](scapesClassifi
 The class vector `atbl$RU_obj` present `r sum(!is.na(unique(atbl$RU_obj)))` unique values. Each value correspond to an RU-object. So if we would like to apply the above set of conditions to the RU-object number 5 we could do:
 ```{r refine_exmpl1, message=FALSE, warning=FALSE, eval=FALSE}
 # APPLY CONDITIONS TO OBJECT 5
-# cond.4.nofn(atbl, nbs, nbsIndex = T, 
+# cond.4.nofn(atbl, nbs, rNumb = T, 
 #                       
 #             classVector = atbl$RU_obj, 
 #                         
@@ -293,7 +293,7 @@ If we would like to apply the same set of conditions conditions to all RU-object
 # # Non-homogeneous growth
 # for(i in RU_IDs){
 # 
-#   cond.4.nofn(atbl, nbs, nbsIndex = T,
+#   cond.4.nofn(atbl, nbs, rNumb = T,
 # 
 #               classVector = atbl$RU_obj,
 # 
@@ -338,7 +338,7 @@ while (ITR<15) {
     
     
     # EXPAND RU BOUNDARIES
-    atbl$RU_obj2 <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+    atbl$RU_obj2 <- cond.4.nofn(atbl, nbs, rNumb = TRUE, 
                                 
                                 
                                 # CLASS VECTOR `atbl$RU_obj2`
@@ -373,7 +373,7 @@ Finally, we will assume that if a raster cell is surrounded by an RU-object, the
 # FILL CLASSIFICATION HOLES
 for(i in RU_IDs){
   
-  atbl$RU_obj2 <- cond.4.nofn(atbl, nbs, nbsIndex = T, 
+  atbl$RU_obj2 <- cond.4.nofn(atbl, nbs, rNumb = TRUE, 
                               
                               # `atbl$RU_obj2` class vector
                               classVector = atbl$RU_obj2,

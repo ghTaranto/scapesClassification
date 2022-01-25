@@ -336,7 +336,7 @@
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r_cn</span><span class="op">)</span></code></pre></div>
 <p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/anchor_cell_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 3 -</strong> <strong>Anchor.cell</strong>, converts a vector of cell numbers into a class vector. <strong>In blue</strong>, cells included in the class vector when the initial vector of cell numbers <code>=1:7</code>. The plotted values correspond to raster cell numbers.</span>
+<span class="legend"><strong>Figure 3 -</strong> <strong>Anchor.cell</strong>, converts a vector of cell numbers into a class vector. <strong>In blue</strong>, cells included in the class vector using the cell number vector <code>1:7</code> as a function input. The plotted values correspond to raster cell numbers.</span>
 </div>
 <hr>
 </div>
@@ -418,12 +418,12 @@
 <div class="section level3">
 <h3 id="cond-4-nofn">cond.4.nofn<a class="anchor" aria-label="anchor" href="#cond-4-nofn"></a>
 </h3>
-<p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to evaluate both relative and absolute conditions (see <code><a href="../reference/conditions.html">?conditions</a></code> and <a href="scapesClassification_01_3_ClassRules.html">classificaton rules</a>). We will start by presenting some absolute conditions.</p>
+<p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to evaluate both relative and absolute conditions for cells neighboring specific classes (see <code><a href="../reference/conditions.html">?conditions</a></code>, <a href="scapesClassification_01_3_ClassRules.html">classificaton rules</a> and <a href="scapesClassification_01_2_RuleEvaluation.html#focal-evaluation">focal evaluation</a>).</p>
 <p>As all other user condition functions, <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> requires some initial focal cell. We can create an empty class vector and assume that <code>cell 25</code> is our initial focal cell. The focal cell will be identified by the numeric class <code>0</code> - but we could use any other number.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># SET CELL 32 AS A FOCAL CELL</span>
+<code class="sourceCode R"><span class="co"># SET CELL 25 AS A FOCAL CELL</span>
 <span class="va">at</span><span class="op">$</span><span class="va">cv</span><span class="op">[</span><span class="va">at</span><span class="op">$</span><span class="va">Cell</span> <span class="op">==</span> <span class="fl">25</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></code></pre></div>
-<p>We can now use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to find cells with <code>"dummy_var &gt;= 3"</code> at locations adjacent to the focal cell (<a href="#figure6">Figure 6</a>).</p>
+<p>We can now use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to test an absolute test cell condition <code>"dummy_var &gt;= 3"</code> at locations adjacent to the focal cell (<a href="#figure6">Figure 6</a>).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (do not consider class continuity)</span>
 <span class="va">cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 

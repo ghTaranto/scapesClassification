@@ -158,7 +158,7 @@ __`cond.4.nofn()`:__ Evaluate conditions for cells neighboring specific classes.
 
 ```{r ISU_flat, message=FALSE, warning=FALSE, collapse = TRUE}
 # ISU SHELF CELLS (FLAT CELLS)
-flatCELLS <- cond.4.nofn(atbl, nbs, nbsIndex = T,
+flatCELLS <- cond.4.nofn(atbl, nbs, rNumb = TRUE,
                          
                          # `anchorCELL` class vector
                          classVector = anchorCELL,  
@@ -179,7 +179,7 @@ flatCELLS <- cond.4.nofn(atbl, nbs, nbsIndex = T,
 Once _'flat cells'_ have been identified, we will assume that raster cells surrounded by _'island shelf cells'_ are also _'island shelf cells'_. We define a cell as surrounded if 60% of its neighbors belong to an 'island shelf' class (_'hole cell'_, [Figure 2](#figure2)). 
 ```{r ISU_hole, message=FALSE, warning=FALSE, collapse = TRUE}
 # ISU SHELF CELLS (FILL CLASSIFICATION HOLES)
-holeCELLS <- cond.4.nofn(atbl, nbs, nbsIndex = T,
+holeCELLS <- cond.4.nofn(atbl, nbs, rNumb = TRUE,
                          
                          # `flatCELLS` class vector
                          classVector = flatCELLS, 
@@ -245,7 +245,7 @@ We can identify _'slope cells'_ using the function `cond.4.nofn()` to evaluate t
 
 ___Slope1 cell.___ In the first set of conditions we consider that in regions adjacent to island shelves, _'slope cells'_ tend to have positive BPI values (`regional_bpi > 100`) (_'Slope1 cell'_, [Figure 3](#figure3)). 
 ```{r Slope1, message=FALSE, message=FALSE, warning=FALSE}
-slope1 <- cond.4.nofn(atbl, nbs, nbsIndex = T,
+slope1 <- cond.4.nofn(atbl, nbs, rNumb = TRUE,
                       
                       # `holeCELLS` class vector
                       classVector = holeCELLS,
@@ -265,7 +265,7 @@ slope1 <- cond.4.nofn(atbl, nbs, nbsIndex = T,
 
 ___Slope2 cell.___ In the second set of conditions we consider that small ridges connected to the ISU are also part of the ISU. Small ridges tend to have high local BPI values (`local_bpi{} > 100`). Note that we use the tag `{}` after the variable `local_bpi` and the argument `fn_perc = 0.4`. The tag `{}` flags _absolute focal neighborhood conditions_, and `fn_perc = 0.4` states that the focal cell is classified only if conditions are true for at least 40% of the cells included in the focal neighborhood (_'Slope2 cells'_, [Figure 3](#figure3)).
 ```{r Slope2, message=FALSE, message=FALSE, warning=FALSE}
-slope2 <- cond.4.nofn(atbl, nbs, nbsIndex = T,
+slope2 <- cond.4.nofn(atbl, nbs, rNumb = TRUE,
                       
                       # `slope1` class vector
                       classVector = slope1, 
@@ -288,7 +288,7 @@ slope2 <- cond.4.nofn(atbl, nbs, nbsIndex = T,
 
 ___Slope3 cell.___ In the third set of conditions we consider that even cells having negative BPI values can be part of _'ISU slopes'_. We can assume that as long as there is an high bathymetric variation around a raster cell connected to a slope the seafloor has not been reached. We will set this condition using again the `{}` tag (`sd_bat{} > 150`), but we will change `fn_perc = 1` (_'Slope3 cell'_, [Figure 4](#figure4)).
 ```{r Slope3, message=FALSE, message=FALSE, warning=FALSE}
-slope3 <- cond.4.nofn(atbl, nbs, nbsIndex = T,
+slope3 <- cond.4.nofn(atbl, nbs, rNumb = TRUE,
                       
                       # `slope2` class vector
                       classVector = slope2, 

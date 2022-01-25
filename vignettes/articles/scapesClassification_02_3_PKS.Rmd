@@ -101,7 +101,7 @@ The function `anchor.seed()` can assign unique IDs to non-contiguous areas. Deta
 # PSA OBJECTS
 atbl$PSA_obj <- anchor.seed(
   
-  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+  attTbl = atbl, ngbList = nbs, rNumb = TRUE,  silent = TRUE,
                             
   # `class = NULL` -> A NEW ID IS GENERATED AT EACH ITERATION
   class = NULL,
@@ -202,7 +202,7 @@ d. The peak and the isolation buffer identified in one iteration are ignored in 
 # LOCAL PEAKS
 atbl$PKS <- anchor.seed(
   
-  attTbl = atbl, ngbList = nbs, nbsIndex = TRUE,  silent = TRUE,
+  attTbl = atbl, ngbList = nbs, rNumb = TRUE,  silent = TRUE,
   class = 1,
                         
   # DEFINE PEAK SEARCH AREAS (PSAs)

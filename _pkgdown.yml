@@ -11,7 +11,7 @@ template:
     dropdown-link-hover-bg: "#78b2c4"
 
 reference:
-  - title: Format inputs
+  - title: Format input functions
     contents:
       - "`attTbl`"
       - "`ngbList`"
@@ -25,15 +25,15 @@ reference:
       - "`obj.border`"
       - "`obj.nbs`"
   - title: Classification functions
-  - subtitle: Anchor cells
+  - subtitle: Anchor cell functions
     contents:
       - "`anchor.svo`"
       - "`anchor.cell`"
       - "`cond.4.all`"
-  - subtitle: Seed cells
+  - subtitle: Seed cell function
     contents:
       - "`anchor.seed`"
-  - subtitle: User conditions
+  - subtitle: User condition functions
     contents:
       - "`cond.4.nofn`"
       - "`cond.reclass`"

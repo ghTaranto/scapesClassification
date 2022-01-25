@@ -213,7 +213,7 @@ plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE,
 text(r_cn)
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **Anchor.cell**, converts a vector of cell numbers into a class vector. **In blue**, cells included in the class vector when the initial vector of cell numbers `=1:7`. The plotted values correspond to raster cell numbers.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **Anchor.cell**, converts a vector of cell numbers into a class vector. **In blue**, cells included in the class vector using the cell number vector `1:7` as a function input. The plotted values correspond to raster cell numbers.</span></div>
 
 ---
 
@@ -302,16 +302,16 @@ A particular case of focal evaluation, is [class continuity](scapesClassificatio
 
 ### cond.4.nofn
 
-The function `cond.4.nofn()` can be used to evaluate both relative and absolute conditions (see `?conditions` and [classificaton rules](scapesClassification_01_3_ClassRules.html)). We will start by presenting some absolute conditions. 
+The function `cond.4.nofn()` can be used to evaluate both relative and absolute conditions for cells neighboring specific classes (see `?conditions`, [classificaton rules](scapesClassification_01_3_ClassRules.html) and [focal evaluation](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation)).  
 
 As all other user condition functions, `cond.4.nofn()` requires some initial focal cell. We can create an empty class vector and assume that `cell 25` is our initial focal cell. The focal cell will be identified by the numeric class `0` - but we could use any other number.
 
 ```{r cond_4_nofn0, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
-# SET CELL 32 AS A FOCAL CELL
+# SET CELL 25 AS A FOCAL CELL
 at$cv[at$Cell == 25] <- 0
 ```
 
-We can now use the function `cond.4.nofn()` to find cells with `"dummy_var >= 3"` at locations adjacent to the focal cell ([Figure 6](#figure6)).
+We can now use the function `cond.4.nofn()` to test an absolute test cell condition `"dummy_var >= 3"` at locations adjacent to the focal cell ([Figure 6](#figure6)).
 
 ```{r cond_4_nofn1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # COMPUTE THE CLASS VECTOR (do not consider class continuity)
