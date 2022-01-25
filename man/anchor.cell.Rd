@@ -2,7 +2,7 @@
 % Please edit documentation in R/anchorCells.R
 \name{anchor.cell}
 \alias{anchor.cell}
-\title{Class vector from cell numbers}
+\title{Cell numbers to class vector}
 \usage{
 anchor.cell(
   attTbl,
@@ -20,33 +20,37 @@ anchor.cell(
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
-\code{\link{attTbl}} (see \code{\link{attTbl}}).}
+\code{\link{attTbl}}.}
 
-\item{rstack}{The \code{Raster*} object used to compute the attribute table
-(see \code{\link{attTbl}}).}
+\item{rstack}{the \code{Raster*} object used to compute the
+\code{\link{attTbl}}.}
 
-\item{anchor}{integer vector, vector of raster cell numbers.}
+\item{anchor}{integer vector of raster cell numbers.}
 
-\item{class}{numeric, the classification number to attribute to cells
-indicated by the argument \code{anchor}.}
+\item{class}{numeric, the classification number to attribute to all cells
+that meet the function conditions.}
 
-\item{classVector}{numeric vector, defines the cells in the attribute table
-that have already been classified. If provided, the function do not
-attribute a class to cells that were already classified unless the argument
-\code{overwrite_class = TRUE}.}
+\item{classVector}{numeric vector, if provided, it defines the cells in the
+attribute table that have already been classified and that have to be
+ignored by the function (unless the argument \code{overwrite_class =
+  TRUE}).}
 
-\item{class2cell}{logic, attribute the classification number to the cells
-indicated by argument \code{anchor}.}
+\item{class2cell}{logic, attribute the classification number to the cells of
+the argument \code{anchor}. If there is a \code{classVector} input, the
+classification number is only assigned to \code{classVector} NA-cells.}
 
-\item{class2nbs}{logic, attribute the classification number to the cells
-adjacent to the ones indicated by argument \code{anchor}.}
+\item{class2nbs}{logic, attribute the classification number to cells adjacent
+to the ones of the argument \code{anchor}. If there is a \code{classVector}
+input, the classification number is only assigned to \code{classVector}
+NA-cells.}
 
-\item{overwrite_class}{logic, reclassify cells that had already been
-classified.}
+\item{overwrite_class}{logic, if there is a \code{classVector} input,
+reclassify cells that were already classified and that meet the function
+conditions.}
 
-\item{plot}{logic, plot \code{classVector}.}
+\item{plot}{logic, plot the class vector output.}
 
-\item{writeRaster}{filename, if a raster name is provided save the class
+\item{writeRaster}{filename, if a raster name is provided, save the class
 vector in a raster file.}
 
 \item{overWrite}{logic, if the raster names already exist, the existing file
@@ -54,19 +58,16 @@ is overwritten.}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
-the function. If no \code{classVector} was provided, the function return a
-new class vector.
+the function. If there is no \code{classVector} input, the function return
+a new class vector.
 }
 \description{
 Converts a vector of cell numbers into a class vector.
 }
 \details{
-Converts a vector of cell numbers into a class vector. If a class
-vector is provided as an input (argument \code{classVector}), then this
-class vector is updated assigning a classification number to the cell
-indicated by the argument \code{anchor}. The classification vector can be
-indexed into the \code{rstack} using the \code{Cell} column of the
-attribute table (see \code{\link{attTbl}}).
+Converts a vector of cell numbers into a class vector. If there is a
+\code{classVector} input, then the class vector is updated assigning a
+classification number to all cells that meet the function conditions.
 }
 \examples{
 
@@ -141,5 +142,5 @@ text(r_cn)
 }
 }
 \seealso{
-\code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=anchor.svo]{anchor.svo()}}, \code{\link[=attTbl]{attTbl()}}
+\code{\link[=conditions]{conditions()}}, \code{\link[=anchor.svo]{anchor.svo()}}, \code{\link[=attTbl]{attTbl()}}
 }
