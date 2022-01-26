@@ -67,14 +67,12 @@ condition string can only include one neighborhood condition (\code{'{}'})
 }
 \examples{
 
-# NOT RUN
-\dontrun{
 library(raster)
 library(scapesClassification)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
-                pattern = "dummy_raster\\\\.tif", full.names = T)
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
 r <- raster(r)
 
 # COMPUTE THE ATTRIBUTE TABLE
@@ -114,13 +112,20 @@ cr <- cond.reclass(attTbl = at, ngbList = nbs,
 r_cr <- cv.2.rast(r, at$Cell,classVector = cr, plot = FALSE)
 
 # PLOT
-plot(r_cr, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
-     col=c("#78b2c4", "#cfad89"))
-legend("right", legend = c("Classified cells", "Reclassified cells",
-                           "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"), inset = 0.1)
+#par(mar=c(1, 1, 1, 1))
+plot(r_cr, axes=FALSE, box=FALSE, legend = FALSE, asp=NA,
+     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+
+# REFERENCE FIGURE
 text(r)
-}
+
+title("COND.RECLASS", adj = 0.0, line = 1,
+ sub =
+ "Rule: 'dummy_var > 1'; Function: cond.4.all; Class: 1
+Rule: 'dummy_var > 5'; Function: cond.reclass; Class: 2")
+
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Class 1","Class 2 (reclass)","Unclassified cells"))
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}

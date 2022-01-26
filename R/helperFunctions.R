@@ -32,6 +32,20 @@
 #'   * A combination of absolute and relative conditions can be used, but only
 #'   _**one neighborhood condition per string**_ is allowed.
 #'
+#'   \cr **Class vectors**
+#'
+#'   * Class vectors map raster cells to numeric classes (or to NA-values if no
+#'   class is attributed).The n^th^ element of a class vector corresponds to the
+#'   raster cell stored in the n^th^ row of an attribute table (see
+#'   \code{\link{attTbl}}). Classification functions use class vectors to store
+#'   the results of their classifications.
+#'
+#'   * Class vectors are also used as function inputs. As inputs, they provide
+#'   information about what cells have been classified.
+#'
+#'   * Classification functions were designed to assign a classification number
+#'   only to _unclassified cells_.
+#'
 #'   \cr **Rule evaluation**
 #'
 #'   * One of the arguments of the classification functions is the
@@ -57,8 +71,8 @@
 #'
 #'       * Some classification functions do not have a \code{condition} argument.
 #'   Classifications performed by these functions are based on focal evaluations
-#'   and only take into account the spatial relationships existing among different
-#'   groups of cells. See functions \code{\link{reclass.nbs}} and
+#'   and only take into account the spatial relationships existing among
+#'   different groups of cells. See functions \code{\link{reclass.nbs}} and
 #'   \code{\link{classify.all}}.
 #'
 #'   \cr **Focal evaluation, definitions**
@@ -197,6 +211,11 @@
 #'
 #' @export
 #' @examples
+#'
+#' # LOAD LIBRARIES
+#' library(scapesClassification)
+#' library(raster)
+#'
 #' # TYPES OF CONDITIONS
 #'
 #' # As an example consider an attribute with the following columns

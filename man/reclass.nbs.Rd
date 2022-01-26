@@ -62,14 +62,12 @@ cell.}
 }
 \examples{
 
-# NOT RUN
-\dontrun{
 library(raster)
 library(scapesClassification)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
-                pattern = "dummy_raster\\\\.tif", full.names = T)
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
 r <- raster(r)
 
 # COMPUTE THE ATTRIBUTE TABLE
@@ -149,33 +147,49 @@ r_rc1 <- cv.2.rast(r, at$Cell,classVector = rc1, plot = FALSE)
 r_rc2 <- cv.2.rast(r, at$Cell,classVector = rc2, plot = FALSE)
 
 # SET PLOT LAYOUT
-par(mfrow=c(2,2), mar=c(1, 0, 2.3, 0))
+par(mfrow=c(2,2), mar=c(3, 2, 4, 2))
 
 # PLOT RESULTS
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
-     col=c("#1088a0", "#78b2c4"), main = "Class vector 'cv'\nClasses: 1 and 2")
+
+# 1.
+plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+     colNA="#818792", col=c("#1088a0", "#78b2c4"))
+
+# REFERENCE PLOT 1
 text(r)
-legend("bottom", inset = 0.05, ncol = 2,
+title("STEPS 1&2. COND.4.ALL", adj = 0.0, line = 1,
+sub="Step1. Rule: 'dummy_var > 5'; class: 1\nStep2. Rule: 'dummy_var > 3'; class: 2")
+
+legend("bottomright", ncol = 1, bg = "white",
        legend = c("Class 1", "Class 2", "Unclassified cells"),
        fill = c("#1088a0", "#78b2c4", "#818792"))
 
-plot(r_rc1, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
-     col=c("#1088a0", "#78b2c4", "#cfad89"),
-     main = "Reclassify 'cv'\nreclass_all = FALSE")
+# 2.
+plot(r_rc1, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+     colNA="#818792", col=c("#1088a0", "#78b2c4", "#cfad89"))
+
+# REFERENCE PLOT 2
 text(r)
-legend("bottom", inset = 0.05, ncol = 2,
+title("STEP 3a. RECLASS.NBS", adj = 0.0, line = 1,
+sub="reclass_all = FALSE ->\nreclass based on 'cell contiguity'")
+
+legend("bottomright", ncol = 1, bg = "white",
        legend = c("Class 1", "Class 2", "Reclassified cells",
                   "Unclassified cells"),
        fill = c("#1088a0", "#78b2c4", "#cfad89", "#818792"))
-plot(r_rc2, axes=FALSE, box=FALSE, legend = FALSE, colNA="#818792",
-     col=c("#1088a0", "#78b2c4", "#cfad89"),
-     main = "Reclassify 'cv'\nreclass_all = TRUE")
+
+# 3.
+plot(r_rc2, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+     colNA="#818792", col=c("#1088a0", "#78b2c4", "#cfad89"))
+
+# REFERENCE PLOT 3
 text(r)
-legend("bottom", inset = 0.05, ncol = 2,
+title("STEP 3b. RECLASS.NBS", adj = 0.0, line = 1,
+sub="reclass_all = TRUE ->\nreclass based on 'cell contiguity' and 'cell continuity'")
+legend("bottomright", ncol = 1, bg = "white",
        legend = c("Class 1", "Reclassified cells",
                   "Unclassified cells"),
        fill = c("#1088a0", "#cfad89", "#818792"))
-}
 }
 \seealso{
 \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=cond.reclass]{cond.reclass()}}, \code{\link[=classify.all]{classify.all()}}
