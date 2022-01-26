@@ -135,6 +135,15 @@ table, see <code><a href="attTbl.html">attTbl</a></code>) and previous classific
 stored as <code>classVector</code> or as rasters).</p></li>
 <li><p>A combination of absolute and relative conditions can be used, but only
 <em><strong>one neighborhood condition per string</strong></em> is allowed.</p></li>
+</ul><p><br><strong>Class vectors</strong></p><ul><li><p>Class vectors map raster cells to numeric classes (or to NA-values if no
+class is attributed).The n^th^ element of a class vector corresponds to the
+raster cell stored in the n^th^ row of an attribute table (see
+<code><a href="attTbl.html">attTbl</a></code>). Classification functions use class vectors to store
+the results of their classifications.</p></li>
+<li><p>Class vectors are also used as function inputs. As inputs, they provide
+information about what cells have been classified.</p></li>
+<li><p>Classification functions were designed to assign a classification number
+only to <em>unclassified cells</em>.</p></li>
 </ul><p><br><strong>Rule evaluation</strong></p><ul><li><p>One of the arguments of the classification functions is the
 <code>classVector</code>, a numeric vector that identifies what raster cells have
 already been classified (non-NA values) and what have yet to be classified
@@ -153,8 +162,8 @@ classification functions that have the argument <code>nbs_of</code>. The argumen
 <code><a href="cond.reclass.html">cond.reclass</a></code>.</p><ul><li><p>Focal evaluation can take into account both absolute and relative rules;</p></li>
 <li><p>Some classification functions do not have a <code>condition</code> argument.
 Classifications performed by these functions are based on focal evaluations
-and only take into account the spatial relationships existing among different
-groups of cells. See functions <code><a href="reclass.nbs.html">reclass.nbs</a></code> and
+and only take into account the spatial relationships existing among
+different groups of cells. See functions <code><a href="reclass.nbs.html">reclass.nbs</a></code> and
 <code><a href="classify.all.html">classify.all</a></code>.</p></li>
 </ul></li>
 </ul><p><br><strong>Focal evaluation, definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8
@@ -258,7 +267,12 @@ and relative conditions. <br><em>Functions:</em> <code><a href="cond.4.nofn.html
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># TYPES OF CONDITIONS</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
+<span class="r-in"><span class="co"># LOAD LIBRARIES</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># TYPES OF CONDITIONS</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># As an example consider an attribute with the following columns</span></span>
 <span class="r-in"><span class="va">names_attTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bathymetry"</span>, <span class="st">"slope"</span><span class="op">)</span></span>

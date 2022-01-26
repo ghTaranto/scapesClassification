@@ -54,9 +54,10 @@ head(nbs, 3)
 
 ```{r dummy_rast_plot, message=FALSE, warning=FALSE, echo=TRUE}
 # PLOT RASTER
-par(mar = c(0.1, 5, 0.5, 0.1))
-plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+par(mar = c(0, 4, 2, 4))
+plot(r, axes=FALSE, box=FALSE, legend = FALSE, col="#818792", asp= NA)
 text(r)
+title("Dummy raster", adj = 0.0, line = 1)
 ```
 
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** Dummy raster used to illustrate `scapesClassification` functions.</span></div>
@@ -83,134 +84,187 @@ r_cn[c(9, 10, 11, 17, 18)] <- NA
 # BULD A DUMMY POLYGON
 pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
 pol <- spPolygons(pol)
-
-# EMPTY RASTER TO PLOT anchor.svo RESULTS
-r2 <- r_cn; r2[] <- NA
 ```
 
-In [figure 2](#figure2) we will show how the function arguments `only_NAs` and `fill_NAs` work.
+The way cell numbers are extracted depend on two function arguments `only_NAs` and `fill_NAs`.
 
 * `only_NAs = TRUE`, cell numbers extracted only for incomplete cases at the locations of a spatial object. Incomplete cases are cells having an NA-value in one or more layers of the `Raster*` object.
 
-* `fill_NAs = TRUE`, cell numbers extracted at the locations of a spatial vector object _and_ at contiguous locations that are to incomplete cases. 
+* `fill_NAs = TRUE`, cell numbers extracted at the locations of a spatial vector object _and_ at all connected locations that also are incomplete cases. 
+
+We can extract cell numbers using different combinations of the arguments `only_NAs` and `fill_NAs` and plot the results in [figure 2](#figure2). 
+
+```{r anchor_svo, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# 1. ac1, only_NAs = FALSE; fill_NAs = FALSE
+ac1 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
+
+# 2. ac2, only_NAs = TRUE; fill_NAs = FALSE
+ac2 <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
+
+# 3. ac3, only_NAs = FALSE; fill_NAs = TRUE
+ac3 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
+
+# 4. ac4, only_NAs = TRUE; fill_NAs = TRUE
+ac4 <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
+
+
+# ADD CELL NUMBERS TO AN EMPTY RASTER FOR PLOTTING
+rac1 <- r_cn; rac1[] <- NA; rac1[ac1] <- 1
+rac2 <- r_cn; rac2[] <- NA; rac2[ac2] <- 1
+rac3 <- r_cn; rac3[] <- NA; rac3[ac3] <- 1
+rac4 <- r_cn; rac4[] <- NA; rac4[ac4] <- 1
+```
 
 <a id="figure2"></a>
 
-```{r anchor_svo_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE, out.width="100%"}
-# COMBINE PLOTS
-par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
+```{r anchor_svo_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# SET PLOT LAYOUT
+par(mfrow=c(2,2), mar=c(3, 2, 4, 2))
 
-
-# PLOT 1
+# PLOT 1, only_NAs = FALSE; fill_NAs = FALSE
 ################################################################################
-# only_NAs = FALSE; fill_NAs = FALSE
-ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
-r2[ac] <- 1
+plot(rac1, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
 
-plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
-     main = "only_NAs = FALSE; fill_NAs = FALSE")
-text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
-################################################################################
-
-# PLOT 2
-################################################################################
-# only_NAs = TRUE; fill_NAs = FALSE
-ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
-r2[]   <- NA; r2[ac] <- 1
-
-plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
-     main = "only_NAs = TRUE; fill_NAs = FALSE")
-text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+# REFERENCE PLOT
+text(r_cn)
+title("ac1", adj = 0.0, line = 1,
+      sub = paste0("only_NAs = FALSE; fill_NAs = FALSE\nac=",
+       paste0(sort(ac1), collapse = ",")))
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "red"),
+        legend = c("Anchor cell", "Polygon"))
 ################################################################################
 
-# PLOT 3
+# PLOT 2, only_NAs = TRUE; fill_NAs = FALSE
 ################################################################################
-# only_NAs = FALSE; fill_NAs = TRUE
-ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
-r2[]   <- NA; r2[ac] <- 1
+plot(rac2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
 
-plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
-     main = "only_NAs = FALSE; fill_NAs = TRUE")
-text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+# REFERENCE PLOT
+text(r_cn)
+title("ac2", adj = 0.0, line = 1,
+       sub = paste0("only_NAs = TRUE; fill_NAs = FALSE\nac=",
+       paste0(sort(ac2), collapse = ",")))
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "red"),
+        legend = c("Anchor cell", "Polygon"))
 ################################################################################
 
-# PLOT 4
+# PLOT 3, only_NAs = FALSE; fill_NAs = TRUE
 ################################################################################
-# only_NAs = TRUE; fill_NAs = TRUE
-ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
-r2[]   <- NA; r2[ac] <- 1
+plot(rac3, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
 
-plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE,
-     main = "only_NAs = TRUE; fill_NAs = TRUE")
-text(r_cn); plot(pol, add = TRUE, lwd = 2.5, border = "red")
+# REFERENCE PLOT
+text(r_cn)
+title("ac3", adj = 0.0, line = 1,
+      sub = paste0("only_NAs = FALSE; fill_NAs = TRUE\nac=",
+      paste0(sort(ac3), collapse = ",")))
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "red"),
+       legend = c("Anchor cell", "Polygon"))
+################################################################################
+
+# PLOT 4, only_NAs = TRUE; fill_NAs = TRUE
+################################################################################
+plot(rac4, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
+
+# REFERENCE PLOT
+text(r_cn)
+title("ac4", adj = 0.0, line = 1,
+      sub = paste0("only_NAs = TRUE; fill_NAs = TRUE\nac=",
+      paste0(sort(ac4), collapse = ",")))
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "red"),
+       legend = c("Anchor cell", "Polygon"))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** **Anchor.svo**, extract cell numbers at the locations of a spatial polygon (red border). The plotted values correspond to raster cell numbers. Cells not showing a cell number are NA-cells (cells `c(9, 10, 11, 17, 18)`). **In blue**, cell numbers extracted by the function.</span></div>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** **Anchor.svo**, extract cell numbers at the locations of a spatial polygon (red border). Values within the plots correspond to raster cell numbers. Cells not showing a cell number are NA-cells (cells `c(9, 10, 11, 17, 18)`). **In blue**, cell numbers extracted by the function (i.e., anchor cells, _ac_).</span></div>
 
 ---
 
 ### anchor.cell
 
-The function `anchor.cell()` converts a vector of cell numbers into a class vector. In [figure 3](#figure3) we will show how the function arguments `class2cell` and `class2nbs` work.
+The function `anchor.cell()` converts a vector of cell numbers into a class vector. The conversion depends on two function arguments:
 
 * `class2cell = TRUE`, every cell of the argument `anchor` is included in the class vector.
 
 * `class2nbs = TRUE`, cells adjacent to the cells of the argument `anchor` are included in the class vector. 
 
-Setting `anchor = 1:7`:
+We can consider that our cell number vector is `anchor = 1:7` and use different combinations of the arguments `class2cell` and `class2nbs` to show how the function works ([Figure 3](#figure3)).
 
-<a id="figure3"></a>
-
-```{r anchor_cell_plot, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE, out.width="100%"}
+```{r anchor_cell, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # CELL NUMBERS OF THE DUMMY RASTER
 r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE)) # Dummy raster cell numbers
 
-# COMBINE PLOTS
-par(mfrow=c(2,2), mar=c(1, 0, 2, 0))
-
-# PLOT 1
-################################################################################
+# 1.
 # class2cell = TRUE & class2nbs = FALSE
-cv <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
-                  anchor = 1:7,
-                  class2cell = TRUE,
-                  class2nbs  = FALSE)
+cv1 <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
+                   anchor = 1:7,
+                   class2cell = TRUE,
+                   class2nbs  = FALSE)
 
-# CONVERT CLASS VECTOR TO A RASTER AND PLOT
-r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, 
-     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=FALSE")
-text(r_cn)
-################################################################################
-
-# PLOT 2
-################################################################################
+# 2.
 # class2cell = FALSE & class2nbs = TRUE
-cv <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
-                  anchor = 1:7,
-                  class2cell = FALSE,
-                  class2nbs  = TRUE)
+cv2 <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
+                   anchor = 1:7,
+                   class2cell = FALSE,
+                   class2nbs  = TRUE)
 
-# CONVERT CLASS VECTOR TO A RASTER AND PLOT
-r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, 
-     colNA="#818792", col="#78b2c4", main = "class2cell=FALSE; class2nbs=TRUE")
-text(r_cn)
-################################################################################
-
-# PLOT 3
-################################################################################
+# 3.
 # class2cell = TRUE & class2nbs = TRUE
-cv <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
-                  anchor = 1:7,
-                  class2cell = TRUE,
-                  class2nbs  = TRUE)
+cv3 <- anchor.cell(attTbl = at, rstack = r_cn, class  = 10,
+                   anchor = 1:7,
+                   class2cell = TRUE,
+                   class2nbs  = TRUE)
 
-# CONVERT CLASS VECTOR TO A RASTER AND PLOT
-r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, 
-     colNA="#818792", col="#78b2c4", main = "class2cell=TRUE; class2nbs=TRUE")
+# CONVERT CLASSVECTORS TO RASTERS
+r_cv1 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv1)
+r_cv2 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv2)
+r_cv3 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv3)
+```
+
+<a id="figure3"></a>
+
+```{r anchor_cell_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# SET PLOT LAYOUT
+par(mfrow=c(2,2), mar=c(3, 2, 4, 2))
+
+# PLOT 1. class2cell = TRUE & class2nbs = FALSE
+################################################################################
+plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+     colNA="#818792", col="#78b2c4")
+
+# REFERENCE PLOT
 text(r_cn)
+title("cv1", adj = 0.0, line = 0.2,
+      sub = "class2cell = TRUE; class2nbs = FALSE")
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+       legend = c("Classified cells","Unclassified cells"))
+################################################################################
+
+# PLOT 2. class2cell = FALSE & class2nbs = TRUE
+################################################################################
+plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+      colNA="#818792", col="#78b2c4")
+
+# REFERENCE PLOT
+text(r_cn)
+title("cv2", adj = 0.0, line = 0.2,
+       sub = "class2cell = FALSE; class2nbs = TRUE")
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+        legend = c("Classified cells","Unclassified cells"))
+################################################################################
+
+# PLOT 3. class2cell = TRUE & class2nbs = TRUE
+################################################################################
+plot(r_cv3, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+      colNA="#818792", col="#78b2c4")
+
+# REFERENCE PLOT
+text(r_cn)
+title("cv3", adj = 0.0, line = 0.2,
+       sub = "class2cell = TRUE; class2nbs = TRUE")
+legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+        legend = c("Classified cells","Unclassified cells"))
 ```
 
 <div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 -** **Anchor.cell**, converts a vector of cell numbers into a class vector. **In blue**, cells included in the class vector using the cell number vector `1:7` as a function input. The plotted values correspond to raster cell numbers.</span></div>

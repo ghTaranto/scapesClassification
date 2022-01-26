@@ -170,14 +170,12 @@ condition string can only include one neighborhood condition (<code>'{}'</code>)
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># NOT RUN</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># LOAD THE DUMMY RASTER</span></span>
 <span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"scapesClassification"</span><span class="op">)</span>,</span>
-<span class="r-in">                pattern <span class="op">=</span> <span class="st">"dummy_raster\\.tif"</span>, full.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span class="r-in">                pattern <span class="op">=</span> <span class="st">"dummy_raster\\.tif"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># COMPUTE THE ATTRIBUTE TABLE</span></span>
@@ -217,13 +215,21 @@ condition string can only include one neighborhood condition (<code>'{}'</code>)
 <span class="r-in"><span class="va">r_cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cr</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># PLOT</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cr</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>,</span>
-<span class="r-in">     col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"right"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Classified cells"</span>, <span class="st">"Reclassified cells"</span>,</span>
-<span class="r-in">                           <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span>, inset <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span class="r-in"><span class="co">#par(mar=c(1, 1, 1, 1))</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cr</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp<span class="op">=</span><span class="cn">NA</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># REFERENCE FIGURE</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"COND.RECLASS"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>,</span>
+<span class="r-in"> sub <span class="op">=</span></span>
+<span class="r-in"> <span class="st">"Rule: 'dummy_var &gt; 1'; Function: cond.4.all; Class: 1</span>
+<span class="r-in">Rule: 'dummy_var &gt; 5'; Function: cond.reclass; Class: 2"</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span>,</span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Class 1"</span>,<span class="st">"Class 2 (reclass)"</span>,<span class="st">"Unclassified cells"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-plt img"><img src="cond.reclass-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>
