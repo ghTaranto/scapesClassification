@@ -127,7 +127,7 @@
       <h1 data-toc-skip>Classification functions</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Wed 26, January, 2022</h4>
+            <h4 data-toc-skip class="date">Thu 27, January, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_4_ClassFunctions.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_4_ClassFunctions.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_4_ClassFunctions.Rmd</code></div>
@@ -140,16 +140,19 @@
 <h2 id="class-vectors">Class vectors<a class="anchor" aria-label="anchor" href="#class-vectors"></a>
 </h2>
 <ul>
-<li><p>Class vectors map raster cells to numeric classes (or to NA-values if no class is attributed). The n<sup>th</sup> element of a class vector corresponds to the raster cell stored in the n<sup>th</sup> row of an <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute table</a>. Classification functions use class vectors to store the results of their classifications.</p></li>
-<li><p>Class vectors are also used as function inputs. As inputs, they provide information about what cells have been classified and allow to consider class contiguity and class continuity in <a href="scapesClassification_01_2_RuleEvaluation.html">rule evaluation</a>.</p></li>
-<li><p>Classification functions were designed to assign a classification number only to <em>unclassified cells</em> (NA-values in the class vector). Every time a class vector is provided as a function input, it is updated with the new classifications performed by the function, while previous classifications remain unchanged.</p></li>
-<li><p>The sequential update of a class vector allows user to design multi-step classifications. At each step new pools of cell can be identified based on how they spatially relate with cells classified in previous classification steps.</p></li>
+<li><p>Class vectors serve both as function input and output.</p></li>
+<li><p>They store function classifications by mapping raster cells to numeric classes (or to NA-values if no class is attributed).</p></li>
+<li><p>The n<sup>th</sup> element of a class vector corresponds to the raster cell stored in the n<sup>th</sup> row of the <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute table</a>.</p></li>
+<li><p>As inputs, they provide information about what cells have been classified and, consequently, of the spatial relationships existing among different groups of cells. This allows to take into account class contiguity and class continuity in <a href="scapesClassification_01_2_RuleEvaluation.html">rule evaluation</a>.</p></li>
+<li><p>Every time a class vector is provided as a function input, it is <em>updated</em> by assigning a numeric class to <em>unclassified cells</em> that meet function conditions.</p></li>
+<li><p>Unclassified cells are represented as NA values in the class vector.</p></li>
+<li><p>The sequential update of a class vector allows users to design multi-step classifications. At each step new pools of cells can be identified based on how they spatially relate with cells classified in previous classification steps.</p></li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="dummy-raster">Dummy raster<a class="anchor" aria-label="anchor" href="#dummy-raster"></a>
 </h2>
-<p>We will use a dummy raster to illustrate the <code>scapesClassification</code> functions (<a href="#figure1">Figure 1</a>). Before to start, we should compute its <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute table</a>, in which it is named <code>"dummy_var"</code>, and its <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">list of neighborhoods</a>.</p>
+<p>We will use a dummy raster to illustrate the <code>scapesClassification</code> functions (<a href="#figure1">Figure 1</a>). We will start computing its <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute table</a>, in which it is named <code>"dummy_var"</code>, and its <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">list of neighborhoods</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># LOAD LIBRARIES</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span>
@@ -202,7 +205,7 @@
 <div class="section level3">
 <h3 id="anchor-svo">anchor.svo<a class="anchor" aria-label="anchor" href="#anchor-svo"></a>
 </h3>
-<p>The function <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code> returns a vector of cell numbers extracted at the locations of a spatial object. Only for the examples of this section, we will add some NA-values to the dummy raster and consider a dummy polygon (<code>pol</code>).</p>
+<p>The function <code><a href="../reference/anchor.svo.html">anchor.svo()</a></code> returns a vector of cell numbers extracted at the locations of a spatial object. To show its functioning, we will add some NA-values to the dummy raster and consider a dummy polygon (<code>pol</code>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># CELL NUMBERS OF THE DUMMY RASTER</span>
 <span class="va">r_cn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">49</span>, nrow <span class="op">=</span> <span class="fl">7</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="co"># Dummy raster cell numbers</span>
@@ -216,7 +219,7 @@
 <p>The way cell numbers are extracted depend on two function arguments <code>only_NAs</code> and <code>fill_NAs</code>.</p>
 <ul>
 <li><p><code>only_NAs = TRUE</code>, cell numbers extracted only for incomplete cases at the locations of a spatial object. Incomplete cases are cells having an NA-value in one or more layers of the <code>Raster*</code> object.</p></li>
-<li><p><code>fill_NAs = TRUE</code>, cell numbers extracted at the locations of a spatial vector object <em>and</em> at all connected locations that also are incomplete cases.</p></li>
+<li><p><code>fill_NAs = TRUE</code>, cell numbers extracted at the locations of a spatial vector object <em>and</em> at all connected locations that are incomplete cases.</p></li>
 </ul>
 <p>We can extract cell numbers using different combinations of the arguments <code>only_NAs</code> and <code>fill_NAs</code> and plot the results in <a href="#figure2">figure 2</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -241,7 +244,7 @@
 <p><a id="figure2"></a></p>
 <p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/anchor_svo_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 2 -</strong> <strong>Anchor.svo</strong>, extract cell numbers at the locations of a spatial polygon (red border). Values within the plots correspond to raster cell numbers. Cells not showing a cell number are NA-cells (cells <code>c(9, 10, 11, 17, 18)</code>). <strong>In blue</strong>, cell numbers extracted by the function (i.e., anchor cells, <em>ac</em>).</span>
+<span class="legend"><strong>Figure 2 -</strong> <strong>Anchor.svo</strong>, extract cell numbers at the locations of a spatial polygon (red border). Cells not showing a cell number are NA-cells (cells <code>c(9, 10, 11, 17, 18)</code>). <strong>In blue</strong>, cell numbers extracted by the function (i.e., anchor cells, <em>ac</em>). Values within the plots correspond to raster cell numbers.</span>
 </div>
 <hr>
 </div>
@@ -286,7 +289,7 @@
 <p><a id="figure3"></a></p>
 <p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/anchor_cell_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 3 -</strong> <strong>Anchor.cell</strong>, converts a vector of cell numbers into a class vector. <strong>In blue</strong>, cells included in the class vector using the cell number vector <code>1:7</code> as a function input. The plotted values correspond to raster cell numbers.</span>
+<span class="legend"><strong>Figure 3 -</strong> <strong>Anchor.cell</strong>, converts a vector of cell numbers into a class vector. The input cell vector was <code>1:7</code>. <strong>In blue</strong>, cells included in the class vector. Values within the plots correspond to raster cell numbers.</span>
 </div>
 <hr>
 </div>
@@ -294,68 +297,48 @@
 <h3 id="cond-4-all">cond.4.all()<a class="anchor" aria-label="anchor" href="#cond-4-all"></a>
 </h3>
 <p>The function <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> can be used to evaluate <em>absolute test cell conditions</em> for all unclassified cells (see <code><a href="../reference/conditions.html">?conditions</a></code>, <a href="scapesClassification_01_3_ClassRules.html">classificaton rules</a> and <a href="scapesClassification_01_2_RuleEvaluation.html">rule evaluations</a>).</p>
-<p>For example, we can identify all the cells of the dummy raster having a value of 1. Variables stored in the attribute table can be accessed by name, therefore we can write our condition as <code>"dummy_var == 1"</code>.</p>
+<p>When no class vector is available, the function <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> can be used to start a classification process by identifying an initial group of anchor cells. For example, we can start by identifying all cells with a dummy value equal to 1.</p>
+<p>Variables stored in the attribute table can be accessed by name, therefore we can write our condition as <code>"dummy_var == 1"</code> (<a href="#figure4">Figure 4</a>).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># ATTRIBUTE TABLE VARIABLES</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">at</span><span class="op">)</span>
 <span class="co">## [1] "Cell"      "dummy_var"</span>
 
-<span class="co"># COMPUTE THE CLASS VECTOR</span>
-<span class="va">cv</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var == 1"</span>, class <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
+<span class="co"># ...can be accessed by name -&gt; "dummy_var == 1"</span>
 
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></code></pre></div>
-<p>The element <code>cv</code> is a class vector having two unique values: (i) <code>10</code>, identifies cells having a value <code>=1</code>; <code>NA</code>, identifies unclassified cells.</p>
-<p>The element <code>r_cv</code> is the class vector <code>cv</code> converted into a raster by the function <code><a href="../reference/cv.2.rast.html">cv.2.rast()</a></code>. It can be plotted and manipulated as a normal raster object (<a href="#figure4">Figure 4</a>).</p>
-<p><a id="figure4"></a></p>
+<span class="co"># COMPUTE NEW CLASS VECTOR</span>
+<span class="va">cv1</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var == 1"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv1</span><span class="op">)</span>
+<span class="co">## [1]  1 NA</span>
+
+<span class="co"># class = 1,  cell with values 'dummy_var == 1'</span>
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<p>The function <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> can be also used to update existing class vectors. For example, consider the rule <code>"dummy_var &lt;= 3"</code>. This rule applied on our dummy raster would classify raster cells having values of 1, 2 and 3. However, if we provide the class vector <code>cv1</code> as a function input, raster cells of value <code>=1</code> will not receive a classification number because they were classified in a previous step (<a href="#figure4">Figure 4</a>).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv</span><span class="op">)</span>
-<span class="co">## [1] 10 NA</span>
-
-<span class="co"># class = 10, cell with values 'dummy_var == 1'</span>
-<span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="st">"#78b2c4"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_all1_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 4 -</strong> Raster cell classification using the function <strong>cond.4.all</strong> and the rule <code>"dummy_var == 1"</code>. In <strong>blue</strong>, classified cells. In <strong>grey</strong>, unclassified cells.</span>
-</div>
-<hr>
-<p>When no class vector is available, the function <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code> can be used to start a classification process by identifying an initial group of anchor cells. It can also be used at other stages of a classification process.</p>
-<p>For instance, consider the rule <code>"dummy_var &lt;= 3"</code>. This rule applied on our dummy raster would classify raster cells having values of 1, 2 and 3. However, if we provide the class vector <code>cv</code> as a function input, raster cells of value <code>=1</code> will be ignored because they were classified in a previous step (<a href="#figure5">Figure 5</a>).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># UPDATE THE CLASS VECTOR</span>
-
-<span class="co"># UPDATED CLASS VECTOR</span>
-<span class="va">cv</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var &lt;= 3"</span>, class <span class="op">=</span> <span class="fl">1</span>,
+<code class="sourceCode R"><span class="co"># UPDATE CLASS VECTOR `cv1`</span>
+<span class="va">cv2</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var &lt;= 3"</span>, class <span class="op">=</span> <span class="fl">2</span>,
                    
                    <span class="co"># INITIAL CLASS VECTOR</span>
-                   classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span> 
+                   classVector <span class="op">=</span> <span class="va">cv1</span><span class="op">)</span> 
 
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></code></pre></div>
-<p>The class vector <code>cv</code> presents now three unique values: (i) <code>10</code>, identifies cells having a value <code>=1</code>; (ii) <code>1</code>, identifies cells having a value <code>&lt;=3 &amp; !=1</code>; <code>NA</code>, identifies unclassified cells.</p>
-<p><a id="figure5"></a></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv</span><span class="op">)</span>
-<span class="co">## [1] 10  1 NA</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv2</span><span class="op">)</span>
+<span class="co">## [1]  1  2 NA</span>
 
-<span class="co"># class = 10, cell with values 'dummy_var == 1'</span>
-<span class="co"># class = 1,  cell with values 'dummy_var =&lt; 3' (&amp; dummy_var != 1 - implicit condition)</span>
-<span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span>, <span class="st">"#78b2c4"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_all2_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
+<span class="co"># class = 1,  cell with values 'dummy_var == 1'</span>
+<span class="co"># class = 2,  cell with values 'dummy_var =&lt; 3' (&amp; dummy_var != 1 - implicit condition)</span>
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<p>We can convert the two class vectors into rasters and plot them (<a href="#figure4">Figure 4</a>).</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># CONVERT THE CLASS VECTORS INTO A RASTER</span>
+<span class="va">r_cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv1</span><span class="op">)</span>
+<span class="va">r_cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv2</span><span class="op">)</span></code></pre></div>
+<p><a id="figure4"></a></p>
+<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_all_plotS-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 5 -</strong> Two-step classification using the function <strong>cond.4.all</strong>. Step one (<strong>light blue</strong>), cells classified using the rule <code>"dummy_var == 1"</code>. Step two (<strong>brown</strong>), cells classified using the rule <code>"dummy_var &lt;= 3"</code>. In <strong>grey</strong>, unclassified cells. Note that the rule of step two do not overwrite the classification of step one.</span>
+<span class="legend"><strong>Figure 4 -</strong> Raster cell classifications using the function <strong>cond.4.all</strong>. <strong>On the left</strong>, the first classification step corresponding to the rule <code>"dummy_var == 1"</code> and the numeric class <code>1</code>. <strong>On the right</strong>, the second classification step corresponding to the rule <code>"dummy_var &lt;= 3"</code> and the numeric class <code>2</code>. Note that cells classified in the 1<sup>st</sup> step are not overwritten in the 2<sup>nd</sup> classification step.</span>
 </div>
 </div>
 </div>
@@ -368,16 +351,15 @@
 <div class="section level3">
 <h3 id="cond-4-nofn">cond.4.nofn<a class="anchor" aria-label="anchor" href="#cond-4-nofn"></a>
 </h3>
-<p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to evaluate both relative and absolute conditions for cells neighboring specific classes (see <code><a href="../reference/conditions.html">?conditions</a></code>, <a href="scapesClassification_01_3_ClassRules.html">classificaton rules</a> and <a href="scapesClassification_01_2_RuleEvaluation.html#focal-evaluation">focal evaluation</a>).</p>
-<p>As all other user condition functions, <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> requires some initial focal cell. We can create an empty class vector and assume that <code>cell 25</code> is our initial focal cell. The focal cell will be identified by the numeric class <code>0</code> - but we could use any other number.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to evaluate both relative and absolute conditions (see <code><a href="../reference/conditions.html">?conditions</a></code>, <a href="scapesClassification_01_3_ClassRules.html">classificaton rules</a> and <a href="scapesClassification_01_2_RuleEvaluation.html#focal-evaluation">focal evaluation</a>).</p>
+<p>The functions <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> requires a class vector as function input. We can create an empty class vector and assume that <code>cell 25</code> is our initial focal cell (identified by the numeric class <code>0</code>).</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># SET CELL 25 AS A FOCAL CELL</span>
 <span class="va">at</span><span class="op">$</span><span class="va">cv</span><span class="op">[</span><span class="va">at</span><span class="op">$</span><span class="va">Cell</span> <span class="op">==</span> <span class="fl">25</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></code></pre></div>
-<p>We can now use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to test an absolute test cell condition <code>"dummy_var &gt;= 3"</code> at locations adjacent to the focal cell (<a href="#figure6">Figure 6</a>).</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>We can now use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to test an absolute test cell condition <code>"dummy_var &gt;= 3"</code> at locations adjacent to the focal cell (<a href="#figure5">Figure 5</a>).</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (do not consider class continuity)</span>
-<span class="va">cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<span class="va">cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                    
                    <span class="co"># CLASS VECTOR - INPUT</span>
                    classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
@@ -391,33 +373,17 @@
                    <span class="co"># ABSOLUTE CONDITION</span>
                    conditions <span class="op">=</span> <span class="st">"dummy_var &gt;= 3"</span><span class="op">)</span>
 
-
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv1</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure6"></a></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv1</span><span class="op">)</span>
 <span class="co">## [1] NA  1  0</span>
 
 <span class="co"># class = 0,  focal cell</span>
 <span class="co"># class = 1,  cell with values 'dummy_var &gt;= 3'</span>
-<span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv1</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn1_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 6 -</strong> Classification using the function <strong>cond.4.nofn</strong> and the rule <code>"dummy_var &gt;= 3"</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong> cell meeting function conditions; in <strong>grey</strong>, unclassified cells. Only <strong>cells contiguous</strong> to the focal cell with values <code>&gt;=3</code> are identified by the function.</span>
-</div>
-<hr>
-<p>When the classification number associated with the argument <code>class</code> is also included in the argument <code>nofn</code>, classifications take into account <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity">class continuity</a> (<a href="#figure7">Figure 7</a>).</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<p>When the classification number defined by the argument <code>class</code> is also included in the argument <code>nofn</code>, classifications take into account <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity">class continuity</a> (<a href="#figure5">Figure 5</a>).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (consider class continuity)</span>
-<span class="va">cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<span class="va">cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                    
                    <span class="co"># CLASS VECTOR - INPUT</span>
                    classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
@@ -431,39 +397,35 @@
                    <span class="co"># ABSOLUTE CONDITION</span>
                    conditions <span class="op">=</span> <span class="st">"dummy_var &gt;= 3"</span><span class="op">)</span>
 
-
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv2</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure7"></a></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv2</span><span class="op">)</span>
 <span class="co">## [1] NA  1  0</span>
 
 <span class="co"># class = 0,  focal cell</span>
 <span class="co"># class = 1,  cell with values 'dummy_var &gt;= 3'</span>
-<span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv2</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn2_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<p>We can convert the two class vectors into rasters and plot them (<a href="#figure5">Figure 5</a>).</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># CONVERT THE CLASS VECTORS INTO A RASTER</span>
+<span class="va">r_cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv1</span><span class="op">)</span>
+<span class="va">r_cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv2</span><span class="op">)</span></code></pre></div>
+<p><a id="figure5"></a></p>
+<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn12_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 7 -</strong> Classification using the function <strong>cond.4.nofn</strong> and the rule <code>"dummy_var &gt;= 3"</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong> cell meeting function conditions; in <strong>grey</strong>, unclassified cells. Only <strong>cells contiguous AND continuous</strong> to the focal cell with values <code>&gt;=3</code> are identified by the function.</span>
+<span class="legend"><strong>Figure 5 -</strong> Classification using the function <strong>cond.4.nofn</strong> and the rule <code>"dummy_var &gt;= 3"</code>. On the left, only <a href="scapesClassification_01_2_RuleEvaluation.html#cc"><strong>cells contiguous</strong></a> to the focal cell with values <code>&gt;=3</code> are identified by the function. On the right, <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity"><strong>cells continuous</strong></a> to the focal cell with values <code>&gt;=3</code> are identified by the function.</span>
 </div>
 <hr>
-<p><a href="scapesClassification_01_3_ClassRules.html#absolute-conditions"><em>Absolute neighborhood condition</em></a> are flagged by a variable name followed by curly brackets (<code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{}</a></code>). They compare the values of the test cell and of its neighborhood against a threshold value. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument <code>fn_perc</code>.</p>
-<p>In the following example we will use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> with the arguments <code>conditions = "dummy_var{} &gt;= 3"</code> and <code>fn_perc = 1</code>. This means that the function will identify (<a href="#figure8">Figure 8</a>):</p>
+<p><a href="scapesClassification_01_3_ClassRules.html#absolute-conditions"><em>Absolute neighborhood condition</em></a> are flagged by a variable name followed by curly brackets (<code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{}</a></code>). They compare the values of the test cell and of its neighborhood against a threshold value. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument <code>fn_perc</code> (see <code><a href="../reference/conditions.html">?conditions</a></code>).</p>
+<p>In the following example we will use the condition <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>. This means that the function will identify:</p>
 <ul>
 <li><p>cells whose value is <code>&gt;= 3</code>;</p></li>
-<li><p><em>AND</em> whose all (<code>fn_perc = 1</code>) neighbor values are <code>&gt;= 3</code>;</p></li>
-<li><p><em>AND</em> that are contiguous and continuous to the focal cell.</p></li>
+<li><p><em>AND</em> whose all neighbor values are <code>&gt;= 3</code> (because <code>fn_perc = 1</code>);</p></li>
+<li><p><em>AND</em> that are continuous to the focal cell (because <code>class = 1</code> and <code>nbs_of = c(0,1)</code>).</p></li>
 </ul>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>For neighborhoods of 8 cells, <code>fn_perc = 1</code> means that 9 evaluations out of 9 have to be true (evaluation true for the test cell and for its 8 neighbors).</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (ABSOLUTE NEIGHBORHOOD CONDITION)</span>
-<span class="va">cv3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<span class="va">cv3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                    
                    <span class="co"># CLASS VECTOR - INPUT</span>
                    classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
@@ -480,81 +442,33 @@
                    <span class="co"># RULE HAS TO BE TRUE FOR AT LEAST 100% OF THE EVALUATIONS</span>
                    fn_perc <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 
-
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv3</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure8"></a></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv3</span><span class="op">)</span>
 <span class="co">## [1] NA  1  0</span>
 
 <span class="co"># class = 0,  focal cell</span>
-<span class="co"># class = 1,  cell with values 'dummy_var &gt;= 3'</span>
+<span class="co"># class = 1,  cell with values 'dummy_var{} &gt;= 3'; fn_perc = 1</span>
 <span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv3</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn3_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 8 -</strong> Classification using the function <strong>cond.4.nofn</strong>, the rule <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong> cell meeting function conditions; in <strong>grey</strong>, unclassified cells. Only cells with values <code>&gt;=3</code>, with neighboring cells with values <code>&gt;=3</code> and continuous with the focal cell are identified by the function.</span>
-</div>
-<hr>
-<p><a href="scapesClassification_01_3_ClassRules.html#relative-conditions">Relative conditions</a> compare the values of contiguous cells. <em>Relative focal cell conditions</em> are flagged by a variable name followed by square brackets (<code>[]</code>). They compare the value of the test cell against the value of the focal cell (see <code><a href="../reference/conditions.html">?conditions</a></code> and <a href="scapesClassification_01_2_RuleEvaluation.html#cc">definitions</a>).</p>
-<p>Note that if class continuity is considered, the pool of focal cells will change at each new iteration. Cell classified at one iteration will serve as focal cells in the next iteration (see <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity">class continuity</a>).</p>
-<p>In the following example we will use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> with the argument <code>conditions = "dummy_var &gt; dummy_var[]"</code>. This means that the function will identify test cells with <code>dummy_var</code> values greater than the focal cell value (<code>dummy_var[]</code>) (<a href="#figure9">Figure 9</a>):</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (RELATIVE FOCAL CELL CONDITION)</span>
-<span class="va">cv4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
-                   
-                   <span class="co"># CLASS VECTOR - INPUT</span>
-                   classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
-                   
-                   nbs_of <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,  <span class="co"># FOCAL CELL CLASS</span>
-                              <span class="fl">1</span><span class="op">)</span>, <span class="co"># CLASSIFICATION NUMBER</span>
-                   
-                   <span class="co"># CLASSIFICATION NUMBER </span>
-                   class <span class="op">=</span> <span class="fl">1</span>,     <span class="co"># CLASSIFICATION NUMBER</span>
-                   
-                   <span class="co"># RELATIVE FOCAL CELL CONDITION</span>
-                   conditions <span class="op">=</span> <span class="st">"dummy_var &gt; dummy_var[]"</span><span class="op">)</span>
-
 
 <span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv4</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure9"></a></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv4</span><span class="op">)</span>
-<span class="co">## [1] NA  1  0</span>
-
-<span class="co"># class = 0,  focal cell</span>
-<span class="co"># class = 1,  cells with values greater than the value of the focal cell</span>
-<span class="co"># class = NA, unclassified cells</span>
-
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv4</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn4_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
+<span class="va">r_cv3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv3</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p>We can convert the class vector into a raster and plot it (<a href="#figure6">Figure 6</a>).</p>
+<p><a id="figure6"></a></p>
+<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn3_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 9 -</strong> Classification using the function <strong>cond.4.nofn</strong> and the rule <code>"dummy_var &gt; dummy_var[]"</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong> cell meeting function conditions; in <strong>grey</strong>, unclassified cells. Note that at the 1<sup>st</sup> iteration there are only two cells contiguous to the focal cell and with values <code>&gt;3</code> (brown cells with values <code>=5</code>). In the 2<sup>nd</sup> iteration the two brown cells of value 5 become focal cells; among their neighbors there is only one cell with a value <code>&gt;5</code> (the brown cell with value <code>=10</code>). Among the neighbors of the brown cell with value <code>=10</code>, none has values <code>&gt;10</code>. Therefore the function stops after the 2<sup>nd</sup> iteration.</span>
+<span class="legend"><strong>Figure 6 -</strong> Classification using the function <strong>cond.4.nofn</strong>, the rule <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>. Only cells with (i) values <code>&gt;=3</code>, (ii) with <strong>all</strong> neighboring cells with values <code>&gt;=3</code> and (ii) continuous to the focal cell are identified by the function.</span>
 </div>
 <hr>
 <p><a href="scapesClassification_01_3_ClassRules.html#relative-conditions"><em>Relative neighborhood conditions</em></a> are flagged by a variable name followed by square brackets (<code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{}</a></code>). They compare the value of the test cell against the values of its neighborhood. Test cells are classified if the rule is true for at least as many evaluations as the ones specified by the argument <code>fn_perc</code>.</p>
-<p>In the following example we will use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> with the arguments <code>conditions = "dummy_var &gt; dummy_var{}"</code> and <code>fn_perc = 0.6</code>. This means that the function will identify (<a href="#figure10">Figure 10</a>):</p>
+<p>In the following example we will use the condition <code>"dummy_var &gt; dummy_var{}"</code> and the argument <code>fn_perc = 0.6</code>. This means that the function will identify:</p>
 <ul>
-<li><p>cells whose value is greater than 60% of its neighbors;</p></li>
-<li><p><em>AND</em> that are contiguous and continuous to the focal cell.</p></li>
+<li><p>cells whose value is greater than 60% of its neighbors (because <code>fn_perc = 0.6</code>);</p></li>
+<li><p><em>AND</em> that are continuous to the focal cell (because <code>class = 1</code> and <code>nbs_of = c(0,1)</code>).</p></li>
 </ul>
-<p>For neighborhoods of 8 cells, <code>fn_perc = 0.6</code> means that the value of the test cell has to be <code>&gt;</code> than at least 5 of its neighbors.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<p>For neighborhoods of 8 cells, <code>fn_perc = 0.6</code> means that at least 4.8 out of 8 evaluations have to be true.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (RELATIVE NEIGHBORHOOD CONDITION)</span>
-<span class="va">cv5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<span class="va">cv4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                    
                    <span class="co"># CLASS VECTOR - INPUT</span>
                    classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
@@ -571,41 +485,69 @@
                    <span class="co"># RULE HAS TO BE TRUE FOR AT LEAST 60% OF THE EVALUATIONS</span>
                    fn_perc <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span>
 
-
-<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
-<span class="va">r_cv5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv5</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure10"></a></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv5</span><span class="op">)</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv4</span><span class="op">)</span>
 <span class="co">## [1] NA  1  0</span>
 
 <span class="co"># class = 0,  focal cell</span>
 <span class="co"># class = 1,  cells with values greater than the value of 60% of their neighbors</span>
 <span class="co"># class = NA, unclassified cells</span>
 
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv5</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
-<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn5_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
+<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
+<span class="va">r_cv4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>, classVector <span class="op">=</span> <span class="va">cv4</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p>We can convert the class vector into a raster and plot it (<a href="#figure7">Figure 7</a>).</p>
+<p><a id="figure7"></a></p>
+<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn4_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 10 -</strong> Classification using the function <strong>cond.4.nofn</strong>, the rule <code>"dummy_var &gt; dummy_var{}"</code> and the argument <code>fn_perc = 0.6</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong> cell meeting function conditions; in <strong>grey</strong>, unclassified cells. Note that in brown are only cells that present: (i) values greater than the values of 5 or more of their neighbors; (ii) continuity with the initial focal cell.</span>
+<span class="legend"><strong>Figure 7 -</strong> Classification using the function <strong>cond.4.nofn</strong>, the rule <code>"dummy_var &gt; dummy_var{}"</code> and the argument <code>fn_perc = 0.6</code>. Note that classified cells present the following attributes: (i) values greater than the values of 5 or more of their neighbors; (ii) continuity with the initial focal cell.</span>
 </div>
 <hr>
+<p><a href="scapesClassification_01_3_ClassRules.html#relative-conditions"><em>Relative focal cell conditions</em></a> are flagged by a variable name followed by square brackets (<code>[]</code>). They compare the value of the test cell against the value of the focal cell (see <code><a href="../reference/conditions.html">?conditions</a></code> and <a href="scapesClassification_01_2_RuleEvaluation.html#cc">definitions</a>).</p>
+<p>Note that if class continuity is considered, the pool of focal cells will change at each new iteration. Cell classified at one iteration will serve as focal cells in the next iteration (see <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity">class continuity</a>).</p>
+<p>In the following example we will use the condition <code>"dummy_var &gt; dummy_var[]"</code>. This means that the function will identify test cells with <code>dummy_var</code> values greater than the focal cell value (<code>dummy_var[]</code>) (<a href="#figure8">Figure 8</a>):</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># COMPUTE THE CLASS VECTOR (RELATIVE FOCAL CELL CONDITION)</span>
+<span class="va">cv5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+                   
+                   <span class="co"># CLASS VECTOR - INPUT</span>
+                   classVector <span class="op">=</span> <span class="va">at</span><span class="op">$</span><span class="va">cv</span>, 
+                   
+                   nbs_of <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,  <span class="co"># FOCAL CELL CLASS</span>
+                              <span class="fl">1</span><span class="op">)</span>, <span class="co"># CLASSIFICATION NUMBER</span>
+                   
+                   <span class="co"># CLASSIFICATION NUMBER </span>
+                   class <span class="op">=</span> <span class="fl">1</span>,     <span class="co"># CLASSIFICATION NUMBER</span>
+                   
+                   <span class="co"># RELATIVE FOCAL CELL CONDITION</span>
+                   conditions <span class="op">=</span> <span class="st">"dummy_var &gt; dummy_var[]"</span><span class="op">)</span>
+
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv5</span><span class="op">)</span>
+<span class="co">## [1] NA  1  0</span>
+
+<span class="co"># class = 0,  focal cell</span>
+<span class="co"># class = 1,  cells with values greater than the value of the focal cell</span>
+<span class="co"># class = NA, unclassified cells</span>
+
+<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
+<span class="va">r_cv5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv5</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p><a id="figure8"></a></p>
+<p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_4_nofn5_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 8 -</strong> Classification using the function <strong>cond.4.nofn</strong> and the rule <code>"dummy_var &gt; dummy_var[]"</code>. At the 1<sup>st</sup> iteration there are only two cells contiguous to the focal cell with values <code>&gt;3</code>. In the 2<sup>nd</sup> iteration these two cells become focal cells; among their neighbors there is only one cell with a value <code>&gt;5</code>. Among the neighbors of the cell with value <code>=10</code>, none has values <code>&gt;10</code>. Therefore the function stops after the 2<sup>nd</sup> iteration.</span>
+</div>
 </div>
 <div class="section level3">
 <h3 id="cond-reclass">cond.reclass<a class="anchor" aria-label="anchor" href="#cond-reclass"></a>
 </h3>
 <p>The function <code><a href="../reference/cond.reclass.html">cond.reclass()</a></code> evaluates conditions for cells of a class and reclassify them if conditions are true. It can consider <a href="scapesClassification_01_3_ClassRules.html#absolute-conditions"><em>absolute conditions</em></a> and <a href="scapesClassification_01_3_ClassRules.html#relative-conditions"><em>relative neighborhood conditions</em></a>.</p>
-<p>In the following example we will use the function <code><a href="../reference/cond.reclass.html">cond.reclass()</a></code> with the arguments <code>conditions = "dummy_var{} &gt;= 3"</code> and <code>fn_perc = 1</code>. The class vector computed in the last example (<code>cv5</code> - <a href="#figure10">Figure 10</a>) will be used as a function input. This vector has classes <code>0</code> (initial focal cell) and <code>1</code> (classified cells). Cells of class 1 will be reclassified if their value and the value of all their neighbors is <code>&gt;=3</code> (<a href="#figure11">Figure 11</a>).</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<p>In the following example we will use the class vector <code>cv4</code> (<a href="#figure7">Figure 7</a>) as a function input. This vector has classes <code>0</code> (initial focal cell) and <code>1</code>. Using the rule <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>, cells of class 1 will be reclassified if their value and the value of all their neighbors is <code>&gt;=3</code> (<a href="#figure9">Figure 9</a>)</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># RECLASSIFY</span>
-<span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.reclass.html">cond.reclass</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                   ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.reclass.html">cond.reclass</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                     
                    <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span>
-                   classVector <span class="op">=</span> <span class="va">cv5</span>,
+                   classVector <span class="op">=</span> <span class="va">cv4</span>,
                    
                    <span class="co"># CELLS TO RECLASSIFY HAVE THIS CLASS</span>
                    class <span class="op">=</span> <span class="fl">1</span>,
@@ -619,27 +561,21 @@
                    <span class="co"># RULE HAS TO BE TRUE FOR AT LEAST 100% OF THE EVALUATIONS</span>
                    fn_perc <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 
-
-<span class="va">r_cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cr</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure11"></a></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cr</span><span class="op">)</span>
 <span class="co">## [1] NA  2  0  1</span>
 
 <span class="co"># class = 0,  focal cell</span>
 <span class="co"># class = 1,  cells with values greater than the value of 60% of their neighbors</span>
-<span class="co"># class = 2,  reclassified cells</span>
+<span class="co"># class = 2,  reclassified cells (dummy_var{} &gt;= 3, fn_perc = 1)</span>
 <span class="co"># class = NA, unclassified cells</span>
 
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cr</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, 
-     col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#1088a0"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
+<span class="co"># CONVERT THE CLASS VECTOR INTO A RASTER</span>
+<span class="va">r_cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cr</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p><a id="figure9"></a></p>
 <p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/cond_reclass1_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 11 -</strong> Cells classified in <a href="#figure10">figure 10</a> are reclassified using the function <strong>cond.reclass</strong>, the rule <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>. In <strong>light blue</strong>, the initial focal cell; in <strong>brown</strong>, cell classified in <a href="#figure10">figure 10</a>; in <strong>dark blue</strong>, reclassified cell; in <strong>grey</strong>, unclassified cells. Cells are reclassified if their value and the value of all their neighbors is <code>&gt;=3</code>.</span>
+<span class="legend"><strong>Figure 9 -</strong> Cells of class vector <code>cv4</code> having class <code>1</code> are reclassified using the function <strong>cond.reclass</strong>, the rule <code>"dummy_var{} &gt;= 3"</code> and the argument <code>fn_perc = 1</code>. Cells of class <code>1</code> are reclassified if their value and the value of all their neighbors is <code>&gt;=3</code>.</span>
 </div>
 </div>
 </div>
@@ -652,83 +588,82 @@
 <h3 id="reclass-nbs">reclass.nbs<a class="anchor" aria-label="anchor" href="#reclass-nbs"></a>
 </h3>
 <p>The function <code><a href="../reference/reclass.nbs.html">reclass.nbs()</a></code> evaluates if members of two classes are contiguous and, if they are, one of them is reclassified.</p>
-<p>In the following two examples we will use again the class vector <code>cv5</code> (<a href="#figure10">figure 10</a>) as a function input. This class vector has classes <code>0</code> (initial focal cell) and <code>1</code> (classified cells). Cells of class <code>1</code> adjacent to the initial focal cell (class <code>0</code>) will be reclassified as cells of class <code>2</code> (<a href="#figure12">Figure 12</a>).</p>
+<p>In the following examples we will use the class vector <code>cv4</code> (<a href="#figure7">Figure 7</a>) as a function input. This vector has classes <code>0</code> (initial focal cell) and <code>1</code>. Cells of class <code>1</code> adjacent to cells of class <code>0</code> will be reclassified as cells of class <code>2</code> (<a href="#figure10">Figure 10</a>).</p>
+<p>To better illustrate the how the function works, we will assume that cell number <code>29</code> belong to class 1.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># CELL #29 &lt;- CLASS 1</span>
+<span class="va">cv4</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">at</span><span class="op">$</span><span class="va">Cell</span> <span class="op">==</span> <span class="fl">29</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></code></pre></div>
 <ul>
-<li>In the 1<sup>st</sup> example we use the argument <code>reclass_all = FALSE</code>, only cells of class <code>1</code> contiguous to the focal cell (class <code>0</code>) are reclassified as cells of class <code>2</code> (<a href="#figure12">Figure 12 - Left panel</a>);</li>
+<li>In the 1<sup>st</sup> example we use the argument <code>reclass_all = FALSE</code>: only cells of class <code>1</code> contiguous to cells of class <code>0</code> are reclassified;</li>
 </ul>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># RECLASSIFY NEIGHBORS</span>
-<span class="va">cv_rec1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reclass.nbs.html">reclass.nbs</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                       ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># CELL #29 &lt;- CLASS 1</span>
+<span class="va">cv4</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">at</span><span class="op">$</span><span class="va">Cell</span> <span class="op">==</span> <span class="fl">29</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+
+<span class="co"># RECLASSIFY NEIGHBORS (reclass_all = FALSE)</span>
+<span class="va">rn1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reclass.nbs.html">reclass.nbs</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
                      
-                       <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span>
-                       classVector <span class="op">=</span> <span class="va">cv5</span>,
+                  <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span>
+                  classVector <span class="op">=</span> <span class="va">cv4</span>,
                      
-                       <span class="co"># CELLS OF CLASS...</span>
-                       class <span class="op">=</span> <span class="fl">1</span>,
+                  <span class="co"># CELLS OF CLASS...</span>
+                  class <span class="op">=</span> <span class="fl">1</span>,
                      
-                       <span class="co"># ...ADJACENT TO CELLS OF ANOTHER CLASS... </span>
-                       nbs_of <span class="op">=</span> <span class="fl">0</span>,
+                  <span class="co"># ...ADJACENT TO CELLS OF ANOTHER CLASS... </span>
+                  nbs_of <span class="op">=</span> <span class="fl">0</span>,
                      
-                       <span class="co"># ...WILL BE RECLASSIFIED...</span>
-                       reclass <span class="op">=</span> <span class="fl">2</span>, 
+                  <span class="co"># ...WILL BE RECLASSIFIED...</span>
+                  reclass <span class="op">=</span> <span class="fl">2</span>, 
                        
-                       <span class="co"># NO MORE RECLASSIFICATIONS</span>
-                       reclass_all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+                  <span class="co"># NO MORE RECLASSIFICATIONS</span>
+                  reclass_all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
-
-<span class="va">r_cv_rec1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv_rec1</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<ul>
-<li>In the 2<sup>nd</sup> example we use the argument <code>reclass_all = TRUE</code>, cells of class <code>1</code> contiguous to the focal cell (class <code>0</code>) are reclassified as cells of class <code>2</code>; all cells of class <code>1</code> connected to a reclassified cell are also reclassified (<a href="#figure12">Figure 12 - Right panel</a>).</li>
-</ul>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># RECLASSIFY NEIGHBORS</span>
-<span class="va">cv_rec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reclass.nbs.html">reclass.nbs</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, 
-                       ngbList <span class="op">=</span> <span class="va">nbs</span>, 
-                     
-                       <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span>
-                       classVector <span class="op">=</span> <span class="va">cv5</span>,
-                     
-                       <span class="co"># CELLS OF CLASS...</span>
-                       class <span class="op">=</span> <span class="fl">1</span>,
-                     
-                       <span class="co"># ...ADJACENT TO CELLS OF ANOTHER CLASS... </span>
-                       nbs_of <span class="op">=</span> <span class="fl">0</span>,
-                     
-                       <span class="co"># ...WILL BE RECLASSIFIED...</span>
-                       reclass <span class="op">=</span> <span class="fl">2</span>, 
-                       
-                       <span class="co"># ...AND SO ALL CELLS OF CLASS 1 CONNECTED TO A RECLASSIFIED CELL</span>
-                       reclass_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-
-<span class="va">r_cv_rec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv_rec2</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><a id="figure12"></a></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># CLASS VECTOR LEVELS</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv_rec1</span><span class="op">)</span> <span class="co"># ONLY CELLS ADJACENT TO THE FOCAL CELL ARE RECLASSIFIED</span>
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">rn1</span><span class="op">)</span>
 <span class="co">## [1] NA  1  0  2</span>
 
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">cv_rec2</span><span class="op">)</span> <span class="co"># ALL NON-NA CELL ARE RECLASSIFIED</span>
-<span class="co">## [1] NA  2  0</span>
-
 <span class="co"># class = 0,  focal cell</span>
-<span class="co"># class = 1,  cells with values greater than the value of 60% of their neighbors</span>
+<span class="co"># class = 1,  cv4, class 1</span>
 <span class="co"># class = 2,  reclassified cells</span>
-<span class="co"># class = NA, unclassified cells</span>
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<ul>
+<li>In the 2<sup>nd</sup> example we use the argument <code>reclass_all = TRUE</code>: cells of class <code>1</code> contiguous to the focal cell (class <code>0</code>) are reclassified as cells of class <code>2</code>; all cells of class <code>1</code> connected to a reclassified cell are also reclassified.</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># RECLASSIFY NEIGHBORS (reclass_all = TRUE)</span>
+<span class="va">rn2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reclass.nbs.html">reclass.nbs</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>, 
+                     
+                   <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span>
+                   classVector <span class="op">=</span> <span class="va">cv4</span>,
+                     
+                   <span class="co"># CELLS OF CLASS...</span>
+                   class <span class="op">=</span> <span class="fl">1</span>,
+                     
+                   <span class="co"># ...ADJACENT TO CELLS OF ANOTHER CLASS... </span>
+                   nbs_of <span class="op">=</span> <span class="fl">0</span>,
+                     
+                   <span class="co"># ...WILL BE RECLASSIFIED...</span>
+                   reclass <span class="op">=</span> <span class="fl">2</span>, 
+                       
+                   <span class="co"># ...AND SO ALL CELLS OF CLASS 1 CONNECTED TO A RECLASSIFIED CELL</span>
+                   reclass_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
-<span class="co"># PLOT THE CLASS VECTOR</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv_rec1</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, 
-     col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#1088a0"</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"reclass_all = FALSE"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv_rec2</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, colNA<span class="op">=</span><span class="st">"#818792"</span>, 
-     col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#1088a0"</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"reclass_all = TRUE"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></code></pre></div>
+<span class="co"># CLASS VECTOR LEVELS</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">rn2</span><span class="op">)</span>
+<span class="co">## [1] NA  2  0  1</span>
+<span class="co"># class = 0,  focal cell</span>
+<span class="co"># class = 1,  cv4, class 1</span>
+<span class="co"># class = 2,  reclassified cells</span>
+<span class="co"># class = NA, unclassified cells</span></code></pre></div>
+<p>We can now convert the class vectors to rasters and plot them (<a href="#figure10">Figure 10</a>).</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># CONVERT CLASSVECTORS TO RASTERS</span>
+<span class="va">r_rn1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">rn1</span><span class="op">)</span>
+<span class="va">r_rn2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">rn2</span><span class="op">)</span></code></pre></div>
+<p><a id="figure10"></a></p>
 <p><img src="scapesClassification_01_4_ClassFunctions_files/figure-html/reclass_nbs_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.8em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 12 -</strong> Reclassify cells using the function <strong>reclass.nbs</strong> and class vector <code>cv5</code> (see <a href="#figure10">figure 10</a>). <strong>On the left</strong>, non-NA cells of <code>cv5</code> are reclassified if they are adjacent to the initial focal cell. <strong>On the right</strong>, non-NA cells of <code>cv5</code> are reclassified if they are adjacent to the initial focal cell; cells having the same class of a reclassified cell and connected to it are also reclassified. On both panels, <strong>in brown</strong>, non-NA cells of <code>cv5</code>; <strong>in light blue</strong>, the initial focal cell; <strong>in dark blue</strong>, reclassified cell; <strong>in grey</strong>, unclassified cells.</span>
+<span class="legend"><strong>Figure 10 -</strong> Cells of class vector <code>cv4</code> having class <code>1</code> are reclassified using the function <strong>reclass.nbs</strong> if they are neighbors of cells having class <code>0</code>. For <code>rn1</code>, only <a href="scapesClassification_01_2_RuleEvaluation.html#cc"><strong>class contiguity</strong></a> was considered (argument <code>reclass_all = FALSE</code>). For <code>rn2</code>, <a href="scapesClassification_01_2_RuleEvaluation.html#class-continuity"><strong>class continuity</strong></a> was considered (argument <code>reclass_all = TRUE</code>). Note that the isolated brown cell is never reclassified because it is neither contiguous or continuous to the cell of class 0.</span>
 </div>
 </div>
 </div>

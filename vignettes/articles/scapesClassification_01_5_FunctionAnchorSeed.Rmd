@@ -93,6 +93,111 @@ As an example we will identify the two local maxima existin on the dummy raster 
 
 * `cond.isol = dummy_var < dummy_var[]`
 
+```{r seed_eval_gif, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE}
+library(gifski)
+
+gif_seed <- function(){
+ 
+  cond.filter = "dummy_var > 2"
+  cond.sed    = "dummy_var == max(dummy_var)"
+  cond.isol   = "dummy_var < dummy_var[]"
+  
+  #CONDITION FILTER
+  at$cf  <- cond.4.all(at, conditions = "dummy_var > 2", class = 1)
+  
+  #ITERATION 1
+  cs1 <- cond.4.all(at, conditions = "dummy_var == 10", class = 1)
+  ci1 <- cond.4.nofn(at, nbs, 
+                     classVector = cs1,
+                     nbs_of = c(1, -1),
+                     conditions = "dummy_var < dummy_var[] & !is.na(cf)", 
+                     class = -1)
+  
+  #ITERATION 2
+  cs2 <- cond.4.all(at, classVector = ci1, 
+                    conditions = "dummy_var == 8 & !is.na(cf)", 
+                    class = 1)
+  
+  ci2 <- cond.4.nofn(at, nbs, 
+                     classVector = cs2,
+                     nbs_of = c(1, -1),
+                     conditions = "dummy_var < dummy_var[] & !is.na(cf)", 
+                     class = -1)
+  
+  #CLASS VECTORS TO RASTERS
+  r_cf <- cv.2.rast(r, at$Cell,classVector = at$cf)
+  
+  r_cs1 <- cv.2.rast(r, at$Cell,classVector = cs1)
+  r_ci1 <- cv.2.rast(r, at$Cell,classVector = ci1)
+  
+  r_cs2 <- cv.2.rast(r, at$Cell,classVector = cs2)
+  r_ci2 <- cv.2.rast(r, at$Cell,classVector = ci2)
+  
+  # PLOTS #####################################################################
+  
+  #RASTER DATA
+  plot(r, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="grey90")
+  text(r)
+  title("Raster data", adj = 0.0, line = 1)
+  
+  # ITERATION 0
+  plot(r_cf, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="#78b2c4")
+  text(r)
+  title("Iteration: 0.0, COND.FILTER", adj = 0.0, line = 1)
+  legend("topleft", bg = "white", legend = "Valid cell", fill = "#78b2c4")
+  
+  # ITERATION 1
+  # 1.1
+  plot(r_cf, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="#78b2c4")
+  plot(r_cs1, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+       col="#98fb98", add = TRUE)
+  text(r)
+  title("Iteration: 1.1, COND.SEED", adj = 0.0, line = 1)
+  legend("topleft", bg = "white", legend = "Seed cell", fill = "#98fb98")
+  
+  # 1.2 
+  plot(r_cf, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="#78b2c4")
+  plot(r_ci1, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+       col=c("#d76968","#98fb98"), add = TRUE)
+  text(r)
+  title("Iteration: 1.2, COND.ISOL", adj = 0.0, line = 1)
+  legend("topleft", bg = "white", legend = "Isolation cell", fill = "#d76968")
+  
+  # ITERATION 2
+  # 2.1
+  plot(r_cf, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="#78b2c4")
+  plot(r_cs2, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+       col=c("#d76968","#98fb98"), add = TRUE)
+  text(r)
+  title("Iteration: 2.1, COND.SEED", adj = 0.0, line = 1)
+  legend("topleft", bg = "white", legend = "Seed cell", fill = "#98fb98")
+  
+  # 2.2 
+  plot(r_cf, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA = "grey90",
+       col="#78b2c4")
+  plot(r_ci2, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+       col=c("#d76968","#98fb98"), add = TRUE)
+  text(r)
+  title("Iteration: 2.2, COND.ISOL", adj = 0.0, line = 1)
+  legend("topleft", bg = "white", legend = "Isolation cell", fill = "#d76968")
+   
+}
+
+gifski::save_gif(gif_seed(), "gif_seed.gif", delay = 3, width = 800, 
+                 height = 800, progress = FALSE, loop = TRUE)
+```
+
+```{r add_gif, message=FALSE, warning=FALSE, echo=FALSE}
+knitr::include_graphics("gif_seed.gif")
+```
+
+---
+
 ```{r anc_seed1, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # ATTRIBUTE TABLE VARIABLES
 names(at)

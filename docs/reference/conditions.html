@@ -135,15 +135,18 @@ table, see <code><a href="attTbl.html">attTbl</a></code>) and previous classific
 stored as <code>classVector</code> or as rasters).</p></li>
 <li><p>A combination of absolute and relative conditions can be used, but only
 <em><strong>one neighborhood condition per string</strong></em> is allowed.</p></li>
-</ul><p><br><strong>Class vectors</strong></p><ul><li><p>Class vectors map raster cells to numeric classes (or to NA-values if no
-class is attributed).The n^th^ element of a class vector corresponds to the
-raster cell stored in the n^th^ row of an attribute table (see
-<code><a href="attTbl.html">attTbl</a></code>). Classification functions use class vectors to store
-the results of their classifications.</p></li>
-<li><p>Class vectors are also used as function inputs. As inputs, they provide
-information about what cells have been classified.</p></li>
-<li><p>Classification functions were designed to assign a classification number
-only to <em>unclassified cells</em>.</p></li>
+</ul><p><br><strong>Class vectors</strong></p><ul><li><p>Class vectors serve both as function input and output.</p></li>
+<li><p>They store function classifications by mapping raster cells to numeric
+classes (or to NA-values if no class is attributed).</p></li>
+<li><p>The n^th^ element of a class vector corresponds to the raster cell stored
+in the n^th^ row of an attribute table (see <code><a href="attTbl.html">attTbl</a></code>).</p></li>
+<li><p>As inputs, they provide information about what cells have been classified
+and, consequently, of the spatial relationships existing among different
+groups of cells.</p></li>
+<li><p>Every time a class vector is provided as a function input, it is
+<em>updated</em> by assigning a numeric class to <em>unclassified cells</em> that meet
+function conditions.</p></li>
+<li><p>Unclassified cells are represented as NA values in the class vector.</p></li>
 </ul><p><br><strong>Rule evaluation</strong></p><ul><li><p>One of the arguments of the classification functions is the
 <code>classVector</code>, a numeric vector that identifies what raster cells have
 already been classified (non-NA values) and what have yet to be classified
