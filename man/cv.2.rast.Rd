@@ -6,7 +6,7 @@
 \usage{
 cv.2.rast(
   r,
-  index,
+  index = NULL,
   classVector,
   plot = FALSE,
   writeRaster = NULL,
@@ -18,9 +18,9 @@ cv.2.rast(
 \code{\link{attTbl}}) or a generic \code{Raster*} object.}
 
 \item{index}{numeric vector, the cell numbers of the argument \code{r} to
-which assign the values of the argument \code{classVector}. Within
-\code{scapesClassifications}, this argument normally correspond to the
-column \code{Cell} of the attribute table (see \code{\link{attTbl}}).}
+which assign the values of the argument \code{classVector}. If \code{NULL},
+the column \code{Cell} of the attribute table \code{attTbl(r)} is used (see
+\code{\link{attTbl}}).}
 
 \item{classVector}{numeric vector, the values to be assigned to the cell numbers
 indicated by \code{index}.}
