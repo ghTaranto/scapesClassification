@@ -44,18 +44,16 @@ stored as \code{classVector} or as rasters).
 
 \cr \strong{Class vectors}
 \itemize{
-\item Class vectors serve both as function input and output.
-\item They store function classifications by mapping raster cells to numeric
-classes (or to NA-values if no class is attributed).
-\item The n^th^ element of a class vector corresponds to the raster cell stored
-in the n^th^ row of an attribute table (see \code{\link{attTbl}}).
-\item As inputs, they provide information about what cells have been classified
-and, consequently, of the spatial relationships existing among different
-groups of cells.
+\item Class vectors map raster cells to numeric classes.
+\item The n^th^ element of a class vector stores the class of the raster cell
+stored in the n^th^ row of the corresponding attribute table (see
+\code{\link{attTbl}}).
+\item Class vectors can serve also as a function input. As inputs, they provide
+information about the groups of cells that have already been classified.
 \item Every time a class vector is provided as a function input, it is
 \emph{updated} by assigning a numeric class to \emph{unclassified cells} that meet
 function conditions.
-\item Unclassified cells are represented as NA values in the class vector.
+\item Unclassified cells are represented as NA values.
 }
 
 \cr \strong{Rule evaluation}

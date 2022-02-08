@@ -164,7 +164,7 @@ plot(r_cv1, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: NO")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
 ############################################################################
@@ -193,7 +193,7 @@ plot(r_cv2, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: YES")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
 ############################################################################
@@ -219,7 +219,7 @@ plot(r_cv3, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var{ } >= 3' ('{ }' = cell neighborhood)\nfn_perc = 1; c.contiguity:YES")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
 ############################################################################
@@ -247,8 +247,9 @@ text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var > dummy_var{ }' ('{ }' = cell neighborhood)
       fn_perc = 0.6; c.contiguity: YES")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
+
 ############################################################################
 
 ############################################################################
@@ -270,8 +271,72 @@ plot(r_cv5, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var > dummy_var[ ]' ('[ ]' = focal cell)\nc.contiguity: YES")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
+
+############################################################################
+# HOMOGENEOUS GROWTH
+############################################################################
+
+# Dummy raster objects 1 and 2
+ro <- as.numeric(rep(NA, NROW(at)))
+ro[which(at$dummy_var == 10)] <- 1
+ro[which(at$dummy_var == 8)] <- 2
+
+# Not homogeneous growth
+nhg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = ro,
+                   nbs_of = 1, class = 1, # GROWTH ROBJ 1
+                   conditions = "dummy_var <= dummy_var[] & dummy_var != 1")
+
+nhg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = nhg, # UPDATE nhg
+                   nbs_of = 2, class = 2, # GROWTH ROBJ 2
+                   conditions = "dummy_var <= dummy_var[] & dummy_var != 1")
+
+
+# Homogeneous growth
+hg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = ro,
+                  nbs_of = c(1, 2), class = NULL,
+                  conditions = "dummy_var <= dummy_var[] & dummy_var != 1",
+                  hgrowth = TRUE) # HOMOGENEOUS GROWTH
+
+# Convert class vectors into rasters
+r_ro  <- cv.2.rast(r, at$Cell,classVector = ro, plot = FALSE)
+r_nhg <- cv.2.rast(r, at$Cell,classVector = nhg, plot = FALSE)
+r_hg  <- cv.2.rast(r, at$Cell,classVector = hg, plot = FALSE)
+
+# Plots
+par(mfrow=c(2,2), mar=c(3, 1.5, 3, 1.5))
+
+# Original raster objects (for plotting)
+r_nhg[at$dummy_var == 10] <- 3
+r_nhg[at$dummy_var == 8]  <- 4
+
+r_hg[at$dummy_var == 10] <- 3
+r_hg[at$dummy_var == 8]  <- 4
+
+# 1)
+plot(r_ro, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#1088a0", "#cfad89"))
+text(r)
+title("RASTER OBJECTS", adj = 0.0, line = 0.5)
+legend("topleft", bg = "white", fill = c("#1088a0", "#cfad89", "#818792"),
+       legend = c("Raster object 1", "Raster object 2", "Unclassified cells"))
+# 2)
+plot(r_nhg, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
+text(r)
+title("NOT HOMOGENEOUS GROWTH", adj = 0.0, line = 0.5,
+      sub = "'dummy_var<=dummy_var[ ]&dummy_var!=1'")
+legend("topleft", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
+       legend = c("RO1 - growth", "RO2 - growth", "Unclassified cells"))
+# 3)
+plot(r_hg, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
+text(r)
+title("HOMOGENEOUS GROWTH", adj = 0.0, line = 0.5,
+      sub = "'dummy_var<=dummy_var[ ]&dummy_var!=1'")
+legend("topleft", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
+       legend = c("RO1 - growth", "RO2 - growth", "Unclassified cells"))
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}

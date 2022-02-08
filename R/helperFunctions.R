@@ -34,23 +34,20 @@
 #'
 #'   \cr **Class vectors**
 #'
-#'   * Class vectors serve both as function input and output.
+#'   * Class vectors map raster cells to numeric classes.
 #'
-#'   * They store function classifications by mapping raster cells to numeric
-#'   classes (or to NA-values if no class is attributed).
+#'   * The n^th^ element of a class vector stores the class of the raster cell
+#'   stored in the n^th^ row of the corresponding attribute table (see
+#'   \code{\link{attTbl}}).
 #'
-#'   * The n^th^ element of a class vector corresponds to the raster cell stored
-#'   in the n^th^ row of an attribute table (see \code{\link{attTbl}}).
-#'
-#'   * As inputs, they provide information about what cells have been classified
-#'   and, consequently, of the spatial relationships existing among different
-#'   groups of cells.
+#'   * Class vectors can serve also as a function input. As inputs, they provide
+#'   information about the groups of cells that have already been classified.
 #'
 #'   * Every time a class vector is provided as a function input, it is
 #'   _updated_ by assigning a numeric class to _unclassified cells_ that meet
 #'   function conditions.
 #'
-#'   * Unclassified cells are represented as NA values in the class vector.
+#'   * Unclassified cells are represented as NA values.
 #'
 #'   \cr **Rule evaluation**
 #'

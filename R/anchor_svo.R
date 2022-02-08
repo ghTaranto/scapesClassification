@@ -26,7 +26,8 @@
 #'
 #' @export
 #' @examples
-#'
+#' # DUMMY DATA
+#' ################################################################################
 #' # LOAD LIBRARIES AND DATA
 #' library(raster)
 #' library(scapesClassification)
@@ -40,96 +41,61 @@
 #' # BULD A DUMMY POLYGON
 #' pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
 #' pol <- spPolygons(pol)
+#' ################################################################################
 #'
-#' # EMPTY RASTER TO PLOT anchor.svo RESULTS
-#' r2 <- r_cn; r2[] <- NA
+#' ################################################################################
+#' # ANCHOR.SVO
+#' ################################################################################
+#' ac1 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
+#' ac2 <- anchor.svo(r_cn, pol, only_NAs = TRUE,  fill_NAs = FALSE)
+#' ac3 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
+#' ac4 <- anchor.svo(r_cn, pol, only_NAs = TRUE,  fill_NAs = TRUE)
 #'
-#' # SET PLOT LAYOUT
+#' # RASTER CELL NUMBERS 2 RASTER
+#' r1 <- r_cn; r1[] <- NA; r1[ac1] <- 1
+#' r2 <- r_cn; r2[] <- NA; r2[ac2] <- 1
+#' r3 <- r_cn; r3[] <- NA; r3[ac3] <- 1
+#' r4 <- r_cn; r4[] <- NA; r4[ac4] <- 1
+#' ################################################################################
+#'
+#' ################################################################################
+#' # PLOTS
+#' ################################################################################
 #' par(mfrow=c(2,2), mar=c(3, 2, 2, 2))
 #'
-#' # PLOT 1, only_NAs = FALSE; fill_NAs = FALSE
-#' ################################################################################
-#' # ANCHOR.SVO
-#' ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
-#'
-#' # ADD ANCHOR CELL TO RASTER FOR PLOTTING
-#' r2[ac] <- 1
-#'
-#' # PLOT
-#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+#' # 1)
+#' plot(r1, col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
 #' plot(pol, add = TRUE, lwd = 2.5, border = "red")
-#'
-#' # REFERENCE PLOT
 #' text(r_cn)
-#' title(adj = 0.0, line = 1,
-#'       sub = paste0("only_NAs = FALSE; fill_NAs = FALSE\nac=",
-#'       paste0(sort(ac), collapse = ",")))
+#' title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = FALSE\nac=",
+#'       paste0(sort(ac1), collapse = ",")))
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
-#' ################################################################################
 #'
-#' # PLOT 2, only_NAs = TRUE; fill_NAs = FALSE
-#' ################################################################################
-#' # ANCHOR.SVO
-#' ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
-#'
-#' # ADD ANCHOR CELL TO RASTER FOR PLOTTING
-#' r2[]   <- NA
-#' r2[ac] <- 1
-#'
-#' # PLOT
-#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+#' # 2)
+#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE,legend = FALSE, asp = NA)
 #' plot(pol, add = TRUE, lwd = 2.5, border = "red")
-#'
-#' # REFERENCE PLOT
 #' text(r_cn)
-#' title(adj = 0.0, line = 1,
-#'       sub = paste0("only_NAs = TRUE; fill_NAs = FALSE\nac=",
-#'       paste0(sort(ac), collapse = ",")))
+#' title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = FALSE\nac=",
+#'       paste0(sort(ac2), collapse = ",")))
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
-#' ################################################################################
 #'
-#' # PLOT 3, only_NAs = FALSE; fill_NAs = TRUE
-#' ################################################################################
-#' # ANCHOR.SVO
-#' ac     <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
-#'
-#' # ADD ANCHOR CELL TO RASTER FOR PLOTTING
-#' r2[]   <- NA
-#' r2[ac] <- 1
-#'
-#' # PLOT
-#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+#' # 3)
+#' plot(r3, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
 #' plot(pol, add = TRUE, lwd = 2.5, border = "red")
-#'
-#' # REFERENCE PLOT
 #' text(r_cn)
-#' title(adj = 0.0, line = 1,
-#'       sub = paste0("only_NAs = FALSE; fill_NAs = TRUE\nac=",
-#'       paste0(sort(ac), collapse = ",")))
+#' title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = TRUE\nac=",
+#'       paste0(sort(ac3), collapse = ",")))
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
-#' ################################################################################
 #'
-#' # PLOT 4, only_NAs = TRUE; fill_NAs = TRUE
-#' ################################################################################
-#' # ANCHOR.SVO
-#' ac     <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
-#'
-#' # ADD ANCHOR CELL TO RASTER FOR PLOTTING
-#' r2[]   <- NA
-#' r2[ac] <- 1
-#'
-#' # PLOT
-#' plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+#' # 4)
+#' plot(r4, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
 #' plot(pol, add = TRUE, lwd = 2.5, border = "red")
-#'
-#' # REFERENCE PLOT
 #' text(r_cn)
-#' title(adj = 0.0, line = 1,
-#'       sub = paste0("only_NAs = TRUE; fill_NAs = TRUE\nac=",
-#'       paste0(sort(ac), collapse = ",")))
+#' title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = TRUE\nac=",
+#'       paste0(sort(ac4), collapse = ",")))
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
 

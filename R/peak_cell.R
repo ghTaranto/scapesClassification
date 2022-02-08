@@ -24,13 +24,15 @@
 #'   A local minimum is defined as a cell on a raster surface where all
 #'   neighboring cells have larger or equal values.
 #'
-#' @return A \code{classVector} where peak cells are identified by the numeric
-#'   class \code{1}. See \code{\link{conditions}}) for more details about class
+#' @return A \code{classVector} with peak cells identified by the numeric class
+#'   \code{1}. See \code{\link{conditions}} for more details about class
 #'   vectors.
 #'
 #' @export
 #'
 #' @examples
+#' # DUMMY DATA
+#' ################################################################################
 #' # LOAD LIBRARIES
 #' library(raster)
 #' library(scapesClassification)
@@ -45,18 +47,17 @@
 #'
 #' # COMPUTE THE LIST OF NEIGBORHOODS
 #' nbs <- ngbList(r)
+#' ################################################################################
 #'
 #' # PEAK.CELL
 #' ################################################################################
 #' # p_edge = FALSE
-#'
 #' pc_a <- peak.cell(attTbl = at, ngbList = nbs, rNumb = FALSE,
 #'                   p_col = "dummy_var", p_fun = "max", p_edge = FALSE)
 #'
 #' # p_edge = TRUE
-#'
 #' pc_b <- peak.cell(attTbl = at, ngbList = nbs, rNumb = FALSE,
-#'                   p_col = "dummy_var", p_fun = "max", p_edge = FALSE)
+#'                   p_col = "dummy_var", p_fun = "max", p_edge = TRUE)
 #'
 #' # CONVERT THE CLASS VECTORS INTO RASTERS
 #' r_pca <- cv.2.rast(r, at$Cell, classVector = pc_a, plot = FALSE)
@@ -68,27 +69,23 @@
 #' par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
 #'
 #' # PLOT 1 - p_edge = FALSE
-#' ################################################################################
 #' plot(r_pca, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
-#' title("PEAK.CELL", adj = 0.0, line = 1,
-#'       sub = "argument: p_edge = FALSE")
+#' title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = FALSE")
 #' legend("bottomright", bg = "white",
 #'        legend = c("Peak cell", "Unclassified cells"),
 #'        fill = c("#cfad89", "#818792"))
-#' ################################################################################
 #'
 #' # PLOT 2 - p_edge = TRUE
-#' ################################################################################
 #' plot(r_pcb, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
 #'     colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
-#' title("PEAK.CELL", adj = 0.0, line = 1,
-#'       sub = "argument: p_edge = TRUE")
+#' title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = TRUE")
 #' legend("bottomright", bg = "white",
 #'        legend = c("Peak cell", "Unclassified cells"),
 #'        fill = c("#cfad89", "#818792"))
+#' ###############################################################################
 
 peak.cell <- function(attTbl,
                       ngbList,
