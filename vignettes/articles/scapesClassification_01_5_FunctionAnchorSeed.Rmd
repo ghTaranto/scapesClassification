@@ -26,7 +26,7 @@ library(raster)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"), 
-                 pattern = "dummy_raster\\.tif", full.names = T)
+                 pattern = "dummy_raster\\.tif", full.names = TRUE)
 r <- raster(r)
 ```
 
@@ -34,7 +34,7 @@ r <- raster(r)
 # COMPUTE THE ATTRIBUTE TABLE
 at <- attTbl(r, "dummy_var")
 
-head(at, 3)
+head(at, 8)
 
 # COMPUTE THE LIST OF NEIGBORHOODS
 nbs <- ngbList(r)
@@ -47,7 +47,7 @@ head(nbs, 3)
 ```{r dummy_rast_plot, message=FALSE, warning=FALSE, echo=TRUE}
 # PLOT RASTER
 par(mar = c(0.1, 5, 0.5, 0.1))
-plot(r, axes=FALSE, box=FALSE, legend = FALSE)
+plot(r, axes=FALSE, box=FALSE, legend = FALSE, col = "grey90")
 text(r)
 ```
 
@@ -68,14 +68,15 @@ The function `anchor.seed()` take as inputs four sets of conditions:
 
 ## Condition evaluation
 
-The first set of condition to be evaluated is the `cond.filter`. The evaluation of the remaining sets of conditions is iterative. At each iteration the following process is repeated: 
+The first set of condition to be evaluated is the `cond.filter`. The evaluation of the remaining sets of conditions is iterative and take into account [class continuity](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation). At each iteration the following process is repeated ([Figure 2](#figure2)): 
 
 * A _seed cell_ is identified and receives a classification number (as specified by the argument `class`)
 
-* Cells [contiguous and continuous](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) with the seed cell meeting the conditions specified by `cond.growth` are assigned to the same class of the seed cell. 
+* Cells continuous to the seed cell meeting the conditions specified by `cond.growth` are assigned to the same class of the seed cell. We can call these cells `growth cells`. 
 
-* Cells [contiguous and continuous](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation) with cells belonging to the seed class meeting the conditions specified by `cond.isol` are assigned to an _isolation buffer_ (class = -1). Cells included in the isolation buffer are ignored in all following iterations. 
+* Cells continuous to the `growth cells` meeting the conditions specified by `cond.isol` are assigned to an _isolation buffer_ (class = -1). 
 
+* Once seed, growth and isolation cells are identified, they are ignored in all following iterations.
 
 ## Relative conditions - Lag
 
@@ -191,6 +192,8 @@ gif_seed <- function(){
 gifski::save_gif(gif_seed(), "gif_seed.gif", delay = 3, width = 800, 
                  height = 800, progress = FALSE, loop = TRUE)
 ```
+
+<a id="figure2"></a>
 
 ```{r add_gif, message=FALSE, warning=FALSE, echo=FALSE}
 knitr::include_graphics("gif_seed.gif")

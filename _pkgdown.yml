@@ -34,6 +34,7 @@ reference:
       - "`anchor.svo`"
       - "`anchor.cell`"
       - "`cond.4.all`"
+      - "`peak.cell`"
   - subtitle: Seed cell function
     contents:
       - "`anchor.seed`"

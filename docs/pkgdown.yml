@@ -1,5 +1,5 @@
 pandoc: 2.7.3
-pkgdown: 2.0.1
+pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   scapesClassification_01_0_classifications: scapesClassification_01_0_classifications.html
@@ -14,7 +14,7 @@ articles:
   scapesClassification_02_3_PKS: scapesClassification_02_3_PKS.html
   scapesClassification_02_4_OBJ: scapesClassification_02_4_OBJ.html
   scapesClassification_02_5_OBJ2: scapesClassification_02_5_OBJ2.html
-last_built: 2022-01-27T19:24Z
+last_built: 2022-02-08T18:33Z
 urls:
   reference: https://ghtaranto.github.io/scapesClassification/reference
   article: https://ghtaranto.github.io/scapesClassification/articles
