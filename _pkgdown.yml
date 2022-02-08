@@ -9,6 +9,10 @@ template:
     navbar-light-color: "#1088a0"
     navbar-dark-color: "#1088a0"
     dropdown-link-hover-bg: "#78b2c4"
+  params:
+    docsearch:
+      api_key: 5cc755c9236170520ae6400a64cf71d5
+      index_name: scapesclassification
 
 reference:
   - title: Format input functions
