@@ -16,7 +16,8 @@ cond.4.nofn(
   overwrite_class = FALSE,
   max.iter = +Inf,
   fn_perc = 1,
-  directional = FALSE
+  directional = FALSE,
+  hgrowth = FALSE
 )
 }
 \arguments{
@@ -66,10 +67,14 @@ by the argument \code{fn_perc} (see \code{\link{conditions}}).}
 
 \item{directional}{logic, absolute or relative neighborhood conditions are
 tested using the \emph{directional neighborhood} (see \code{\link{conditions}}).}
+
+\item{hgrowth}{logic, if true the classes in \code{nbs_of} are treated as
+representing raster objects and the argument \code{class} is ignored.}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
-the function.
+the function. See \code{\link{conditions}} for more details about class
+vectors.
 }
 \description{
 Evaluate conditions for cells neighboring specific classes and classify them
@@ -90,10 +95,29 @@ assigned with the argument \code{class} is also included in the argument
 
 \item All types of conditions can be used. The condition string can only
 include one neighborhood condition (\code{'{}'}) (see
-\code{\link{conditions}}).}
+\code{\link{conditions}}).}\cr
+
+\strong{Homogeneous growth (\code{hgrowth})}
+
+If the argument \code{hgrowth} is true the classes in \code{nbs_of} are
+treated as representing raster objects and the argument \code{class} is
+ignored. Iterations proceed as follow:
+\itemize{
+\item cells contiguous to the first element of \code{nbs_of} are evaluated
+against the \code{conditions} argument and, when evaluations are true, cell
+are assigned to that element;
+\item the same process is repeated for cells contiguous to the second element
+of \code{nbs_of}, then for cells contiguous to the third element and so on
+until the last element of \code{nbs_of};
+\item once cells contiguous to the last element of \code{nbs_of} are evaluated
+the iteration is complete;
+\item a new iteration starts as long as new cells were classified in the
+previuos iteration and if the iteration number < \code{max.iter}.
+}
 }
 \examples{
-
+# DUMMY DATA
+############################################################################
 # LOAD LIBRARIES
 library(raster)
 library(scapesClassification)
@@ -111,11 +135,13 @@ nbs <- ngbList(r)
 
 # SET A DUMMY FOCAL CELL (CELL #25)
 at$cv[at$Cell == 25] <- 0
+############################################################################
 
+############################################################################
 # ABSOLUTE TEST CELL CONDITION - NO CLASS CONTINUITY
-################################################################################
-# conditions: "dummy_var >= 3"
+############################################################################
 
+# conditions: "dummy_var >= 3"
 cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
 
                    # CLASS VECTOR - INPUT
@@ -134,20 +160,20 @@ cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
 r_cv1 <- cv.2.rast(r, at$Cell,classVector = cv1, plot = FALSE)
 
 # PLOT
-plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv1, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: NO")
-legend("bottomleft", bg = "white",
-       legend = c("Focal cell", "Classified cells", "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"))
-################################################################################
+legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
+############################################################################
+
+############################################################################
 # ABSOLUTE TEST CELL CONDITION - WITH CLASS CONTINUITY
-################################################################################
-# conditions: "dummy_var >= 3"
+############################################################################
 
+# conditions: "dummy_var >= 3"
 cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 
                    nbs_of = c(0,  # FOCAL CELL CLASS
@@ -163,23 +189,21 @@ cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 r_cv2 <- cv.2.rast(r, at$Cell,classVector = cv2, plot = FALSE)
 
 # PLOT
-plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv2, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: YES")
+legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
-legend("bottomleft", bg = "white",
-       legend = c("Focal cell", "Classified cells", "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"))
-################################################################################
+############################################################################
 
+############################################################################
 # ABSOLUTE NEIGHBORHOOD CONDITION
-################################################################################
-# conditions: "dummy_var{} >= 3"
+############################################################################
 
-cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
-                   nbs_of = c(0,1), class = 1,
+# conditions: "dummy_var{} >= 3"
+cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # ABSOLUTE NEIGHBORHOOD CONDITION
                    conditions = "dummy_var{} >= 3",
@@ -191,22 +215,21 @@ cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 r_cv3 <- cv.2.rast(r, at$Cell,classVector = cv3, plot = FALSE)
 
 #PLOT
-plot(r_cv3, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv3, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
-      sub = "rule: 'dummy_var{ } >= 3' ('{ }' = cell neighborhood)\nfn_perc = 1")
-legend("bottomleft", bg = "white",
-       legend = c("Focal cell", "Classified cells", "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"))
-################################################################################
+      sub = "rule: 'dummy_var{ } >= 3' ('{ }' = cell neighborhood)\nfn_perc = 1; c.contiguity:YES")
+legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 
+############################################################################
+
+############################################################################
 # RELATIVE NEIGHBORHOOD CONDITION
-################################################################################
-# conditions: "dummy_var > dummy_var{}"
+############################################################################
 
-cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
-                   nbs_of = c(0,1), class = 1,
+# conditions: "dummy_var > dummy_var{}"
+cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # RELATIVE NEIGHBORHOOD CONDITION
                    conditions = "dummy_var > dummy_var{}",
@@ -219,22 +242,21 @@ cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 r_cv4 <- cv.2.rast(r, at$Cell, classVector = cv4, plot = FALSE)
 
 #PLOT
-plot(r_cv4, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv4, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
-      sub = "rule: 'dummy_var > dummy_var{ }' ('{ }' = cell neighborhood)\nfn_perc = 0.6")
-legend("bottomleft", bg = "white",
-       legend = c("Focal cell", "Classified cells", "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"))
-################################################################################
+      sub = "rule: 'dummy_var > dummy_var{ }' ('{ }' = cell neighborhood)
+      fn_perc = 0.6; c.contiguity: YES")
+legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Focal cell", "Classified cells", "Unclassified cells"))
+############################################################################
 
+############################################################################
 # RELATIVE FOCAL CELL CONDITION
-################################################################################
-# conditions: "dummy_var > dummy_var[]"
+############################################################################
 
-cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
-                   nbs_of = c(0,1), class = 1,
+# conditions: "dummy_var > dummy_var[]"
+cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # RELATIVE FOCAL CELL CONDITION
                    conditions = "dummy_var > dummy_var[]")
@@ -244,14 +266,12 @@ cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 r_cv5 <- cv.2.rast(r, at$Cell,classVector = cv5, plot = FALSE)
 
 #PLOT
-plot(r_cv5, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv5, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
-      sub = "rule: 'dummy_var > dummy_var[ ]' ('[ ]' = focal cell)")
-legend("bottomleft", bg = "white",
-       legend = c("Focal cell", "Classified cells", "Unclassified cells"),
-       fill = c("#78b2c4", "#cfad89", "#818792"))
+      sub = "rule: 'dummy_var > dummy_var[ ]' ('[ ]' = focal cell)\nc.contiguity: YES")
+legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("Focal cell", "Classified cells", "Unclassified cells"))
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}
