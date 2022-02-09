@@ -2,7 +2,7 @@
 % Please edit documentation in R/anchor_seed.R
 \name{anchor.seed}
 \alias{anchor.seed}
-\title{Set Anchor Cells from Local Minima or Local Maxima}
+\title{Identify seed cells}
 \usage{
 anchor.seed(
   attTbl,
@@ -17,10 +17,9 @@ anchor.seed(
   lag.growth = Inf,
   cond.isol = NULL,
   lag.isol = 1,
-  classVector = NULL,
   saveRDS = NULL,
   overWrite = FALSE,
-  isolationClass = FALSE,
+  isolationBuff = FALSE,
   silent = FALSE
 )
 }
@@ -28,51 +27,50 @@ anchor.seed(
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
-in \code{attTbl$Cell} (see \code{\link{ngbList}}).}
+\item{ngbList}{list, the list of neighborhoods returned by the function
+\code{\link{ngbList}}.}
 
-\item{rNumb}{logic, \code{ngbList} contain the neighbors index position
-in the attribute table (see \code{\link{ngbList}}).}
+\item{rNumb}{logic, the neighborhoods of the argument \code{ngbList} are
+identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
+(\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
+numbers for large rasters.}
 
-\item{class}{numeric, the numeric class to attribute to local minima or
-maxima. If \code{NULL} then each local minima or maxima is classified with
-a different number starting from one. Buffers have the same classification
-number as the local minima or maxima to which they refer.}
+\item{class}{numeric, the classification number to assign to all cells that
+meet the function conditions. If \code{NULL}, a new class numbers is
+assigned every time a new seed cell is identified. Growth buffers have the
+same classification number as the seed cell to which they refer.}
 
 \item{cond.filter}{character string, the conditions to define for what cells
 the arguments \code{cond.seed}, \code{cond.growth} and \code{cond.isol}
-have to be evaluated. It can be \code{NULL}. Absolute conditions can be
+have to evaluated. It can be \code{NULL}. Absolute conditions can be
 used (see \code{\link{conditions}}).}
 
-\item{cond.seed}{character string, the conditions to identify local maxima or
-minima. The condition should be similar to \code{"variable_x ==
-  max(variable_x)"} or \code{"variable_x == min(variable_x)"}. It cannot be
-\code{NULL}.}
+\item{cond.seed}{character string, the conditions to identify seed cells.
+Absolute conditions can be used (see \code{\link{conditions}}), including
+\code{"variable_x == max(variable_x)"} or \code{"variable_x ==
+  min(variable_x)"} if seed cell correspond to local maxima or minima. It
+cannot be \code{NULL}.}
 
 \item{sort.seed}{character, sort seeds based on column values. If
-\code{"max"} seeds are evaluated from the maximum to the minimum. If
-\code{"min"} seeds are evaluated from the minimum to the maximum.}
+\code{"max"}, seeds are evaluated from the maximum to the minimum. If
+\code{"min"}, seeds are evaluated from the minimum to the maximum.}
 
 \item{sort.col}{character, the column name in the \code{attTbl} on which the
-sorting in based on.}
+\code{sort.seed} is based on.}
 
-\item{cond.growth}{character string, the conditions to define a buffer around
-local maxima or minima. It can be \code{NULL}. Absolute and focal cell
+\item{cond.growth}{character string, the conditions to define a growth buffer
+around seed cells. It can be \code{NULL}. Absolute and focal cell
 conditions can be used (see \code{\link{conditions}}).}
 
 \item{lag.growth}{numeric, it defines the lag on which focal cell conditions
-in \code{cond.growth} are evaluated (see \code{\link{conditions}}).}
+in \code{cond.growth} are evaluated.}
 
-\item{cond.isol}{character string, the conditions to define how one local
-maxima or minima is isolated from another. It can be \code{NULL}. Absolute
-and focal cell conditions can be used (see \code{\link{conditions}}).}
+\item{cond.isol}{character string, the conditions to define an isolation
+buffer around seed cells. It can be \code{NULL}. Absolute and focal cell
+conditions can be used (see \code{\link{conditions}}).}
 
 \item{lag.isol}{numeric, it defines the lag on which focal cell conditions in
-\code{cond.isol} are evaluated (see \code{\link{conditions}}).}
-
-\item{classVector}{numeric vector, if any of the condition arguments refers
-to a previous classification, then this classification have to be referred
-as \code{"classVector"}.}
+\code{cond.isol} are evaluated.}
 
 \item{saveRDS}{filename, if a file name is provided save the anchor cell
 vector as an RDS file.}
@@ -80,8 +78,7 @@ vector as an RDS file.}
 \item{overWrite}{logic, if the RDS names already exist, existing files are
 overwritten.}
 
-\item{isolationClass}{logic, return cells meeting isolation conditions
-(\code{isolator cells}) classified as \code{'-1'}.}
+\item{isolationBuff}{logic, return the isolation buffer (class = -1)..}
 
 \item{silent}{logic, progress is not printed on the console.}
 }
@@ -89,9 +86,7 @@ overwritten.}
 Classification vector.
 }
 \description{
-Returns a vector of cell numbers at the locations of local minima or local
-maxima. These cells can be used as anchor cells in other
-\code{scapesClassification} functions.
+Returns a vector of cell numbers at the locations of seed cells.
 }
 \details{
 This function implements an algorithm to identify local maxima or

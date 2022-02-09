@@ -6,8 +6,8 @@
 \usage{
 cv.2.rast(
   r,
-  index = NULL,
   classVector,
+  index = NULL,
   plot = FALSE,
   writeRaster = NULL,
   overWrite = FALSE
@@ -16,13 +16,13 @@ cv.2.rast(
 \arguments{
 \item{r}{raster object.}
 
+\item{classVector}{numeric vector, the values to be assigned to the cell numbers
+indicated by \code{index}.}
+
 \item{index}{numeric vector, the cell numbers of the argument \code{r} to
 which assign the values of the argument \code{classVector}. If \code{NULL},
 the column \code{Cell} of the attribute table \code{attTbl(r)} is used (see
 \code{\link{attTbl}}).}
-
-\item{classVector}{numeric vector, the values to be assigned to the cell numbers
-indicated by \code{index}.}
 
 \item{plot}{logic, plot the raster.}
 

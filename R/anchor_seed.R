@@ -1,51 +1,48 @@
-#' Set Anchor Cells from Local Minima or Local Maxima
+#' Identify seed cells
 #'
-#' Returns a vector of cell numbers at the locations of local minima or local
-#' maxima. These cells can be used as anchor cells in other
-#' \code{scapesClassification} functions.
+#' Returns a vector of cell numbers at the locations of seed cells.
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
-#' @param ngbList list, it has to contain the list of 8-neighbors of each cell
-#'   in \code{attTbl$Cell} (see \code{\link{ngbList}}).
-#' @param rNumb logic, \code{ngbList} contain the neighbors index position
-#'   in the attribute table (see \code{\link{ngbList}}).
-#' @param class numeric, the numeric class to attribute to local minima or
-#'   maxima. If \code{NULL} then each local minima or maxima is classified with
-#'   a different number starting from one. Buffers have the same classification
-#'   number as the local minima or maxima to which they refer.
+#' @param ngbList list, the list of neighborhoods returned by the function
+#'   \code{\link{ngbList}}.
+#' @param rNumb logic, the neighborhoods of the argument \code{ngbList} are
+#'   identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
+#'   (\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
+#'   numbers for large rasters.
+#' @param class numeric, the classification number to assign to all cells that
+#'   meet the function conditions. If \code{NULL}, a new class numbers is
+#'   assigned every time a new seed cell is identified. Growth buffers have the
+#'   same classification number as the seed cell to which they refer.
 #' @param cond.filter character string, the conditions to define for what cells
 #'   the arguments \code{cond.seed}, \code{cond.growth} and \code{cond.isol}
-#'   have to be evaluated. It can be \code{NULL}. Absolute conditions can be
+#'   have to evaluated. It can be \code{NULL}. Absolute conditions can be
 #'   used (see \code{\link{conditions}}).
-#' @param cond.seed character string, the conditions to identify local maxima or
-#'   minima. The condition should be similar to \code{"variable_x ==
-#'   max(variable_x)"} or \code{"variable_x == min(variable_x)"}. It cannot be
-#'   \code{NULL}.
+#' @param cond.seed character string, the conditions to identify seed cells.
+#'   Absolute conditions can be used (see \code{\link{conditions}}), including
+#'   \code{"variable_x == max(variable_x)"} or \code{"variable_x ==
+#'   min(variable_x)"} if seed cell correspond to local maxima or minima. It
+#'   cannot be \code{NULL}.
 #' @param sort.seed character, sort seeds based on column values. If
-#'   \code{"max"} seeds are evaluated from the maximum to the minimum. If
-#'   \code{"min"} seeds are evaluated from the minimum to the maximum.
+#'   \code{"max"}, seeds are evaluated from the maximum to the minimum. If
+#'   \code{"min"}, seeds are evaluated from the minimum to the maximum.
 #' @param sort.col character, the column name in the \code{attTbl} on which the
-#'   sorting in based on.
-#' @param cond.growth character string, the conditions to define a buffer around
-#'   local maxima or minima. It can be \code{NULL}. Absolute and focal cell
+#'   \code{sort.seed} is based on.
+#' @param cond.growth character string, the conditions to define a growth buffer
+#'   around seed cells. It can be \code{NULL}. Absolute and focal cell
 #'   conditions can be used (see \code{\link{conditions}}).
 #' @param lag.growth numeric, it defines the lag on which focal cell conditions
-#'   in \code{cond.growth} are evaluated (see \code{\link{conditions}}).
-#' @param cond.isol character string, the conditions to define how one local
-#'   maxima or minima is isolated from another. It can be \code{NULL}. Absolute
-#'   and focal cell conditions can be used (see \code{\link{conditions}}).
+#'   in \code{cond.growth} are evaluated.
+#' @param cond.isol character string, the conditions to define an isolation
+#'   buffer around seed cells. It can be \code{NULL}. Absolute and focal cell
+#'   conditions can be used (see \code{\link{conditions}}).
 #' @param lag.isol numeric, it defines the lag on which focal cell conditions in
-#'   \code{cond.isol} are evaluated (see \code{\link{conditions}}).
-#' @param classVector numeric vector, if any of the condition arguments refers
-#'   to a previous classification, then this classification have to be referred
-#'   as \code{"classVector"}.
+#'   \code{cond.isol} are evaluated.
 #' @param saveRDS filename, if a file name is provided save the anchor cell
 #'   vector as an RDS file.
 #' @param overWrite logic, if the RDS names already exist, existing files are
 #'   overwritten.
-#' @param isolationClass logic, return cells meeting isolation conditions
-#'   (\code{isolator cells}) classified as \code{'-1'}.
+#' @param isolationBuff logic, return the isolation buffer (class = -1)..
 #' @param silent logic, progress is not printed on the console.
 #'
 #' @return Classification vector.
@@ -129,10 +126,9 @@ anchor.seed <- function(attTbl,
                         lag.growth = Inf,
                         cond.isol = NULL,
                         lag.isol = 1,
-                        classVector = NULL,
                         saveRDS = NULL,
                         overWrite = FALSE,
-                        isolationClass = FALSE,
+                        isolationBuff = FALSE,
                         silent = FALSE)
 {
 
@@ -190,9 +186,6 @@ anchor.seed <- function(attTbl,
     cond.filter <- "is.na(seedVector)"
 
   }
-
-  # Add classVector column if not null
-  if(!is.null(classVector)){attTbl$classVector <- classVector}
 
   c_all <- c(cond.seed, cond.growth, cond.isol)
 
@@ -608,7 +601,7 @@ anchor.seed <- function(attTbl,
   ### FINALIZE FUNCTION #####################################################################################
   if(!is.null(class))seedVector[which( seedVector > 0 )] <- class
 
-  if(!isolationClass) seedVector[seedVector == -1] <- NA
+  if(!isolationBuff) seedVector[seedVector == -1] <- NA
 
   if(!is.null(saveRDS)) saveRDS(seedVector, saveRDS)
 

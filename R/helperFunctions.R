@@ -391,12 +391,12 @@ conditions <- function(names_attTbl,
 #' Transform a class vector or a generic vector into a raster.
 #'
 #' @param r raster object.
+#' @param classVector numeric vector, the values to be assigned to the cell numbers
+#'   indicated by \code{index}.
 #' @param index numeric vector, the cell numbers of the argument \code{r} to
 #'   which assign the values of the argument \code{classVector}. If \code{NULL},
 #'   the column \code{Cell} of the attribute table \code{attTbl(r)} is used (see
 #'   \code{\link{attTbl}}).
-#' @param classVector numeric vector, the values to be assigned to the cell numbers
-#'   indicated by \code{index}.
 #' @param plot logic, plot the raster.
 #' @param writeRaster filename, if a raster name is provided save the raster to
 #'   a file.
@@ -411,7 +411,7 @@ conditions <- function(names_attTbl,
 #' @return A class vector or a generic vector transformed into a raster.
 #'
 #' @export
-cv.2.rast <- function(r, index = NULL, classVector, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
+cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
 
   if(is.null(index)){
     index <- attTbl(r)
