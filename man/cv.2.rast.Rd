@@ -14,8 +14,7 @@ cv.2.rast(
 )
 }
 \arguments{
-\item{r}{The \code{Raster*} object used to compute the attribute table (see
-\code{\link{attTbl}}) or a generic \code{Raster*} object.}
+\item{r}{raster object.}
 
 \item{index}{numeric vector, the cell numbers of the argument \code{r} to
 which assign the values of the argument \code{classVector}. If \code{NULL},

@@ -199,12 +199,13 @@ and relative conditions. \cr \emph{Functions:} \code{\link{cond.4.nofn}} and
 }
 }
 \examples{
-
 # LOAD LIBRARIES
 library(scapesClassification)
-library(raster)
+library(terra)
 
+################################################################################
 # TYPES OF CONDITIONS
+################################################################################
 
 # As an example consider an attribute with the following columns
 names_attTbl <- c("bathymetry", "slope")
@@ -232,63 +233,42 @@ cond <- "baxxxthymetryxxx[]>10 &  abs(slope{}) < 5"
 conditions(names_attTbl, cond)
 }
 
-# PREPARE PLOT
-library(scapesClassification)
-library(raster)
-library(ggplot2)
-library(reshape2)
-library(ggpubr)
+################################################################################
+# FOCAL EVALUATION DEFINITIONS
+################################################################################
 
-m     <- matrix(1:49, nrow = 7, ncol = 7, byrow = TRUE)
-
-r   <- raster(m)
+# CELL NUMBERS OF A DUMMY RASTER (7X7)
+r   <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
 nbs <- ngbList(r)
 
-m <- t(m)[,nrow(m):1]
-m_long <- melt(m)
+# CLASS VECTOR WITH ONE TEST AND ONE FOCAL CELL
+cv <- as.numeric(rep(NA, 49))
+cv[c(32, 25)] <- c(1, 2) # tc (class 1), fc (class 2)
+r_cv <- cv.2.rast(r, classVector = cv)
 
-m_long$tags[m_long$value == 32] <- "FC"
-m_long$tags[m_long$value == 25] <- "TC"
+# POLYGONS REPRESENTING NEIGHBORHOODS
+tcn <- rbind(c(1/7*2, 1/7*5), c(1/7*5, 1/7*5), c(1/7*5, 1/7*2), c(1/7*2, 1/7*2), c(1/7*2, 1/7*5))
+tcn <- terra::vect(tcn, type="polygons")
 
-npool <- unique(unlist(nbs[c("32", "25")]))
-m_long$whites[m_long$value \%in\% npool] <- m_long$value[m_long$value \%in\% npool]
+fcn <- rbind(c(1/7*2, 1/7*4), c(1/7*5, 1/7*4), c(1/7*5, 1/7*1), c(1/7*2, 1/7*1), c(1/7*2, 1/7*4))
+fcn <- terra::vect(fcn, type="polygons")
 
-m_long$tags <- as.factor(m_long$tags)
+# PLOT - FOCAL EVALUATION DEFINITIONS
+l <- paste0("Focal cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40",
+            "\n",
+            "Test cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33",
+           "\n",
+            "Directional neighborhood: 24, 25, 26, 31, 32, 33")
 
-p1 <- ggplot(m_long, aes(x=Var1, y=Var2)) +
- geom_tile(aes(fill=tags), colour="gray90", lwd=1.5, show.legend = FALSE) +
- coord_fixed(ratio=1) +
- geom_text(aes(label=value), color = "grey50", family=c("serif"), size=8, na.rm=TRUE) +
- geom_text(aes(label=whites), color = "white", family=c("serif"), size=8, na.rm=TRUE) +
- scale_fill_manual(values = c("#1088a0", "goldenrod3"), na.value = "black") +
- geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 1.5, ymax = 4.5),
- fill = "transparent", color="#1088a0", lwd = 1.5) +
- geom_rect(aes(xmin = 2.5, xmax = 5.5, ymin = 2.5, ymax = 5.5),
- fill = "transparent", color="goldenrod3", lwd = 1.5) +
- geom_rect(aes(xmin = 2.6, xmax = 5.4, ymin = 2.6, ymax = 4.4),
- fill = "transparent", color="red", lwd = 1.2) +
- theme_void()  +
- scale_x_discrete(expand=c(0,0)) + scale_y_discrete(expand=c(0,0)) +
- labs(title = "Cell numbers") +
- theme(plot.title=element_text(size = 16, face = "bold", color = "black", family = "serif"))
-
-# FOCAL EVALUATION DEFINITIONS
-
-p1
-# FOCAL CELL
-# Cell 32
-
-# TEST CELL
-# Cell 25
-
-# FOCAL CELL NEIGHBORHOOD
-# Cells 24, 25, 26, 31, 33, 38, 39, 40
-
-# TEST CELL NEIGHBORHOOD
-# Cells 17, 18, 19, 24, 26, 31, 32, 33
-
-# DIRECTIONAL NEIGHBORHOOD
-# Cells 24, 25, 26, 31, 32, 33
+plot(r_cv, type = "class", asp = NA, legend = FALSE, axes = FALSE,
+     col = c("#1088a0", "goldenrod3"), colNA= "grey90")
+text(r)
+lines(tcn, col="goldenrod3", lwd=2)
+lines(fcn, col="#1088a0", lwd=2)
+title(adj = 0.0, line = 2, sub =l)
+legend("bottomleft", ncol = 1, bg = "white",
+       legend = c("Focal cell", "Test cell"),
+       fill = c("#1088a0", "goldenrod3"))
 }
 \seealso{
 \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.all]{cond.4.all()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}},

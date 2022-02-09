@@ -5,7 +5,7 @@
 \title{Anchor cells from spatial vector objects}
 \usage{
 anchor.svo(
-  rstack,
+  SpatRaster,
   dsn,
   only_NAs = FALSE,
   fill_NAs = FALSE,
@@ -16,18 +16,20 @@ anchor.svo(
 )
 }
 \arguments{
-\item{rstack}{\code{Raster*} object.}
+\item{SpatRaster}{raster, a \code{SpatRaster} object (see \code{help("rast",
+terra)}).}
 
-\item{dsn}{data source name (filename) or an \code{sf} or a \code{Spatial} object.}
+\item{dsn}{data source name (filename) or an \code{sf}, a \code{Spatial} or a
+\code{SpatVector} object.}
 
 \item{only_NAs}{logic, cell numbers extracted only for incomplete cases at
 the locations of a spatial object. Incomplete cases are cells having an
-NA-value in one or more layers of the \code{Raster*} object.}
+NA-value in one or more layers of the raster object.}
 
 \item{fill_NAs}{logic, cell numbers extracted at the locations of a spatial
 object \emph{and} at contiguous locations that are incomplete cases.}
 
-\item{plot}{logic, plot anchor points.}
+\item{plot}{logic, plot anchor cells.}
 
 \item{saveRDS}{filename, if a file name is provided save the anchor cell
 vector as an RDS file.}
@@ -48,24 +50,24 @@ spatial object.
 \details{
 When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
 numeric output is equivalent to the output of the function
-\code{raster::extract()} over a raster whose values are cell numbers.
+\code{terra::extract(SpatRaster, dsn, cells = TRUE)[["cell"]]}.
 }
 \examples{
 # DUMMY DATA
 ################################################################################
 # LOAD LIBRARIES AND DATA
-library(raster)
+library(terra)
 library(scapesClassification)
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
-r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
+r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
 
 # SET SOME NA-VALUE
 r_cn[c(9, 10, 11, 17, 18)] <- NA
 
 # BULD A DUMMY POLYGON
 pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
-pol <- spPolygons(pol)
+pol <- terra::vect(pol, type="polygons")
 ################################################################################
 
 ################################################################################
@@ -89,7 +91,7 @@ r4 <- r_cn; r4[] <- NA; r4[ac4] <- 1
 par(mfrow=c(2,2), mar=c(3, 2, 2, 2))
 
 # 1)
-plot(r1, col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
+plot(r1, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
 title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = FALSE\nac=",
@@ -98,7 +100,7 @@ legend("bottomleft", ncol = 1, bg = "white",
        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 2)
-plot(r2, col="#78b2c4", colNA= "grey", axes=FALSE,legend = FALSE, asp = NA)
+plot(r2, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE,legend = FALSE, asp = NA)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
 title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = FALSE\nac=",
@@ -107,7 +109,7 @@ legend("bottomleft", ncol = 1, bg = "white",
        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 3)
-plot(r3, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(r3, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
 title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = TRUE\nac=",
@@ -116,7 +118,7 @@ legend("bottomleft", ncol = 1, bg = "white",
        legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 4)
-plot(r4, col="#78b2c4", colNA= "grey", axes=FALSE, box=FALSE, legend = FALSE, asp = NA)
+plot(r4, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
 title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = TRUE\nac=",

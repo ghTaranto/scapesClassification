@@ -33,7 +33,8 @@ identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
 numbers for large rasters.}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table
-that have already been classified.}
+that have already been classified. See \code{\link{conditions}} for more
+information about class vectors.}
 
 \item{nbs_of}{numeric or numeric vector, indicates the class(es) of focal and
 anchor cells. Conditions are only evaluated at positions adjacent to anchor
@@ -43,14 +44,15 @@ takes into account \emph{class continuity} (see \code{\link{conditions}}).}
 
 \item{conditions}{character string, the conditions a cell have to meet to be
 classified as indicated by the argument \code{class}. The classification
-number is only assigned to \code{classVector} NA-cells unless the argument
-\code{overwrite_class = TRUE}.}
+number is only assigned to unclassified cells unless the argument
+\code{overwrite_class = TRUE}. See \code{\link{conditions}} for more
+details.}
 
 \item{class}{numeric, the classification number to assign to all cells that
 meet the function conditions.}
 
 \item{min.border}{numeric value between 0 and 1. A test cell is classified if
-conditions are true and if at least as many neighbors as the percentage
+conditions are true \strong{AND} if at least as many neighbors as the percentage
 specified by \code{min.border} belong to one of the classes of
 \code{nbs_of}. Percentages are computed counting only valid neighbors
 (i.e., neighbors with complete cases).}
@@ -69,7 +71,7 @@ by the argument \code{fn_perc} (see \code{\link{conditions}}).}
 tested using the \emph{directional neighborhood} (see \code{\link{conditions}}).}
 
 \item{hgrowth}{logic, if true the classes in \code{nbs_of} are treated as
-representing raster objects and the argument \code{class} is ignored.}
+discrete raster objects and the argument \code{class} is ignored.}
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
@@ -100,7 +102,7 @@ include one neighborhood condition (\code{'{}'}) (see
 \strong{Homogeneous growth (\code{hgrowth})}
 
 If the argument \code{hgrowth} is true the classes in \code{nbs_of} are
-treated as representing raster objects and the argument \code{class} is
+treated as discrete raster objects and the argument \code{class} is
 ignored. Iterations proceed as follow:
 \itemize{
 \item cells contiguous to the first element of \code{nbs_of} are evaluated
@@ -119,13 +121,13 @@ previuos iteration and if the iteration number < \code{max.iter}.
 # DUMMY DATA
 ############################################################################
 # LOAD LIBRARIES
-library(raster)
+library(terra)
 library(scapesClassification)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
                 pattern = "dummy_raster\\\\.tif", full.names = TRUE)
-r <- raster(r)
+r <- terra::rast(r)
 
 # COMPUTE THE ATTRIBUTE TABLE
 at <- attTbl(r, "dummy_var")
@@ -160,7 +162,8 @@ cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
 r_cv1 <- cv.2.rast(r, at$Cell,classVector = cv1, plot = FALSE)
 
 # PLOT
-plot(r_cv1, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv1, type="classes", axes=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: NO")
@@ -189,7 +192,8 @@ cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 r_cv2 <- cv.2.rast(r, at$Cell,classVector = cv2, plot = FALSE)
 
 # PLOT
-plot(r_cv2, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv2, type="classes", axes=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var >= 3'\nclass contiguity: YES")
@@ -215,7 +219,8 @@ cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0
 r_cv3 <- cv.2.rast(r, at$Cell,classVector = cv3, plot = FALSE)
 
 #PLOT
-plot(r_cv3, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv3, type="classes", axes=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var{ } >= 3' ('{ }' = cell neighborhood)\nfn_perc = 1; c.contiguity:YES")
@@ -242,7 +247,8 @@ cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0
 r_cv4 <- cv.2.rast(r, at$Cell, classVector = cv4, plot = FALSE)
 
 #PLOT
-plot(r_cv4, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv4, type="classes", axes=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var > dummy_var{ }' ('{ }' = cell neighborhood)
@@ -267,7 +273,8 @@ cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0
 r_cv5 <- cv.2.rast(r, at$Cell,classVector = cv5, plot = FALSE)
 
 #PLOT
-plot(r_cv5, axes=FALSE, legend = FALSE, asp = NA, colNA="#818792", col=c("#78b2c4", "#cfad89"))
+plot(r_cv5, type="classes", axes=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+     col=c("#78b2c4", "#cfad89"))
 text(r)
 title("COND.4.NOFN", adj = 0.0, line = 1,
       sub = "rule: 'dummy_var > dummy_var[ ]' ('[ ]' = focal cell)\nc.contiguity: YES")
@@ -315,14 +322,14 @@ r_hg[at$dummy_var == 10] <- 3
 r_hg[at$dummy_var == 8]  <- 4
 
 # 1)
-plot(r_ro, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+plot(r_ro, type="classes", axes=FALSE, legend=FALSE, asp=NA, colNA="#818792",
      col=c("#1088a0", "#cfad89"))
 text(r)
 title("RASTER OBJECTS", adj = 0.0, line = 0.5)
 legend("topleft", bg = "white", fill = c("#1088a0", "#cfad89", "#818792"),
        legend = c("Raster object 1", "Raster object 2", "Unclassified cells"))
 # 2)
-plot(r_nhg, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+plot(r_nhg, type="classes", axes=FALSE, legend=FALSE, asp=NA, colNA="#818792",
      col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
 text(r)
 title("NOT HOMOGENEOUS GROWTH", adj = 0.0, line = 0.5,
@@ -330,7 +337,7 @@ title("NOT HOMOGENEOUS GROWTH", adj = 0.0, line = 0.5,
 legend("topleft", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
        legend = c("RO1 - growth", "RO2 - growth", "Unclassified cells"))
 # 3)
-plot(r_hg, axes=FALSE, box=FALSE, legend = FALSE, asp = NA, colNA="#818792",
+plot(r_hg, type="classes", axes=FALSE, legend=FALSE, asp=NA, colNA="#818792",
      col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
 text(r)
 title("HOMOGENEOUS GROWTH", adj = 0.0, line = 0.5,

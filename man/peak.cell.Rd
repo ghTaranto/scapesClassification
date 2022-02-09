@@ -37,23 +37,23 @@ vectors.
 Identify local maxima or minima on a raster surface.
 }
 \details{
-A local maximum is defined as a cell on a raster surface where all
-neighboring cells have smaller values.
+\itemize{ \item A local maximum is defined as a cell on a raster
+surface where all neighboring cells have smaller values.
 
-A local minimum is defined as a cell on a raster surface where all
-neighboring cells have larger or equal values.
+\item A local minimum is defined as a cell on a raster surface where all
+neighboring cells have larger values.}
 }
 \examples{
 # DUMMY DATA
 ################################################################################
 # LOAD LIBRARIES
-library(raster)
+library(terra)
 library(scapesClassification)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
                 pattern = "dummy_raster\\\\.tif", full.names = TRUE)
-r <- raster(r)
+r <- terra::rast(r)
 
 # COMPUTE THE ATTRIBUTE TABLE
 at <- attTbl(r, "dummy_var")
@@ -82,7 +82,7 @@ r_pcb <- cv.2.rast(r, at$Cell, classVector = pc_b, plot = FALSE)
 par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
 
 # PLOT 1 - p_edge = FALSE
-plot(r_pca, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+plot(r_pca, axes=FALSE, legend=FALSE, asp=NA,
      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = FALSE")
@@ -91,12 +91,14 @@ legend("bottomright", bg = "white",
        fill = c("#cfad89", "#818792"))
 
 # PLOT 2 - p_edge = TRUE
-plot(r_pcb, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
+plot(r_pcb, axes=FALSE, legend=FALSE, asp=NA,
     colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
 title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = TRUE")
 legend("bottomright", bg = "white",
        legend = c("Peak cell", "Unclassified cells"),
        fill = c("#cfad89", "#818792"))
-###############################################################################
+}
+\seealso{
+\code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}
 }

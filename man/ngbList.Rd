@@ -5,10 +5,11 @@
 \alias{ngbList}
 \title{List of neighborhoods}
 \usage{
-ngbList(rstack, rNumb = FALSE, attTbl = NULL)
+ngbList(SpatRaster, rNumb = FALSE, attTbl = NULL)
 }
 \arguments{
-\item{rstack}{\code{Raster*} object.}
+\item{SpatRaster}{a \code{SpatRaster} object (see \code{help("rast",
+terra)}).}
 
 \item{rNumb}{logic, the neighbors of a raster cell are identified by \strong{cell
 numbers (\code{rNumb=FALSE})} or by \strong{row numbers (\code{rNumb=TRUE})}.
@@ -22,8 +23,8 @@ argument \code{rNumb=TRUE}.}
 Named list of integer vectors.
 }
 \description{
-Computes the neighborhoods of the cells of a \code{Raster*} object.
-Neighborhoods are not computed for cells with missing values.
+Computes the neighborhoods of the cells of a raster. Neighborhoods are not
+computed for cells with missing values.
 }
 \details{
 \strong{Definition of neighborhood}
@@ -43,8 +44,8 @@ of a raster have less than 8 neighbors.
 \itemize{
 \item Neighbors are identified by their positions in the attribute table (i.e.
 row numbers) if the argument \code{rNumb=TRUE};
-\item When the argument \code{rNumb = TRUE}, neighbors with one or more missing
-values are omitted;
+\item When the argument \code{rNumb = TRUE}, neighbors with missing values are
+omitted;
 \item \code{(scapes)Classifications} are faster when the list of neighborhoods
 uses row numbers.
 }
@@ -71,50 +72,38 @@ in the 1st row of the attribute table; the 2nd element corresponds to the
 2nd row; etc.
 \item There is a correspondence between the raster cell number and the indices
 of the list of neighborhoods only when no missing value is present in the
-Raster* object.
+raster.
 }
 }
 \examples{
-library(ggplot2)
-library(reshape2)
-library(raster)
+library(scapesClassification)
+library(terra)
 
-## CREATE A DUMMY RASTER AND COMPUTE ITS ATTRIBUTE TABLE##
-r <- raster(
-
-  matrix(c(NA,100,100,NA,100,100,0,0,0),
-         nrow = 3,
-         ncol = 3,
-         byrow = TRUE) )
+## CREATE A DUMMY RASTER AND COMPUTE ATTRIBUTE TABLE ##
+r <- terra::rast(matrix(c(NA,100,100,NA,100,100,0,0,0),
+                        nrow = 3,
+                        ncol = 3,
+                        byrow = TRUE))
 
 at <- attTbl(r, var_names = c("dummy_var"))
 
+## RASTER CELL NUMBERS ##
+rcn <- r; rcn[] <- 1:9
 
-## VISUALIZE RASTER CELL NUMBERS ##
-m <- matrix(1:9, nrow=3, ncol=3, byrow = TRUE)
-m <- t(m)[,nrow(m):1]
-m <- melt(m, value.name = "cell")
+## PLOT DATA AND CELL NUMBERS ##
+par(mar = c(2, 0.5, 2, 0.5), mfrow=c(1,2))
 
-ggplot(m, aes(x=Var1, y=Var2)) +
-  geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
-  coord_fixed(ratio=1) +
-  geom_text(aes(label=cell), color = "white", family=c("serif"), size=8) +
-  theme_void()
+plot(r, col="grey90", colNA="red3", asp = NA, axes=FALSE, legend=FALSE)
+text(r)
+lines(r)
+title("Dummy_var")
+legend("bottomright", ncol = 1, bg = "white", fill = c("red3"),
+       legend = c("NA cells (1 and 4)"))
 
-
-## VISUALIZE RASTER DUMMY LAYER ##
-r_plot <- as.matrix(r)
-r_plot <- t(r_plot)[,nrow(r_plot):1]
-r_plot <- melt(r_plot, value.name = "dummy")
-r_plot$nas <- NA
-r_plot$nas[which(is.na(r_plot$dummy))] <- 'NA'
-
-ggplot(r_plot, aes(x=Var1, y=Var2)) +
-  geom_tile(colour="gray90", lwd=1.5, show.legend = FALSE) +
-  coord_fixed(ratio=1) +
-  geom_text(aes(label=dummy), color = "white", family=c("serif"), size=8, na.rm=TRUE) +
-  geom_text(aes(label=nas), color = "red", family=c("serif"), size=8, fontface='bold', na.rm=TRUE) +
-  theme_void()
+plot(rcn, col="grey90", colNA="red3", asp = NA, axes=FALSE, legend=FALSE)
+text(rcn)
+lines(rcn)
+title("Cell numbers")
 
 
 ## NEIGHBORHOODS - CELL NUMBERS ##

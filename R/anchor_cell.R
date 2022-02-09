@@ -4,8 +4,8 @@
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
-#' @param rstack the \code{Raster*} object used to compute the
-#'   \code{\link{attTbl}}.
+#' @param SpatRaster raster, the \code{SpatRaster} object (see
+#'   \code{help("rast", terra)}) used to compute the \code{\link{attTbl}}.
 #' @param anchor integer vector of raster cell numbers.
 #' @param class numeric, the classification number to assign to all cells that
 #'   meet the function conditions.
@@ -31,7 +31,8 @@
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. If there is no \code{classVector} input, the function returns
-#'   a new class vector.
+#'   a new class vector. See \code{\link{conditions}} for more details about
+#'   class vectors.
 #'
 #' @details Converts a vector of cell numbers into a class vector. If there is a
 #'   \code{classVector} input, then the class vector is updated assigning a
@@ -41,109 +42,69 @@
 #'
 #' @export
 #' @examples
-#'
+#' # DUMMY DATA
+#' ################################################################################
 #' # LOAD LIBRARIES AND DATA
-#' library(raster)
+#' library(terra)
 #' library(scapesClassification)
 #'
 #' # CELL NUMBERS OF A DUMMY RASTER (7X7)
-#' r_cn <- raster(matrix(1:49, nrow = 7, byrow = TRUE))
+#' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
 #'
 #' # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
 #' at  <- attTbl(r_cn, "dummy_var")
 #' nbs <- ngbList(r_cn)
+#' ################################################################################
 #'
-#' # SET PLOT LAYOUT
+#' ################################################################################
+#' # ANCHOR.CELL
+#' ################################################################################
+#' cv1  <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#'                     class2cell = TRUE, class2nbs  = FALSE)
+#'
+#' cv2 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#'                    class2cell = FALSE, class2nbs  = TRUE)
+#'
+#' cv3 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#'                    class2cell = TRUE, class2nbs  = TRUE)
+#'
+#' # Convert class vectors to rasters
+#' r_cv1 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv1)
+#' r_cv2 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv2)
+#' r_cv3 <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv3)
+#' ################################################################################
+#'
+#' ################################################################################
+#' # PLOTS
+#' ################################################################################
 #' par(mfrow=c(2,2), mar=c(2, 2, 3, 2))
 #'
-#' # PLOT 1
-#' ################################################################################
-#' # class2cell   = TRUE & class2nbs = FALSE
-#' # anchor cells = 1:7
-#'
-#' # ANCHOR.CELL
-#' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r_cn,
-#'                   anchor = 1:7,
-#'                   class  = 10,
-#'                   class2cell = TRUE,
-#'                   class2nbs  = FALSE)
-#'
-#' # CONVERT CLASS VECTOR 2 RASTER
-#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-#'
-#' # PLOT
-#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-#'      colNA="#818792", col="#78b2c4")
-#'
-#' # REFERENCE PLOT
+#' # 1)
+#' plot(r_cv1,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
 #' text(r_cn)
 #' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
 #'       sub = "class2cell = TRUE; class2nbs = FALSE")
-#' legend("bottomleft", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+#' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
-#' ################################################################################
 #'
-#' # PLOT 2
-#' ################################################################################
-#' # class2cell   = FALSE & class2nbs = TRUE
-#' # anchor cells = 1:7
-#'
-#' # ANCHOR.CELL
-#' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r_cn,
-#'                   anchor = 1:7,
-#'                   class  = 10,
-#'                   class2cell = FALSE,
-#'                   class2nbs  = TRUE)
-#'
-#' # CONVERT CLASS VECTOR 2 RASTER
-#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-#'
-#' # PLOT
-#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-#'      colNA="#818792", col="#78b2c4")
-#'
-#' # REFERENCE PLOT
+#' # 2)
+#' plot(r_cv2,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
 #' text(r_cn)
 #' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
 #'       sub = "class2cell = FALSE; class2nbs = TRUE")
-#' legend("bottomleft", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+#' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
-#' ################################################################################
 #'
-#' # PLOT 3
-#' ################################################################################
-#' # class2cell   = TRUE & class2nbs = TRUE
-#' # anchor cells = 1:7
-#'
-#' # ANCHOR.CELL
-#' cv <- anchor.cell(attTbl = at,
-#'                   rstack = r_cn,
-#'                   anchor = 1:7,
-#'                   class  = 10,
-#'                   class2cell = TRUE,
-#'                   class2nbs  = TRUE)
-#'
-#' # CONVERT CLASS VECTOR 2 RASTER
-#' r_cv <- cv.2.rast(r = r_cn, index = at$Cell, classVector = cv)
-#'
-#' # PLOT
-#' plot(r_cv, axes=FALSE, box=FALSE, legend = FALSE, asp = NA,
-#'      colNA="#818792", col="#78b2c4")
-#'
-#' # REFERENCE PLOT
+#' # 3)
+#' plot(r_cv3,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
 #' text(r_cn)
 #' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
 #'       sub = "class2cell = TRUE; class2nbs = TRUE")
-#' legend("bottomleft", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
+#' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
 
 anchor.cell <-
-  function(attTbl,
-           rstack,
-           anchor,
-           class,
+  function(attTbl, SpatRaster, anchor, class,
            classVector = NULL,
            class2cell = TRUE,
            class2nbs = TRUE,
@@ -181,14 +142,13 @@ anchor.cell <-
 
       } else {
         classVector[which(attTbl$Cell %in% anchor)] <- class
-
       }
-
     }
 
+    ###
     if (class2nbs) {
       nbs_anchor <-
-        nbg8(n_row = raster::nrow(rstack), raster::ncol(rstack))
+        nbg8(n_row = terra::nrow(SpatRaster), terra::ncol(SpatRaster))
       nbs_anchor <- unlist(nbs_anchor[anchor])
 
       if (!overwrite_class) {
@@ -197,25 +157,23 @@ anchor.cell <-
 
       } else {
         classVector[which(attTbl$Cell %in% nbs_anchor)] <- class
-
       }
 
       if(!class2cell){
         classVector[which(attTbl$Cell %in% anchor)] <- NA
       }
-
     }
 
-    r2   <- rstack[[1]]
+    r2   <- SpatRaster[[1]]
     r2[] <- NA
     r2[attTbl$Cell[!is.na(classVector)]] <-
       classVector[!is.na(classVector)]
 
     if (plot)
-      raster::plot(r2)
+      terra::plot(r2, type="classes")
     if (!is.null(writeRaster))
-      raster::writeRaster(r2, writeRaster, overwrite = overWrite)
+      terra::writeRaster(r2, writeRaster, overwrite = overWrite)
 
     return(classVector)
 
-  }
+}

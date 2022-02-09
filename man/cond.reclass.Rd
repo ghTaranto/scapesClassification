@@ -29,10 +29,12 @@ identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
 numbers for large rasters.}
 
 \item{classVector}{numeric vector, defines the cells in the attribute table
-that have already been classified.}
+that have already been classified. See \code{\link{conditions}} for more
+information about class vectors.}
 
 \item{conditions}{character string, the conditions a cell have to meet to be
-classified as indicated by the argument \code{reclass}.}
+classified as indicated by the argument \code{reclass}. See
+\code{\link{conditions}} for more details.}
 
 \item{class}{numeric or numeric vector, indicates the class(es) for which
 conditions have to be evaluated.}
@@ -47,7 +49,8 @@ least as many evaluations as the ones specified by the argument
 }
 \value{
 Update \code{classVector} with the new cells that were classified by
-the function.
+the function. See \code{\link{conditions}} for more information about class
+vectors.
 }
 \description{
 Evaluate conditions for cells of a class and reclassify them if conditions
@@ -66,14 +69,13 @@ condition string can only include one neighborhood condition (\code{'{}'})
 (see \code{\link{conditions}}).}
 }
 \examples{
-
-library(raster)
+library(terra)
 library(scapesClassification)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
                 pattern = "dummy_raster\\\\.tif", full.names = TRUE)
-r <- raster(r)
+r <- terra::rast(r)
 
 # COMPUTE THE ATTRIBUTE TABLE
 at <- attTbl(r, "dummy_var")
@@ -81,23 +83,19 @@ at <- attTbl(r, "dummy_var")
 # COMPUTE THE LIST OF NEIGBORHOODS
 nbs <- ngbList(r)
 
-# COMPUTE A CLASS VECTOR
+
 ################################################################################
-# conditions: "dummy_var > 1"
-# class: 1
-
-cv1 <- cond.4.all(attTbl = at, conditions = "dummy_var > 1", class = 1)
-
-
-# RECLASSIFY CELLS
+# RECLASS.NBS
 ################################################################################
-# conditions: "dummy_var > 5"
-# class: 1
-# new class: 2
+
+# Compute an example class vector
+cv <- cond.4.all(attTbl = at, conditions = "dummy_var > 1", class = 1)
+
+# Reclassify cells
 cr <- cond.reclass(attTbl = at, ngbList = nbs,
 
                    # CLASS VECTOR COMPUTED WITH THE RULE "dummy_var > 1"
-                   classVector = cv1,
+                   classVector = cv,
 
                    # CELLS TO RECLASSIFY HAVE THIS CLASS
                    class = 1,
@@ -108,22 +106,20 @@ cr <- cond.reclass(attTbl = at, ngbList = nbs,
                    # NEW CLASSIFICATION NUMBER
                    reclass = 2)
 
-# CONVERT THE CLASS VECTOR INTO A RASTER
+# Convert class vectors to rasters
 r_cr <- cv.2.rast(r, at$Cell,classVector = cr, plot = FALSE)
 
-# PLOT
-#par(mar=c(1, 1, 1, 1))
-plot(r_cr, axes=FALSE, box=FALSE, legend = FALSE, asp=NA,
+
+################################################################################
+# PLOTS
+################################################################################
+plot(r_cr, type="classes", axes=FALSE, legend = FALSE, asp=NA,
      colNA="#818792", col=c("#78b2c4", "#cfad89"))
-
-# REFERENCE FIGURE
 text(r)
-
 title("COND.RECLASS", adj = 0.0, line = 1,
  sub =
  "Rule: 'dummy_var > 1'; Function: cond.4.all; Class: 1
 Rule: 'dummy_var > 5'; Function: cond.reclass; Class: 2")
-
 legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Class 1","Class 2 (reclass)","Unclassified cells"))
 }

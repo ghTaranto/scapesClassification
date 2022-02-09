@@ -8,11 +8,11 @@
 #' @param conditions character string, the conditions a cell have to meet to be
 #'   classified as indicated by the argument \code{class}. If there is a
 #'   \code{classVector} input, the classification number is only assigned to
-#'   \code{classVector} NA-cells.
+#'   \code{classVector} NA-cells unless the argument \code{overwrite_class =
+#'   TRUE}. See \code{\link{conditions}} for more details.
 #' @param classVector numeric vector, if provided, it defines the cells in the
-#'   attribute table that have already been classified and that have to be
-#'   ignored by the function (unless the argument \code{overwrite_class =
-#'   TRUE}).
+#'   attribute table that have already been classified. See
+#'   \code{\link{conditions}} for more information about class vectors.
 #' @param class numeric, the classification number to assign to all cells that
 #'   meet the function conditions.
 #' @param overwrite_class logic, if there is a \code{classVector} input,
@@ -21,7 +21,8 @@
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. If there is no \code{classVector} input, the function returns
-#'   a new class vector.
+#'   a new class vector. See \code{\link{conditions}} for more details about
+#'   class vectors.
 #'
 #' @details \itemize{ \item The function evaluates the conditions of the
 #'   argument \code{conditions} for all unclassified cells (i.e.,
@@ -37,15 +38,16 @@
 #'
 #' @export
 #' @examples
-#'
-#' # LOAD LIBRARIES
-#' library(raster)
+#' ################################################################################
+#' # LOAD DATA
+#' ################################################################################
+#' library(terra)
 #' library(scapesClassification)
 #'
 #' # LOAD THE DUMMY RASTER
 #' r <- list.files(system.file("extdata", package = "scapesClassification"),
 #'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
-#' r <- raster(r)
+#' r <- terra::rast(r)
 #'
 #' # COMPUTE THE ATTRIBUTE TABLE
 #' at <- attTbl(r, "dummy_var")
@@ -53,64 +55,49 @@
 #' # COMPUTE THE LIST OF NEIGBORHOODS
 #' nbs <- ngbList(r)
 #'
-#' # COMPUTE A NEW CLASS VECTOR (PLOT 1)
 #' ################################################################################
+#' # COND.4.ALL
+#' ################################################################################
+#' # compute new class vector
 #' # conditions: "dummy_var == 1"
-#' cv1   <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 1)
+#' cv1 <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 1)
 #'
 #' unique(cv1) # one class (class 1)
-#' ################################################################################
 #'
-#' # UPDATE THE PREVIOUS CLASS VECTOR (PLOT 2)
-#' ################################################################################
+#' # update class vector `cv1`
 #' # conditions: "dummy_var <= 3"
 #' cv2   <- cond.4.all(attTbl = at, conditions = "dummy_var <= 3", class = 2,
 #'                     classVector = cv1) # input previous class vector
 #'
 #' unique(cv2) # two classes (class 1 and class 2)
-#' ################################################################################
 #'
-#' # CONVERT THE CLASS VECTOR INTO A RASTER AND PLOT
+#' # convert class vector 2 raster
 #' r_cv1 <- cv.2.rast(r, at$Cell, classVector = cv1)
 #' r_cv2 <- cv.2.rast(r, at$Cell, classVector = cv2)
 #'
-#' # PLOTs
+#' ################################################################################
+#' # PLOTS
+#' ################################################################################
 #' par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
 #'
-#' # PLOT 1
-#' ################################################################################
-#' plot(r_cv1, axes=FALSE, box=FALSE, legend = FALSE, asp=NA,
-#'      col="#78b2c4", colNA="#818792")
-#'
-#' # SHOW RASTER VALUES
+#' # 1)
+#' plot(r_cv1, type="classes", axes=FALSE, legend=FALSE, asp=NA, col="#78b2c4", colNA="#818792")
 #' text(r)
-#'
-#' # REFERENCE FIGURE
 #' title("COND.4.ALL", adj = 0.0, line = 1,
 #'       sub = "New class vector
 #'       rule: 'dummy_var == 1'; class: 1")
+#' legend("bottomleft", bg = "white", fill = c("#78b2c4", "#818792"),
+#'        legend = c("Class 1", "Unclassified cells"))
 #'
-#' legend("bottomleft", bg = "white",
-#'        legend = c("Class 1", "Unclassified cells"),
-#'        fill = c("#78b2c4", "#818792"))
-#' ################################################################################
-#'
-#' # PLOT 2
-#' ################################################################################
-#' plot(r_cv2, axes=FALSE, box=FALSE, legend = FALSE, asp=NA,
-#'      col=c("#78b2c4","#cfad89"), colNA="#818792")
-#'
-#' # SHOW RASTER VALUES
+#' # 2)
+#' plot(r_cv2, type="classes", axes=FALSE, legend=FALSE, asp=NA, col=c("#78b2c4","#cfad89"),
+#'      colNA="#818792")
 #' text(r)
-#'
-#' # REFERENCE FIGURE
 #' title("COND.4.ALL", adj = 0.0, line = 1,
 #'       sub = "Update class vector (class 1 is not overwritten)
 #'       rule: 'dummy_var <= 3'; class: 2")
-#'
-#' legend("bottomleft", bg = "white",
-#'       legend = c("Class 1", "Class 2", "Unclassified cells"),
-#'        fill = c("#78b2c4", "#cfad89", "#818792"))
+#' legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
+#'        legend = c("Class 1", "Class 2", "Unclassified cells"))
 
 cond.4.all <- function(attTbl,
                        conditions,
