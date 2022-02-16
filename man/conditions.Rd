@@ -18,8 +18,7 @@ functions to classify raster cells (see \code{\link{conditions}}).}
 }
 \value{
 An error message if the function finds spelling or syntax errors or a
-a string with the types of rules that were detected in the argument
-\code{cond}.
+string with the types of rules detected in the condition string.
 }
 \description{
 Check for spelling and syntax errors in conditions (\code{cond} argument) and
@@ -30,15 +29,15 @@ detect the type of conditions being used.
 \itemize{
 \item Classification rules evaluate either to true or false and determine what
 raster cells have to be classified.
+\item All variables included in an attribute table (see \code{\link{attTbl}})
+can be included in a condition string by name (e.g., var name =
+\code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
 \item Conditions are passed to \code{scapesClassification} functions as a
-single character string. They can consist of combination of arithmetic
+single character string. They can consist of combination of variables names
+(as named in the attribute table, see \code{\link{attTbl}}), arithmetic
 \code{(+|-|*|/|^|\%\%|\%/\%)}, relational \code{(>|<|>=|<=|==|!=|\%/\%)} and
-logic operators \code{(&||)}, base R functions (e.g.,
-\code{abs(variable_name)}), variables names (as named in the attribute
-table, see \code{\link{attTbl}}) and previous classifications (either
-stored as \code{classVector} or as rasters).
-\item A combination of absolute and relative conditions can be used, but only
-\emph{\strong{one neighborhood condition per string}} is allowed.
+logic operators \code{(&||)} and base R functions (e.g.,
+\code{abs(variable_name)}).
 }
 
 \cr \strong{Class vectors}
@@ -55,14 +54,14 @@ function conditions.
 \item Unclassified cells are represented as NA values.
 }
 
-\cr \strong{Rule evaluation, global evaluation}
+\cr \strong{Rule evaluation: Global evaluation}
 \itemize{
 \item Classification rules are applied to all unclassified raster
 cells.
 \item Function using \emph{global evaluation}: \code{\link{cond.4.all}}.
 }
 
-\strong{Rule evaluation, focal evaluation}
+\strong{Rule evaluation: Focal evaluation}
 \itemize{
 \item Classification rules are applied only to raster cells at specific
 locations and are based on class (dis)contiguity and class continuity.
@@ -72,11 +71,11 @@ by the argument \code{nbs_of}).
 \item \strong{Class continuity:} \cr join into the same class cells that respect the
 same rules and that are connected to the same focal cells.
 \item Function using \emph{focal evaluation}: \code{\link{anchor.seed}},
-\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}},
+\code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
 \code{\link{reclass.nbs}} and \code{\link{classify.all}}.
 }
 
-\cr \strong{Focal evaluation, definitions}
+\cr \strong{Focal evaluation: Definitions}
 \itemize{
 \item \strong{Cell neighborhood:} a cell with coordinates \code{(x, y)} has 8
 neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
@@ -111,8 +110,6 @@ absolute conditions receive a classification number.
 \cr \strong{2) Absolute neighborhood condition:} compares the values of the
 \code{test cell} and of its \code{neighborhood} against a threshold value.
 \itemize{
-\item This type of condition applies to the functions \code{cond.4.nofn} and
-\code{cond.reclass}.
 \item An absolute neighborhood condition is identified by a variable name
 followed by curly brackets (e.g., \code{"variable_name{}"}).
 \item A maximum of 9 evaluations are performed for each test cell (the test
@@ -121,8 +118,8 @@ threshold value).
 \item Test cells receive a classification number if the rule is true for at
 least as many evaluations as the ones specified by the argument
 \code{peval}. The argument \code{peval} ranges from 0 to 1. When 9
-evaluations are performed, \code{fn_perc = 1} means that all \code{9}
-evaluations have to be true; \code{fn_perc = 0.5} means that at least
+evaluations are performed, \code{peval = 1} means that all \code{9}
+evaluations have to be true; \code{peval = 0.5} means that at least
 \code{4.5} (rounded to \code{5}) evaluations have to be true.
 \item Only one neighborhood rule is allowed for each condition string (e.g., it
 is not possible to have a condition string like \code{"variable_A{} > 0 &
@@ -140,10 +137,8 @@ is not possible to have a condition string like \code{"variable_A{} > 0 &
 \strong{1) Relative focal cell condition:} compares the \code{test cell} value
 against the \code{focal cell} value.
 \itemize{
-\item This type of condition applies only to functions performing focal
-evaluation (i.e. function with a \code{nbs_of} argument).
-\item It is identified by a variable name followed by square brackets (e.g.,
-\code{"variable_name[]"}).
+\item A relative focal cell condition is identified by a variable name followed
+by square brackets (e.g., \code{"variable_name[]"}).
 \item Rules are defined repeating twice the same variable name, once with
 square brackets and once without. Square brackets indicate the focal cell
 value. As an example, the rule \code{"dummy_var < dummy_var[]"} compares
@@ -157,13 +152,11 @@ conditions. \cr \emph{Functions:} \code{\link{anchor.seed}} and
 \code{\link{cond.4.nofn}}.
 }
 
-\strong{2) Relative neighborhood rule:} compares the values of the \code{test
+\strong{2) Relative neighborhood condition:} compares the values of the \code{test
   cell} against the values of the \code{test cell neighborhood}.
 \itemize{
-\item This type of condition applies only to the functions
-\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
-\item It is identified by a variable name followed by curly brackets (e.g.,
-\code{"variable_name{}"}).
+\item A relative neighborhood condition is identified by a variable name
+followed by curly brackets (e.g., \code{"variable_name{}"}).
 \item Rules are defined repeating twice the same variable name, once with curly
 brackets and once without. Curly brackets indicate the test cell
 neighborhood. As an example, the rule \code{'dummy_var < dummy_var{}'}
@@ -174,10 +167,10 @@ values of cells included in the test cell neighborhood
 cell is compared against each cell included in its neighborhood).
 \item Test cells receive a classification number if the rule is true for at
 least as many evaluations as the ones specified by the argument
-\code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 8
-evaluations are performed, \code{fn_perc = 1} means that all \code{8}
-evaluations have to be true; \code{fn_perc = 0.5} means that at least
-\code{5} evaluations have to be true.
+\code{peval}. The argument \code{peval} ranges from 0 to 1. When 8
+evaluations are performed, \code{peval = 1} means that all \code{8}
+evaluations have to be true; \code{peval = 0.5} means that at least
+\code{4} evaluations have to be true.
 \item Only one neighborhood rule is allowed for each condition string (e.g., it
 is not possible to have a condition string like \code{"variable_A{} > 0 &
   variable_B{} > variable_B"}).

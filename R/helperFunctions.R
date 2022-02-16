@@ -12,8 +12,7 @@
 #' @encoding UTF-8
 #'
 #' @return An error message if the function finds spelling or syntax errors or a
-#'   a string with the types of rules that were detected in the argument
-#'   \code{cond}.
+#'   string with the types of rules detected in the condition string.
 #'
 #' @seealso [cond.4.all()], [cond.4.nofn()], [anchor.seed()], [cond.reclass()],
 #'   [conditions()]
@@ -23,16 +22,16 @@
 #'   * Classification rules evaluate either to true or false and determine what
 #'   raster cells have to be classified.
 #'
-#'   * Conditions are passed to \code{scapesClassification} functions as a
-#'   single character string. They can consist of combination of arithmetic
-#'   \code{(+|-|*|/|^|%%|%/%)}, relational \code{(>|<|>=|<=|==|!=|%/%)} and
-#'   logic operators \code{(&||)}, base R functions (e.g.,
-#'   \code{abs(variable_name)}), variables names (as named in the attribute
-#'   table, see \code{\link{attTbl}}) and previous classifications (either
-#'   stored as \code{classVector} or as rasters).
+#'   * All variables included in an attribute table (see \code{\link{attTbl}})
+#'   can be included in a condition string by name (e.g., var name =
+#'   \code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
 #'
-#'   * A combination of absolute and relative conditions can be used, but only
-#'   _**one neighborhood condition per string**_ is allowed.
+#'   * Conditions are passed to \code{scapesClassification} functions as a
+#'   single character string. They can consist of combination of variables names
+#'   (as named in the attribute table, see \code{\link{attTbl}}), arithmetic
+#'   \code{(+|-|*|/|^|%%|%/%)}, relational \code{(>|<|>=|<=|==|!=|%/%)} and
+#'   logic operators \code{(&||)} and base R functions (e.g.,
+#'   \code{abs(variable_name)}).
 #'
 #'   \cr **Class vectors**
 #'
@@ -52,14 +51,14 @@
 #'   * Unclassified cells are represented as NA values.
 #'
 #'
-#'   \cr __Rule evaluation, global evaluation__
+#'   \cr **Rule evaluation: Global evaluation**
 #'
 #'   * Classification rules are applied to all unclassified raster
 #'   cells.
 #'
 #'   * Function using _global evaluation_: \code{\link{cond.4.all}}.
 #'
-#'   **Rule evaluation, focal evaluation**
+#'   **Rule evaluation: Focal evaluation**
 #'
 #'   * Classification rules are applied only to raster cells at specific
 #'   locations and are based on class (dis)contiguity and class continuity.
@@ -72,10 +71,10 @@
 #'   same rules and that are connected to the same focal cells.
 #'
 #'   * Function using _focal evaluation_: \code{\link{anchor.seed}},
-#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}},
+#'   \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
 #'   \code{\link{reclass.nbs}} and \code{\link{classify.all}}.
 #'
-#'   \cr **Focal evaluation, definitions**
+#'   \cr **Focal evaluation: Definitions**
 #'
 #'   * __Cell neighborhood:__ a cell with coordinates \code{(x, y)} has 8
 #'   neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
@@ -113,9 +112,6 @@
 #'   \cr __2) Absolute neighborhood condition:__ compares the values of the
 #'   \code{test cell} and of its \code{neighborhood} against a threshold value.
 #'
-#'   * This type of condition applies to the functions \code{cond.4.nofn} and
-#'   \code{cond.reclass}.
-#'
 #'   * An absolute neighborhood condition is identified by a variable name
 #'   followed by curly brackets (e.g., \code{"variable_name{}"}).
 #'
@@ -126,8 +122,8 @@
 #'   * Test cells receive a classification number if the rule is true for at
 #'   least as many evaluations as the ones specified by the argument
 #'   \code{peval}. The argument \code{peval} ranges from 0 to 1. When 9
-#'   evaluations are performed, \code{fn_perc = 1} means that all \code{9}
-#'   evaluations have to be true; \code{fn_perc = 0.5} means that at least
+#'   evaluations are performed, \code{peval = 1} means that all \code{9}
+#'   evaluations have to be true; \code{peval = 0.5} means that at least
 #'   \code{4.5} (rounded to \code{5}) evaluations have to be true.
 #'
 #'   * Only one neighborhood rule is allowed for each condition string (e.g., it
@@ -147,11 +143,8 @@
 #'   __1) Relative focal cell condition:__ compares the \code{test cell} value
 #'   against the \code{focal cell} value.
 #'
-#'   * This type of condition applies only to functions performing focal
-#'   evaluation (i.e. function with a \code{nbs_of} argument).
-#'
-#'   * It is identified by a variable name followed by square brackets (e.g.,
-#'   \code{"variable_name[]"}).
+#'   * A relative focal cell condition is identified by a variable name followed
+#'   by square brackets (e.g., \code{"variable_name[]"}).
 #'
 #'   * Rules are defined repeating twice the same variable name, once with
 #'   square brackets and once without. Square brackets indicate the focal cell
@@ -167,14 +160,11 @@
 #'   conditions. \cr _Functions:_ \code{\link{anchor.seed}} and
 #'   \code{\link{cond.4.nofn}}.
 #'
-#'   __2) Relative neighborhood rule:__ compares the values of the \code{test
+#'   __2) Relative neighborhood condition:__ compares the values of the \code{test
 #'   cell} against the values of the \code{test cell neighborhood}.
 #'
-#'   * This type of condition applies only to the functions
-#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
-#'
-#'   * It is identified by a variable name followed by curly brackets (e.g.,
-#'   \code{"variable_name{}"}).
+#'   * A relative neighborhood condition is identified by a variable name
+#'   followed by curly brackets (e.g., \code{"variable_name{}"}).
 #'
 #'   * Rules are defined repeating twice the same variable name, once with curly
 #'   brackets and once without. Curly brackets indicate the test cell
@@ -188,10 +178,10 @@
 #'
 #'   * Test cells receive a classification number if the rule is true for at
 #'   least as many evaluations as the ones specified by the argument
-#'   \code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 8
-#'   evaluations are performed, \code{fn_perc = 1} means that all \code{8}
-#'   evaluations have to be true; \code{fn_perc = 0.5} means that at least
-#'   \code{5} evaluations have to be true.
+#'   \code{peval}. The argument \code{peval} ranges from 0 to 1. When 8
+#'   evaluations are performed, \code{peval = 1} means that all \code{8}
+#'   evaluations have to be true; \code{peval = 0.5} means that at least
+#'   \code{4} evaluations have to be true.
 #'
 #'   * Only one neighborhood rule is allowed for each condition string (e.g., it
 #'   is not possible to have a condition string like \code{"variable_A{} > 0 &
