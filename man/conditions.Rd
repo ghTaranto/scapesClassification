@@ -11,9 +11,8 @@ conditions(names_attTbl, cond, silent = FALSE)
 \item{names_attTbl}{character vector, the column (i.e. variable) names of the
 attribute table returned by the function \code{\link{attTbl}}.}
 
-\item{cond}{character string, condition string used to classify raster cells
-(see \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
-\code{\link{cond.4.all}} and \code{\link{anchor.seed}}).}
+\item{cond}{character string, the condition string used by the \code{cond.*}
+functions to classify raster cells (see \code{\link{conditions}}).}
 
 \item{silent}{logic, when true, the function returns only error messages.}
 }

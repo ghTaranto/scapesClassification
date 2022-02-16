@@ -5,9 +5,8 @@
 #'
 #' @param names_attTbl character vector, the column (i.e. variable) names of the
 #'   attribute table returned by the function \code{\link{attTbl}}.
-#' @param cond character string, condition string used to classify raster cells
-#'   (see \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
-#'   \code{\link{cond.4.all}} and \code{\link{anchor.seed}}).
+#' @param cond character string, the condition string used by the \code{cond.*}
+#'   functions to classify raster cells (see \code{\link{conditions}}).
 #' @param silent logic, when true, the function returns only error messages.
 #'
 #' @encoding UTF-8
@@ -325,7 +324,7 @@ conditions <- function(names_attTbl,
     stop(
       paste0(
         "Check: '",
-        paste(tc_spl, collapse = ", "),
+        paste(unique(tc_spl), collapse = ", "),
         "' -- Possible spelling error."
       )
     )
@@ -336,13 +335,9 @@ conditions <- function(names_attTbl,
   c_eval <- gsub("\\[|\\]|\\{|\\}", "", c_eval)
   c_eval <- try(eval(parse(text = c_eval)), silent = TRUE)
 
-  if(class(c_eval) == "try-error"){
+  if(class(c_eval) == "try-error"){stop(paste0("Check conditions, possible syntax error."))}
 
-    err <-as.character(stringr::str_match(c_eval, "\\'.+\\'"))
-    stop(paste0("Check: ", err, " -- Possible syntax error."))
-
-  }
-
+  # PRINT RESULTS IF NO ERRORS
   if(!silent){
 
     c_split <- unlist(strsplit(cond, "&|\\|"))
@@ -380,6 +375,122 @@ conditions <- function(names_attTbl,
   }
 }
 
+#' Parse conditions
+#'
+#' Parse the condition string so that it can be evaluated by the `cond.*`
+#' functions. Intended for internal use only.
+#'
+#' @param names_attTbl character vector, the column (i.e. variable) names of the
+#'   attribute table returned by the function \code{\link{attTbl}}.
+#' @param cond character string, the condition string used by the \code{cond.*}
+#'   functions to classify raster cells (see \code{\link{conditions}}).
+#'
+#' @return The function returns a two-element list. The first element contains
+#'   the parsed conditions to be evaluated by the \code{cond.*} functions. The
+#'   second element defines the condition type each variable refers to.
+#'
+#' @seealso [cond.4.all()], [cond.4.nofn()], [anchor.seed()], [cond.reclass()],
+#'   [conditions()]
+#'
+#' @export
+
+cond_parse <- function(names_attTbl, cond){
+
+  scapesClassification::conditions(names_attTbl = names_attTbl, cond = cond, silent= TRUE)
+
+  cond <- gsub("\\&\\&", "\\&", cond)
+  cond <- gsub("\\|\\|", "\\|", cond)
+  cond <- gsub(" ", "", cond)
+
+  cVect <- unlist(strsplit(cond,"\\&|\\|"))
+  cVect <- cVect[cVect != ""]
+
+  vList <- list()
+
+  for(i in seq_along(cVect)){
+
+    #ab
+    ip <- sapply(paste0("\\b",names_attTbl,"(?!\\[|\\{)","\\b"),
+                 grepl, x=cVect[i], perl = TRUE)
+    v_ab <-names_attTbl[ip]
+
+    #fc `[]`
+    ip <- sapply(paste0("\\b",names_attTbl, "\\[\\]"),
+                 grepl, x=cVect[i], perl = TRUE)
+    v_fc <-names_attTbl[ip]
+
+    #nbors `{}`
+    ip <- sapply(paste0("\\b",names_attTbl, "\\{\\}"),
+                 grepl, x=cVect[i], perl = TRUE)
+    v_n <-names_attTbl[ip]
+
+    v_nAB <- character()
+
+    for (v in v_ab) {
+      cVect[i] <- gsub(paste0("\\b", v, "(?!\\[|\\{)", "\\b"),
+                       paste0("l_ab$", v), cVect[i], perl = TRUE)
+    }
+
+    for (v in v_fc) {
+      cVect[i] <- gsub(paste0("\\b", v, "\\[\\]"),
+                       paste0("l_fc$", v), cVect[i], perl = TRUE)
+    }
+
+    if(length(v_ab) == 0 & length(v_n) > 0){
+
+      cnd    <- "l_nAB$"
+      v_nAB <- v_n
+      v_n   <- character()
+
+      for (v in v_nAB) {
+        cVect[i] <- gsub(paste0("\\b", v, "\\{\\}"),
+                         paste0("l_nAB$", v), cVect[i], perl = TRUE)
+      }
+
+    } else {
+
+      for (v in v_n) {
+        cVect[i] <- gsub(paste0("\\b", v, "\\{\\}"),
+                         paste0("l_n$", v), cVect[i], perl = TRUE)
+      }
+
+    }
+
+    vList[["v_ab"]]  <- c(vList[["v_ab"]], v_ab)
+    vList[["v_fc"]]  <- c(vList[["v_fc"]], v_fc)
+    vList[["v_n"]]   <- c(vList[["v_n"]], v_n)
+    vList[["v_nAB"]] <- c(vList[["v_nAB"]], v_nAB)
+
+  }
+
+  # RECONSTRUCT CONDITION STRINGS AND VARIABLES
+  ands <- gregexpr("\\&", cond, perl = TRUE)[[1]]
+  ors  <- gregexpr("\\|", cond, perl = TRUE)[[1]]
+
+  lg_op <- data.frame(pos = c(ands, ors),
+                      op = c(rep("&", length(ands)),
+                             rep("|", length(ors))))
+
+  lg_op <- lg_op[order(lg_op$pos),]
+  lg_op <- lg_op[lg_op$pos > 0, ]
+
+  cond_parsed <- character()
+  for(i in seq_along(cVect)){
+    cond_parsed <- paste0(cond_parsed, cVect[i])
+
+    if(i <= nrow(lg_op)){
+      cond_parsed <- paste0(cond_parsed, lg_op$op[i])
+    }
+  }
+
+  l <- list()
+  l[["cond_par"]] <- parse(text=cond_parsed)
+  l[["vList"]]    <- vList
+
+  return(l)
+}
+
+
 #' Class vector to raster
 #'
 #' Transform a class vector or a generic vector into a raster.
@@ -405,6 +516,7 @@ conditions <- function(names_attTbl,
 #' @return A class vector or a generic vector transformed into a raster.
 #'
 #' @export
+
 cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
 
   if(is.null(index)){
@@ -427,5 +539,3 @@ cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = 
   return(r2)
 
 }
-
-
