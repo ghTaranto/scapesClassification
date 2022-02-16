@@ -284,48 +284,48 @@ anchor.seed <- function(attTbl,
                         class = NULL,
                         cond.filter = NULL,
                         cond.seed,
-                        sort.seed = NULL,
                         sort.col = NULL,
+                        sort.seed = "max",
                         cond.growth  = NULL,
                         lag.growth = Inf,
                         cond.isol = NULL,
                         lag.isol = 1,
                         saveRDS = NULL,
                         overWrite = FALSE,
-                        isolationBuff = FALSE,
+                        isol.buff = FALSE,
                         silent = FALSE)
 {
 
-  cat("\n")
-  timeStart <- Sys.time()
+  if(!silent){cat("\n"); timeStart<-Sys.time()}
 
-  # TEST IF FILENAMES ALREADY EXIST
+  # TEST ARGUMENTS ################################################################################
+
+  # Filename already exists?
   if(!overWrite){
-    # RDS
     if(!is.null(saveRDS)){
-      if(file.exists(saveRDS)) stop("RDS filename exists; use a different name")
-    }
-  }
+      if(file.exists(saveRDS))stop("RDS filename exists; use a different name")}}
 
-
-  # TEST THAT CLASS IS NOT EQUAL TO -1 (ISOLATION CLASS)
+  # Class -999 reserved to isolation buffer
   if(!is.null(class)){
-    if(class == -1) stop("change class number; -1 is used for the isolation class")
-  }
+    if(class == -999) stop("-999 isolation buffer number. Change `class` number")}
 
-
-  # TEST FOR COLUMN CELL IN attTbl
+  # Column cell in `attTbl`
   if(!("Cell" %in% names(attTbl))){
-    stop(
-      "the attribute table should have one column named 'Cell' with cell numbers
-                                       that indicate the position of each row in the original Raster object"
-    )
-  }
+    stop("attribute table mising 'Cell' column. Check ?attTbl")}
 
-
-  # TEST FOR CORRESPONDENCE attTbl, ngbList
+  # Length `ngbList` == nrows `attTbl`
   if(length(ngbList) != nrow(attTbl)){
     stop("ngbList and attTbl shoud have the same length/nrows")
+  }
+
+  # Sort.seed can be only 'max' or 'min'
+  if(!sort.seed=="max"|sort.seed=="min"){
+    stop("sort.seed can be either 'max' or 'min'")
+  }
+
+  # Lag on the evaluation of lag.growth and lag.isol
+  if(!(lag.growth %in% c(0,Inf)|lag.isol %in% c(0,Inf))){
+    stop("'lag.growth' and 'lag.isol' can be either '0' or 'Inf'")
   }
 
   # CONVERT ngbList FORM CELL IDS TO CELL INDECES
@@ -341,87 +341,81 @@ anchor.seed <- function(attTbl,
     rm(fct, no_nas)
   }
 
+  ### CONDITION STRINGS & CONDITION CONTROLS ######################################################
+  v_list      <- list()
+  cond_parsed <- list()
+
+  # Filter
   if(!is.null(cond.filter)){
+    cond_filter <- cond_parse(names(attTbl), cond.filter)
 
-    cond.filter <- paste0("(", cond.filter, ") & is.na(seedVector)" )
+    ctype <- names(cond_filter[[2]])[lengths(cond_filter[[2]])>0]
+    if(!all("v_ab" == ctype)){
+      stop("Only absolute test cell conditions allowed for `cond.filter` (see ?conditions)")
+    }
 
-  } else {
-
-    cond.filter <- "is.na(seedVector)"
-
+    cond_filter <- gsub("\\bl_ab\\b", "attTbl", cond_filter[[1]], perl = TRUE)
+    cond_filter <- paste(cond_filter, "& is.na(seedVector)")
+    cond_filter <- parse(text = cond_filter)
   }
 
-  c_all <- c(cond.seed, cond.growth, cond.isol)
-
-  ind_nms <- c(TRUE, FALSE, FALSE)
-  if(!is.null(cond.growth)){ind_nms[2] <- TRUE}
-  if(!is.null(cond.isol))  {ind_nms[3] <- TRUE}
-
-  c_nms <- c("cond.seed", "cond.growth", "cond.isol")[ind_nms]
-
-  cond_list <- as.list(c_all)
-  names(cond_list) <- c_nms
-
-  v_list <- list()
-
-  for(cond in 1:length(c_all)){
-
-    nm <- c_nms[cond]
-    v_list[[ nm ]] <- list()
-
-    v_list[[ nm ]][["v_ab"]] <-
-      names(attTbl)[stringr::str_detect(c_all[cond], paste0("\\b", names(attTbl), "(?!\\[|\\{)", "\\b"))]
-
-    v_list[[ nm ]][["v_fc"]] <-
-      names(attTbl)[stringr::str_detect(c_all[cond], paste0(names(attTbl), "\\[\\]"))]
-
+  if(is.null(cond.filter)){
+    cond_filter <- parse(text = "is.na(seedVector)")
   }
 
-  for(cond in 1:length(c_all)){
+  # Seed
+  cond <- cond_parse(names(attTbl), cond.seed)
 
-    l <- v_list[[cond]]
-
-    for(v in l$v_ab){cond_list[[cond]] <-
-      stringr::str_replace_all(cond_list[[cond]], paste0("\\b", v, "(?!\\[|\\{)", "\\b"), paste0("l_ab$", v))}
-
-    for(v in l$v_fc){cond_list[[cond]] <-
-      stringr::str_replace_all(cond_list[[cond]], paste0(v, "\\[\\]" ), paste0("l_fc$", v))}
-
+  ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
+  if(!all("v_ab" == ctype)){
+    stop("Only absolute test cell conditions allowed for `cond.seed`
+         (see ?conditions)")
   }
 
+  cond_parsed[["cond.seed"]] <- cond[[1]]
+  v_list[["cond.seed"]]      <- cond[[2]]
 
-  # CONDITION FILTER (TO APPLY GLOBALLY)
-  cond_filter <- cond.filter
+  # Growth
+  gc_true <- FALSE
+  if(!is.null(cond.growth)){
+    if(!is.null(cond.filter)){cond.growth <- paste0(cond.growth,"&",cond.filter)}
+    cond <- cond_parse(names(attTbl), cond.growth)
+    gc_true <- TRUE
 
-  vf <- names(attTbl)[stringr::str_detect(cond_filter, paste0("\\b", names(attTbl), "\\b"))]
-  for(v in vf){cond_filter <-
-    stringr::str_replace_all(cond_filter, v, paste0("attTbl$", v))
+    ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
+    if(any("v_nAB" == ctype | "v_n" == ctype)){
+      stop("Only absolute test cell and focal cell conditions allowed for `cond.growth`
+           (see ?conditions)")
+    }
+
+    cond_parsed[["cond.growth"]] <- cond[[1]]
+    v_list[["cond.growth"]]      <- cond[[2]]
+
+    if (length(cond[[2]][["v_ab"]]) > 0)  {Gfa = TRUE} else {Gfa = FALSE}
+    if (length(cond[[2]][["v_fc"]]) > 0)  {Gfc = TRUE} else {Gfc = FALSE}
   }
 
-  len_vf <- length(vf) != 0
+  # Isol
+  ic_true <- FALSE
+  if(!is.null(cond.isol)){
+    if(!is.null(cond.filter)){cond.isol <- paste0(cond.isol,"&",cond.filter)}
+    cond <- cond_parse(names(attTbl), cond.isol)
+    ic_true <- TRUE
 
+    ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
+    if(any("v_nAB" == ctype | "v_n" == ctype)){
+      stop("Only absolute test cell and focal cell conditions allowed for `cond.isol`
+           (see ?conditions)")
+    }
 
-  # CONDITION FILTER (TO APPLY LOCALLY)
-  cf <- stringr::str_replace_all(cond_filter, "attTbl", "l_ab")
-  cf <- stringr::str_replace_all(cf, "seedVector(?!\\[)", paste0("seedVector", "\\[nind\\]"))
+    cond_parsed[["cond.isol"]] <- cond[[1]]
+    v_list[["cond.isol"]]      <- cond[[2]]
 
-  # CONDITION FILTER GROWTH, CAN OVERWERITE ISOLATION CLASS
-  cfg<- stringr::str_replace_all(cf, "is.na\\(seedVector\\[nind\\]\\)",
-                                 "\\(is.na\\(seedVector\\[nind\\]\\)\\|seedVector\\[nind\\] == -1\\)")
+    if (length(cond[[2]][["v_ab"]]) > 0)  {Ifa = TRUE} else {Ifa = FALSE}
+    if (length(cond[[2]][["v_fc"]]) > 0)  {Ifc = TRUE} else {Ifc = FALSE}
+  }
 
-
-  # PARSE CONDITIONS
-  cond_filter <- parse(text = cond_filter)
-  cf          <- parse(text = cf)
-  cfg         <- parse(text = cfg)
-  cond_list   <- lapply(cond_list, function(x){parse(text = x)})
-
-
-  # TEST CONDITIONS?
-  gc_true <- !is.null(cond.growth)
-  ic_true <- !is.null(cond.isol)
-
-  ### INITIALIZE VARIABLES ###########################################################################
+  ### INITIALIZE VARIABLES ########################################################################
   seedVector <- rep(as.numeric(NA), NROW(attTbl))
 
   flt_ok <- which(eval(cond_filter))
@@ -431,31 +425,31 @@ anchor.seed <- function(attTbl,
 
   if(length(flt_ok) == 0){stop("\n No cell meeting filter conditions")}
 
+  ### START ALGORITHM #############################################################################
   seeds <- TRUE
   while(length(flt_ok) > 0 & seeds){
-    evaluate <- TRUE #test if any filter cond == T within growth and isolation
     cnumb <- cnumb + 1
 
-    v    <- v_list$cond.seed
-    l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][flt_ok] )
+    v    <- v_list[["cond.seed"]]
+    l_ab <- lapply( v$v_ab, function(x) attTbl[[x]][flt_ok] )
     names(l_ab) <- v$v_ab
 
     # FOCAL CELL INDEX
-    fc_ind <- which( eval(cond_list[["cond.seed"]]) )
+    fc_ind <- which( eval(cond_parsed[["cond.seed"]]) )
 
     # STOP IF NO SEED CELL
     if(length(fc_ind) == 0){
-      seeds <- FALSE
-
       if(cnumb == 1){stop("No cell meeting seed conditions")}
 
+      seeds <- FALSE
       next
-
     }
 
+    # REINDEX BASED ON FILTER
     fc_ind <- flt_ok[fc_ind]
 
-    if(!is.null(sort.seed)){
+    # SORT SEEDS BASED ON sort.seed
+    if(!is.null(sort.col)){
 
       srt <- attTbl[[sort.col]][fc_ind]
 
@@ -464,313 +458,187 @@ anchor.seed <- function(attTbl,
       } else if(sort.seed == "min") {
         fc_ind <- fc_ind[match(min(srt), srt)][1]
       }
-
-    } else {
-
-      fc_ind <- fc_ind[1]
-
     }
+
+    if(is.null(sort.col)){fc_ind <- fc_ind[1]}
 
     # CLASSIFY SEED
     seedVector[fc_ind] <- cnumb
+    LS <- fc_ind
 
-    ## INITIALIZE ALGORITHM
-    classification_t1 <- fc_ind
-
+    # GROWTH ######################################################################################
     if(gc_true){
 
-      lag_fc0 <- fc_ind
-      lag_fc  <- list()
+      list_new_cell <- integer()
+      v    <- v_list[["cond.growth"]]
+      cond <- cond_parsed[["cond.growth"]]
 
-      cgL     <- lag_fc0
-
-      list_new_cell_ind <- list()
-
-      v    <- v_list$cond.growth
-      cond <- cond_list$cond.growth
+      # Isolation conditions
+      classification_t1 <- fc_ind
 
     }
 
-    k <- 1
-    while(k > 0 & gc_true){
-      ### DEFINE FOCAL CELL NEIGHBORHOOD AND TEST CONDITION ###############################################
-      nind  <- ngbList[[ fc_ind ]]
+    evaluate <- FALSE
+    continue <- TRUE
+    while(continue & gc_true){
 
-      # EVALUATE FILTER
-      if(len_vf){
+      continue <- FALSE
+      while(length(fc_ind) > 0){
 
-        l_ab        <- lapply( as.list(vf), function(x) attTbl[[x]][nind] )
-        names(l_ab) <- vf
+        # TEST CELLS
+        nind  <- ngbList[[ fc_ind[1] ]]
 
-      }
+        # EVALUATE FILTER
+        i <- which(is.na(seedVector[nind]))
 
-      i <- which(eval(cf))
+        if(length(i) > 0){
+          evaluate <- TRUE
+          nind <- nind[i]
+        }
 
-      if(length(i) > 0){
-        evaluate <- TRUE
-        nind <- nind[i]
-      }
+        # EVALUATE GROWTH
+        if(evaluate){
 
-      # EVALUATE GROWTH
-      if(evaluate){
+          if(Gfc){ # Focal cell conditions
 
-        fct <- 1:length(nind)
+            if(is.infinite(lag.growth)){
+              Lag <- LS
+            } else {
+              Lag <- fc_ind[1]
+            }
 
-        l_fc <- lapply( as.list(v$v_fc), function(x) rep(attTbl[[x]][cgL], length(nind)) )
-        names(l_fc) <- v$v_fc
+            l_fc <- lapply( v$v_fc, function(x) rep(attTbl[[x]][Lag], length(nind)) )
+            names(l_fc) <- v$v_fc
+          }
 
-        l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
-        names(l_ab) <- v$v_ab
+          if(Gfa){ # Test cell conditions
+            l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
+            names(l_ab) <- v$v_ab
+          }
 
-        i <- which(eval(cond))
-
-      }
-
-      ### AT LEAST ONE NEIGHBOUR CELL MEETING CONDITION ###################################################
-      if(length(i) > 0){
-
-        # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
-        nind <- nind[i]
-        seedVector[ nind ] <- cnumb
-        list_new_cell_ind[[ k ]] <- nind
-
-        # CELLS TO BE USED TO TEST FOR ISOLATION CONDITIONS
-        classification_t1 <- c(classification_t1, nind)
-
-        # UPDATE FOCAL CELL & REMOVE IT FROM 'list_new_cell_ind'
-        fc_ind                   <- list_new_cell_ind[[ k ]][1]
-        list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
-
-        # DEFINE NODE CONDITION
-        lag_fc[[k]] <- fc_ind
-
-        # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-        if(k - lag.growth < 1){
-
-          cgL <- lag_fc0
-
-        } else {
-
-          cgL <- lag_fc[[k - lag.growth]]
+          i <- which(eval(cond))
 
         }
 
-        # SET NODE LEVEL
-        k <- k + 1
+        # AT LEAST ONE TEST CELL MEETS CONDITION
+        if(length(i) > 0){
 
-        ### NO CELL MEETING ISOLATION CONDITION ###########################################################
-      } else {
+          # CLASSIFY CELL
+          nind <- nind[i]
+          seedVector[ nind ] <- cnumb
+          list_new_cell <- c(list_new_cell, nind)
 
-        # CHECK IF ANY NODE HAS UNEVALUATED CELLS
-        node2eval <- TRUE
-        while( node2eval ){
-          k = k - 1
+        }
 
-          if(k < 1) {
-            node2eval <- FALSE
-            next
-          }
-
-          if(length(list_new_cell_ind[[ k ]]) != 0) {
-
-            # UPDATE FOCAL CELL FROM LOWER LEVEL NODES
-            fc_ind                   <- list_new_cell_ind[[ k ]][1]
-            list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
-
-            node2eval <- FALSE
-
-            # UPDATE LOWER LOWER NODE CONDITION
-            lag_fc[[k]] <- fc_ind
-
-            # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-            if(k - lag.growth < 1){
-
-              cgL <- lag_fc0
-
-            } else {
-
-              cgL <- lag_fc[[k - lag.growth]]
-
-            }
-
-            # SET NODE LEVEL
-            k <- k + 1
-
-          } # if(length(list_new_cell_ind[[ k ]]) != 0)
-
-        } # while( node2eval )
-
-      } # else of if(length(i) != 0)
-
-      evaluate <- FALSE
-
-    } # while(k > 0 & ic_true)
-
-
-    ### APPLY ISOLATION CONDITION ###########################################################################
-    if(ic_true){
-      for(fc_ind in classification_t1){
-
-        ### INITIALIZE ISOLATION ALGORITHM ####################################################################
-        lag_fc0 <- fc_ind
-        lag_fc  <- list()
-
-        ciL     <- lag_fc0
-
-        # new_lag_cond      <- T
-        list_new_cell_ind <- list()
-
-        v    <- v_list$cond.isol
-        cond <- cond_list$cond.isol
-
-        k = 1
+        # REMOVE EVALUATED TEST CELL
+        fc_ind <- fc_ind[-1]
         evaluate <- FALSE
 
-        ### START ISOLATION CONDITION #########################################################################
-        while(k > 0){
+      }
 
-          ### DEFINE FOCAL CELL NEIGHBORHOOD AND TEST CONDITION ###############################################
-          nind  <- ngbList[[ fc_ind ]]
+      # SET THE NEW GROUP OF TEST CELLS
+      if(length(list_new_cell) > 0){
+        fc_ind <- list_new_cell
+        list_new_cell <- integer()
+        continue <- TRUE
 
-          # EVALUATE FILTER
-          if(len_vf){
+        if(ic_true){classification_t1<-c(classification_t1, fc_ind)}
+      }
+    }
 
-            l_ab        <- lapply( as.list(vf), function(x) attTbl[[x]][nind] )
-            names(l_ab) <- vf
+    # ISOL ################################################################################################
+    if(ic_true){
 
-          }
+      list_new_cell <- integer()
+      v    <- v_list[["cond.isol"]]
+      cond <- cond_parsed[["cond.isol"]]
 
-          i <- which(eval(cf))
+      if(gc_true){fc_ind <- classification_t1}
 
-          if(length(i) > 0){
-            evaluate = TRUE
-            nind <- nind[i]
-          }
+    }
 
-          # EVALUATE ISOLATION
-          if(evaluate){
+    evaluate <- FALSE
+    continue <- TRUE
+    while(continue & ic_true){
 
-            fct <- 1:length(nind)
+      continue <- FALSE
+      while(length(fc_ind) > 0){
 
-            l_fc <- lapply( as.list(v$v_fc), function(x) rep(attTbl[[x]][ciL], length(nind)) )
-            names(l_fc) <- v$v_fc
+        # TEST CELLS
+        nind  <- ngbList[[ fc_ind[1] ]]
 
-            l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
-            names(l_ab) <- v$v_ab
+        # EVALUATE FILTER
+        i <- which(is.na(seedVector[nind]))
 
-            i <- which(eval(cond))
+        if(length(i) > 0){
+          evaluate <- TRUE
+          nind <- nind[i]
+        }
 
-          }
+        # EVALUATE GROWTH
+        if(evaluate){
 
-          ### AT LEAST ONE NEIGHBOUR CELL MEETING ISOLATION CONDITION #########################################
-          if(length(i) != 0){
+          if(Ifc){ # Focal cell conditions
 
-            # CLASSIFY CELL AND SET NEXT NODE NEIGHBORHOOD
-            nind <- nind[i]
-            seedVector[ nind ] <- -1
-            list_new_cell_ind[[ k ]] <- nind
-
-            # UPDATE FOCAL CELL
-            fc_ind                   <- list_new_cell_ind[[ k ]][1]
-            list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
-
-            # DEFINE NODE CONDITION
-            lag_fc[[k]] <- fc_ind
-
-            # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-            if(k - lag.isol < 1){
-
-              ciL <- lag_fc0
-
+            if(is.infinite(lag.isol)){
+              Lag <- LS
             } else {
-
-              ciL <- lag_fc[[k - lag.isol]]
-
+              Lag <- fc_ind[1]
             }
 
-            # SET NODE LEVEL
-            k <- k + 1
+            l_fc <- lapply( v$v_fc, function(x) rep(attTbl[[x]][Lag], length(nind)) )
+            names(l_fc) <- v$v_fc
+          }
 
-            ### NO CELL MEETING ISOLATION CONDITION ###########################################################
-          } else {
+          if(Ifa){ # Test cell conditions
+            l_ab <- lapply( as.list(v$v_ab), function(x) attTbl[[x]][nind] )
+            names(l_ab) <- v$v_ab
+          }
 
-            # CHECK IF ANY NODE HAS UNEVALUATED CELLS
-            node2eval <- TRUE
-            while( node2eval ){
-              k = k - 1
+          i <- which(eval(cond)) # Evaluate conditions
 
-              if(k < 1) {
-                node2eval <- FALSE
-                next
-              }
+        }
 
-              if(length(list_new_cell_ind[[ k ]]) != 0) {
+        # AT LEAST ONE TEST CELL MEETS CONDITION
+        if(length(i) > 0){
 
-                # UPDATE FOCAL CELL FROM LOWER LEVEL NODES
-                fc_ind                   <- list_new_cell_ind[[ k ]][1]
-                list_new_cell_ind[[ k ]] <- list_new_cell_ind[[ k ]][-1]
+          # CLASSIFY CELL
+          nind <- nind[i]
+          seedVector[ nind ] <- -999
+          list_new_cell <- c(list_new_cell, nind)
+        }
 
-                node2eval <- FALSE
+        # REMOVE EVALUATED TEST CELL
+        fc_ind <- fc_ind[-1]
+        evaluate <- FALSE
 
-                # UPDATE LOWER LEVEL NODE CONDITION
-                lag_fc[[k]] <- fc_ind
+      }
 
-                # UPDATE LAG CONDITION TO TEST NEXT NODE CELLS
-                if(k - lag.isol < 1){
-
-                  ciL <- lag_fc0
-
-                } else {
-
-                  ciL <- lag_fc[[k - lag.isol]]
-
-                }
-
-                # SET NODE LEVEL
-                k <- k + 1
-
-              } # if(length(list_new_cell_ind[[ k ]]) != 0)
-
-            } # while( node2eval )
-
-          } # else of if(length(i) != 0)
-
-          evaluate <- FALSE
-
-        } # while(k > 0 & ic_true)
-
-      } #for(i_ind in classification_t0)
-
-    } #ic_true
-
+      # SET THE NEW GROUP OF TEST CELLS
+      if(length(list_new_cell) > 0){
+        fc_ind <- list_new_cell
+        list_new_cell <- integer()
+        continue <- TRUE
+      }
+    }
 
     ### REINITIALIZE ALGORITHM ##############################################################################
     flt_ok <- which(eval(cond_filter))
 
     if(!silent){
       n      <- length(flt_ok)
-      # p      <- round((1-n/N) * 100, 2)
-
-      dtime <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
-
-      # cat("\r", paste0(cnumb, ") ", p, "%"," complete, (", N-n, "/", N, ") cells classified, elapsed time ",
-      #                  dtime, " mins"))
-
-      cat("\r", paste0("Seeds Identified: ", cnumb, ", elapsed time ",
-                       dtime, " mins"))
+      dtime  <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
+      cat("\r", paste0("Evaluated cells: ", n, "/", N, "; Elapsed time: ", dtime, " mins"))
     }
 
-  }#while
+  }#while (seed.cond)
 
   ### FINALIZE FUNCTION #####################################################################################
   if(!is.null(class))seedVector[which( seedVector > 0 )] <- class
-
-  if(!isolationBuff) seedVector[seedVector == -1] <- NA
-
+  if(!isol.buff) seedVector[seedVector == -999] <- NA
   if(!is.null(saveRDS)) saveRDS(seedVector, saveRDS)
-
-  if(!silent){cat("\n", paste0("Execution Time: ", round(difftime(Sys.time(), timeStart, units = 'mins') , 2), " minutes" ))}
+  if(!silent){cat("\n", paste0("Seed cells: ", cnumb,
+                               "; Execution Time: ", round(difftime(Sys.time(), timeStart, units = 'mins') , 2), " mins" ))}
 
   return(seedVector)
-
 }

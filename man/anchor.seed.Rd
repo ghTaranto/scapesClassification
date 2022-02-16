@@ -11,15 +11,15 @@ anchor.seed(
   class = NULL,
   cond.filter = NULL,
   cond.seed,
-  sort.seed = NULL,
   sort.col = NULL,
+  sort.seed = "max",
   cond.growth = NULL,
   lag.growth = Inf,
   cond.isol = NULL,
   lag.isol = 1,
   saveRDS = NULL,
   overWrite = FALSE,
-  isolationBuff = FALSE,
+  isol.buff = FALSE,
   silent = FALSE
 )
 }
@@ -51,12 +51,12 @@ Absolute conditions can be used (see \code{\link{conditions}}), including
   min(variable_x)"} if seed cell correspond to local maxima or minima. It
 cannot be \code{NULL}.}
 
+\item{sort.col}{character, the column name in the \code{attTbl} on which the
+\code{sort.seed} is based on.}
+
 \item{sort.seed}{character, sort seeds based on column values. If
 \code{"max"}, seeds are evaluated from the maximum to the minimum. If
 \code{"min"}, seeds are evaluated from the minimum to the maximum.}
-
-\item{sort.col}{character, the column name in the \code{attTbl} on which the
-\code{sort.seed} is based on.}
 
 \item{cond.growth}{character string, the conditions to define a growth buffer
 around seed cells. It can be \code{NULL}. Absolute and focal cell
@@ -78,9 +78,9 @@ an RDS file.}
 \item{overWrite}{logic, if the RDS names already exist, existing files are
 overwritten.}
 
-\item{isolationBuff}{logic, return the isolation buffer (class = -1).}
-
 \item{silent}{logic, progress is not printed on the console.}
+
+\item{isolationBuff}{logic, return the isolation buffer (class = -1).}
 }
 \value{
 Classification vector.
