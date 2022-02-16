@@ -23,11 +23,8 @@ reference:
   - title: Helper functions
     contents:
       - "`conditions`"
+      - "`cond_parse`"
       - "`cv.2.rast`"
-  - title: Raster object functions
-    contents:
-      - "`obj.border`"
-      - "`obj.nbs`"
   - title: Classification functions
   - subtitle: Anchor cell functions
     contents:
@@ -47,6 +44,11 @@ reference:
     contents:
       - "`reclass.nbs`"
       - "`classify.all`"
+  - title: Raster object functions
+    contents:
+      - "`anchor.seed`"
+      - "`obj.border`"
+      - "`obj.nbs`"
 
 navbar:
   type: light
