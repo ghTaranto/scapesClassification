@@ -15,10 +15,13 @@
 #'   a string with the types of rules that were detected in the argument
 #'   \code{cond}.
 #'
+#' @seealso [cond.4.all()], [cond.4.nofn()], [anchor.seed()], [cond.reclass()],
+#'   [conditions()]
+#'
 #' @details **Conditions (or classification rules)**
 #'
 #'   * Classification rules evaluate either to true or false and determine what
-#'   raster cells belong to a class.
+#'   raster cells have to be classified.
 #'
 #'   * Conditions are passed to \code{scapesClassification} functions as a
 #'   single character string. They can consist of combination of arithmetic
@@ -48,34 +51,29 @@
 #'
 #'   * Unclassified cells are represented as NA values.
 #'
-#'   \cr **Rule evaluation**
 #'
-#'   * One of the arguments of the classification functions is the
-#'   \code{classVector}, a numeric vector that identifies what raster cells have
-#'   already been classified (non-NA values) and what have yet to be classified
-#'   (NA values). Cells that have already been classified are excluded from the
-#'   rule evaluation unless the argument \code{'overwrite_class = TRUE'}.
+#'   \cr __Rule evaluation, global evaluation__
 #'
-#'   * __Global evaluation__ \cr Classification rules are applied to all raster
-#'   cells (excluding the classified ones). This type of evaluation is common to
-#'   classification functions that do not have the argument \code{nbs_of}. Only
-#'   absolute conditions can have a global evaluation. See function
-#'   \code{\link{cond.4.all}}.
+#'   * Classification rules are applied to all unclassified raster
+#'   cells.
 #'
-#'   * __Focal evaluation__ \cr Classification rules are applied only to raster
-#'   cells contiguous to focal cells. This type of evaluation is common to
-#'   classification functions that have the argument \code{nbs_of}. The argument
-#'   \code{nbs_of} identifies the class(es) of the focal cells. See functions
-#'   \code{\link{anchor.seed}}, \code{\link{cond.4.nofn}} and
-#'   \code{\link{cond.reclass}}.
+#'   * Function using _global evaluation_: \code{\link{cond.4.all}}.
 #'
-#'       * Focal evaluation can take into account both absolute and relative rules;
+#'   **Rule evaluation, focal evaluation**
 #'
-#'       * Some classification functions do not have a \code{condition} argument.
-#'   Classifications performed by these functions are based on focal evaluations
-#'   and only take into account the spatial relationships existing among
-#'   different groups of cells. See functions \code{\link{reclass.nbs}} and
-#'   \code{\link{classify.all}}.
+#'   * Classification rules are applied only to raster cells at specific
+#'   locations and are based on class (dis)contiguity and class continuity.
+#'
+#'   * __Class contiguity:__ \cr classification rules are applied only to raster
+#'   cells contiguous to focal cells (identified in the \code{cond.*} functions
+#'   by the argument \code{nbs_of}).
+#'
+#'   * __Class continuity:__ \cr join into the same class cells that respect the
+#'   same rules and that are connected to the same focal cells.
+#'
+#'   * Function using _focal evaluation_: \code{\link{anchor.seed}},
+#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}},
+#'   \code{\link{reclass.nbs}} and \code{\link{classify.all}}.
 #'
 #'   \cr **Focal evaluation, definitions**
 #'
@@ -84,17 +82,18 @@
 #'   \code{(x±1, y±1)}. Cells on the edge of a raster have less than 8
 #'   neighbors. See \code{\link{ngbList}}.
 #'
-#'   * __Focal cell:__ cell identified by one of the classes of the argument
-#'   \code{nbs_of}.
+#'   * __Focal cell:__ cells whose neighbors are evaluated against the
+#'   classification rule(s). In the classification functions _focal cells_ are
+#'   identified by the argument \code{nbs_of}.
 #'
 #'   * __Test cell:__ the cell in the neighborhood of the focal cell that is
 #'   being tested. At turns all cells in the neighborhood of a focal cell are
-#'   tested against the classification rule.
+#'   tested against the classification rule(s).
 #'
 #'   * __Directional neighborhood:__ it consists of the intersection between the
 #'   focal and the test cell neighborhoods.
 #'
-#'   \cr**Absolute conditions**
+#'   \cr **Condition type: Absolute conditions**
 #'
 #'   __1) Absolute test cell condition:__ compares cell values against a
 #'   threshold value.
@@ -126,7 +125,7 @@
 #'
 #'   * Test cells receive a classification number if the rule is true for at
 #'   least as many evaluations as the ones specified by the argument
-#'   \code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 9
+#'   \code{peval}. The argument \code{peval} ranges from 0 to 1. When 9
 #'   evaluations are performed, \code{fn_perc = 1} means that all \code{9}
 #'   evaluations have to be true; \code{fn_perc = 0.5} means that at least
 #'   \code{4.5} (rounded to \code{5}) evaluations have to be true.
@@ -143,7 +142,7 @@
 #'   != 0"}. \cr _Functions:_ \code{\link{cond.4.nofn}} and
 #'   \code{\link{cond.reclass}}.
 #'
-#'   \cr **Relative conditions**
+#'   \cr **Condition type: Relative conditions**
 #'
 #'   __1) Relative focal cell condition:__ compares the \code{test cell} value
 #'   against the \code{focal cell} value.

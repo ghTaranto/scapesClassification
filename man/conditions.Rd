@@ -29,7 +29,7 @@ detect the type of conditions being used.
 \strong{Conditions (or classification rules)}
 \itemize{
 \item Classification rules evaluate either to true or false and determine what
-raster cells belong to a class.
+raster cells have to be classified.
 \item Conditions are passed to \code{scapesClassification} functions as a
 single character string. They can consist of combination of arithmetic
 \code{(+|-|*|/|^|\%\%|\%/\%)}, relational \code{(>|<|>=|<=|==|!=|\%/\%)} and
@@ -55,32 +55,25 @@ function conditions.
 \item Unclassified cells are represented as NA values.
 }
 
-\cr \strong{Rule evaluation}
+\cr \strong{Rule evaluation, global evaluation}
 \itemize{
-\item One of the arguments of the classification functions is the
-\code{classVector}, a numeric vector that identifies what raster cells have
-already been classified (non-NA values) and what have yet to be classified
-(NA values). Cells that have already been classified are excluded from the
-rule evaluation unless the argument \code{'overwrite_class = TRUE'}.
-\item \strong{Global evaluation} \cr Classification rules are applied to all raster
-cells (excluding the classified ones). This type of evaluation is common to
-classification functions that do not have the argument \code{nbs_of}. Only
-absolute conditions can have a global evaluation. See function
-\code{\link{cond.4.all}}.
-\item \strong{Focal evaluation} \cr Classification rules are applied only to raster
-cells contiguous to focal cells. This type of evaluation is common to
-classification functions that have the argument \code{nbs_of}. The argument
-\code{nbs_of} identifies the class(es) of the focal cells. See functions
-\code{\link{anchor.seed}}, \code{\link{cond.4.nofn}} and
-\code{\link{cond.reclass}}.
-\itemize{
-\item Focal evaluation can take into account both absolute and relative rules;
-\item Some classification functions do not have a \code{condition} argument.
-Classifications performed by these functions are based on focal evaluations
-and only take into account the spatial relationships existing among
-different groups of cells. See functions \code{\link{reclass.nbs}} and
-\code{\link{classify.all}}.
+\item Classification rules are applied to all unclassified raster
+cells.
+\item Function using \emph{global evaluation}: \code{\link{cond.4.all}}.
 }
+
+\strong{Rule evaluation, focal evaluation}
+\itemize{
+\item Classification rules are applied only to raster cells at specific
+locations and are based on class (dis)contiguity and class continuity.
+\item \strong{Class contiguity:} \cr classification rules are applied only to raster
+cells contiguous to focal cells (identified in the \code{cond.*} functions
+by the argument \code{nbs_of}).
+\item \strong{Class continuity:} \cr join into the same class cells that respect the
+same rules and that are connected to the same focal cells.
+\item Function using \emph{focal evaluation}: \code{\link{anchor.seed}},
+\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}},
+\code{\link{reclass.nbs}} and \code{\link{classify.all}}.
 }
 
 \cr \strong{Focal evaluation, definitions}
@@ -89,16 +82,17 @@ different groups of cells. See functions \code{\link{reclass.nbs}} and
 neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
 \code{(x±1, y±1)}. Cells on the edge of a raster have less than 8
 neighbors. See \code{\link{ngbList}}.
-\item \strong{Focal cell:} cell identified by one of the classes of the argument
-\code{nbs_of}.
+\item \strong{Focal cell:} cells whose neighbors are evaluated against the
+classification rule(s). In the classification functions \emph{focal cells} are
+identified by the argument \code{nbs_of}.
 \item \strong{Test cell:} the cell in the neighborhood of the focal cell that is
 being tested. At turns all cells in the neighborhood of a focal cell are
-tested against the classification rule.
+tested against the classification rule(s).
 \item \strong{Directional neighborhood:} it consists of the intersection between the
 focal and the test cell neighborhoods.
 }
 
-\cr\strong{Absolute conditions}
+\cr \strong{Condition type: Absolute conditions}
 
 \strong{1) Absolute test cell condition:} compares cell values against a
 threshold value.
@@ -126,7 +120,7 @@ cell itself and the cells of its neighborhood are compared against a
 threshold value).
 \item Test cells receive a classification number if the rule is true for at
 least as many evaluations as the ones specified by the argument
-\code{fn_perc}. The argument \code{fn_perc} ranges from 0 to 1. When 9
+\code{peval}. The argument \code{peval} ranges from 0 to 1. When 9
 evaluations are performed, \code{fn_perc = 1} means that all \code{9}
 evaluations have to be true; \code{fn_perc = 0.5} means that at least
 \code{4.5} (rounded to \code{5}) evaluations have to be true.
@@ -141,7 +135,7 @@ is not possible to have a condition string like \code{"variable_A{} > 0 &
 \code{\link{cond.reclass}}.
 }
 
-\cr \strong{Relative conditions}
+\cr \strong{Condition type: Relative conditions}
 
 \strong{1) Relative focal cell condition:} compares the \code{test cell} value
 against the \code{focal cell} value.
@@ -272,6 +266,9 @@ legend("bottomleft", ncol = 1, bg = "white", y.intersp= 1.3,
        legend = c("Focal cell", "Test cell"), fill = c("#1088a0", "goldenrod3"))
 }
 \seealso{
+\code{\link[=cond.4.all]{cond.4.all()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}}, \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=cond.reclass]{cond.reclass()}},
+\code{\link[=conditions]{conditions()}}
+
 \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.all]{cond.4.all()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}},
 \code{\link[=cond.reclass]{cond.reclass()}}, \code{\link[=classify.all]{classify.all()}}
 }
