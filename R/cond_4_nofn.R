@@ -26,25 +26,25 @@
 #'   number is only assigned to unclassified cells unless the argument
 #'   \code{ovw_class = TRUE}. See \code{\link{conditions}} for more details.
 #' @param min.bord numeric value between 0 and 1. A test cell is classified if
-#'   conditions are true **AND** if at least as many neighbors as the percentage
-#'   specified by \code{min.bord} belong to one of the classes of \code{nbs_of}.
-#'   Percentages are computed counting only valid neighbors (i.e., neighbors
-#'   with complete cases).
+#'   conditions are true and if among its bordering cells a percentage equal
+#'   or greater than \code{min.bord} belong to one of the classes of
+#'   \code{nbs_of}. Percentages are computed counting only valid neighbors
+#'   (i.e., neighbors with complete cases).
 #' @param max.iter integer, the maximum number of iterations.
 #' @param peval numeric value between 0 and 1. If _absolute or relative
 #'   neighborhood conditions_ are considered, test cells are classified if the
-#'   conditions are true for at least as many evaluations as the ones specified
-#'   by the argument \code{peval} (see \code{\link{conditions}}).
+#'   number of positive evaluations is equal or greater than the percentage
+#'   specified by the argument \code{peval} (see \code{\link{conditions}}).
 #' @param directional logic, absolute or relative neighborhood conditions are
 #'   tested using the _directional neighborhood_ (see \code{\link{conditions}}).
-#' @param ovw_class logic, reclassify cells that were already classified
-#'   and that meet the function conditions.
+#' @param ovw_class logic, reclassify cells that were already classified and
+#'   that meet the function conditions.
 #' @param hgrowth logic, if true the classes in \code{nbs_of} are treated as
 #'   discrete raster objects and the argument \code{class} is ignored.
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. See \code{\link{conditions}} for more details about class
-#' vectors.
+#'   vectors.
 #'
 #' @details \itemize{ \item The function evaluates the conditions of the
 #'   argument \code{cond} for all unclassified cells in the neighborhood of
@@ -80,8 +80,11 @@
 #'   * once cells contiguous to the last element of \code{nbs_of} are evaluated
 #'   the iteration is complete;
 #'
+#'   * cells classified in one iteration become focal cells in the next
+#'   iteration;
+#'
 #'   * a new iteration starts as long as new cells were classified in the
-#'   previuos iteration and if the iteration number < \code{max.iter}.
+#'   previous iteration and if the iteration number < \code{max.iter}.
 #'
 #' @seealso [conditions()], [attTbl()], [ngbList()]
 #'

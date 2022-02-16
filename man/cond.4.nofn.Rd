@@ -51,23 +51,23 @@ number is only assigned to unclassified cells unless the argument
 \code{ovw_class = TRUE}. See \code{\link{conditions}} for more details.}
 
 \item{min.bord}{numeric value between 0 and 1. A test cell is classified if
-conditions are true \strong{AND} if at least as many neighbors as the percentage
-specified by \code{min.bord} belong to one of the classes of \code{nbs_of}.
-Percentages are computed counting only valid neighbors (i.e., neighbors
-with complete cases).}
+conditions are true and if among its bordering cells a percentage equal
+or greater than \code{min.bord} belong to one of the classes of
+\code{nbs_of}. Percentages are computed counting only valid neighbors
+(i.e., neighbors with complete cases).}
 
 \item{max.iter}{integer, the maximum number of iterations.}
 
 \item{peval}{numeric value between 0 and 1. If \emph{absolute or relative
 neighborhood conditions} are considered, test cells are classified if the
-conditions are true for at least as many evaluations as the ones specified
-by the argument \code{peval} (see \code{\link{conditions}}).}
+number of positive evaluations is equal or greater than the percentage
+specified by the argument \code{peval} (see \code{\link{conditions}}).}
 
 \item{directional}{logic, absolute or relative neighborhood conditions are
 tested using the \emph{directional neighborhood} (see \code{\link{conditions}}).}
 
-\item{ovw_class}{logic, reclassify cells that were already classified
-and that meet the function conditions.}
+\item{ovw_class}{logic, reclassify cells that were already classified and
+that meet the function conditions.}
 
 \item{hgrowth}{logic, if true the classes in \code{nbs_of} are treated as
 discrete raster objects and the argument \code{class} is ignored.}
@@ -113,8 +113,10 @@ of \code{nbs_of}, then for cells contiguous to the third element and so on
 until the last element of \code{nbs_of};
 \item once cells contiguous to the last element of \code{nbs_of} are evaluated
 the iteration is complete;
+\item cells classified in one iteration become focal cells in the next
+iteration;
 \item a new iteration starts as long as new cells were classified in the
-previuos iteration and if the iteration number < \code{max.iter}.
+previous iteration and if the iteration number < \code{max.iter}.
 }
 }
 \examples{
