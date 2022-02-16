@@ -24,18 +24,17 @@
 #' @param cond character string, the conditions a cell have to meet to be
 #'   classified as indicated by the argument \code{class}. The classification
 #'   number is only assigned to unclassified cells unless the argument
-#'   \code{overwrite_class = TRUE}. See \code{\link{conditions}} for more
-#'   details.
+#'   \code{ovw_class = TRUE}. See \code{\link{conditions}} for more details.
 #' @param min.bord numeric value between 0 and 1. A test cell is classified if
 #'   conditions are true **AND** if at least as many neighbors as the percentage
-#'   specified by \code{min.border} belong to one of the classes of
-#'   \code{nbs_of}. Percentages are computed counting only valid neighbors
-#'   (i.e., neighbors with complete cases).
+#'   specified by \code{min.bord} belong to one of the classes of \code{nbs_of}.
+#'   Percentages are computed counting only valid neighbors (i.e., neighbors
+#'   with complete cases).
 #' @param max.iter integer, the maximum number of iterations.
 #' @param peval numeric value between 0 and 1. If _absolute or relative
 #'   neighborhood conditions_ are considered, test cells are classified if the
 #'   conditions are true for at least as many evaluations as the ones specified
-#'   by the argument \code{fn_perc} (see \code{\link{conditions}}).
+#'   by the argument \code{peval} (see \code{\link{conditions}}).
 #' @param directional logic, absolute or relative neighborhood conditions are
 #'   tested using the _directional neighborhood_ (see \code{\link{conditions}}).
 #' @param ovw_class logic, reclassify cells that were already classified
@@ -45,19 +44,20 @@
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. See \code{\link{conditions}} for more details about class
-#'   vectors.
+#' vectors.
 #'
 #' @details \itemize{ \item The function evaluates the conditions of the
-#'   argument \code{conditions} for all unclassified cells (i.e.,
-#'   \code{classVector} NA-cells) included in the neighborhood of focal and
-#'   anchor cells (specified by the argument \code{nbs_of}).
+#'   argument \code{cond} for all unclassified cells in the neighborhood of
+#'   focal and anchor cells (specified by the argument \code{nbs_of}).
+#'   Unclassified cells are NA-cells in \code{classVector}.
 #'
 #'   \item Cells that meet the function conditions are classified as indicted by
 #'   the argument \code{class}.
 #'
 #'   \item _Class continuity_ is considered if the classification number
 #'   assigned with the argument \code{class} is also included in the argument
-#'   \code{nbs_of} (see \code{\link{conditions}}).
+#'   \code{nbs_of}. This means that at each iteration, newly classified cells
+#'   become new focal cells and conditions are tested in their neighborhood.
 #'
 #'   \item All types of conditions can be used. The condition string can only
 #'   include one neighborhood condition (\code{'{}'}) (see
@@ -70,8 +70,8 @@
 #'   ignored. Iterations proceed as follow:
 #'
 #'   * cells contiguous to the first element of \code{nbs_of} are evaluated
-#'   against the \code{conditions} argument and, when evaluations are true, cell
-#'   are assigned to that element;
+#'   against the classification rules and, when evaluations are true, cells are
+#'   assigned to that element;
 #'
 #'   * the same process is repeated for cells contiguous to the second element
 #'   of \code{nbs_of}, then for cells contiguous to the third element and so on
@@ -447,7 +447,7 @@ cond.4.nofn <- function(attTbl,
 
 
       ### TEST FOR CONDITIONS #################### while//for//if//relative_condition ####
-      fct <- 1:length(n_ind)
+      fct <- seq_along(n_ind)
 
       # CONSIDERING TEST NEIGHBORHOOD
       if (tn) {
@@ -551,7 +551,7 @@ cond.4.nofn <- function(attTbl,
         }
 
         test_min_border <- rep(FALSE, length(i))
-        for (mb in 1:length(i)) {
+        for (mb in seq_along(i)) {
           nbg_index <- ngbList[[n_ind[mb]]]
           test_min_border[mb] <-
             sum(classVector[nbg_index] %in% nbs_itr) / 8 >= min.bord

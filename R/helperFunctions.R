@@ -427,7 +427,6 @@ cond_parse <- function(names_attTbl, cond){
 
     if(length(v_ab) == 0 & length(v_n) > 0){
 
-      cnd    <- "l_nAB$"
       v_nAB <- v_n
       v_n   <- character()
 
