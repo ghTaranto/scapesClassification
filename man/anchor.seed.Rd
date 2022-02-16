@@ -11,12 +11,12 @@ anchor.seed(
   class = NULL,
   cond.filter = NULL,
   cond.seed,
-  sort.col = NULL,
-  sort.seed = "max",
   cond.growth = NULL,
   lag.growth = Inf,
   cond.isol = NULL,
   lag.isol = 1,
+  sort.col = NULL,
+  sort.seed = "max",
   saveRDS = NULL,
   overWrite = FALSE,
   isol.buff = FALSE,
@@ -36,27 +36,18 @@ identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
 numbers for large rasters.}
 
 \item{class}{numeric, the classification number to assign to all cells that
-meet the function conditions. If \code{NULL}, a new class numbers is
+meet the function conditions. If \code{NULL}, a new class number is
 assigned every time a new seed cell is identified. Growth buffers have the
 same classification number as the seed cell to which they refer.}
 
-\item{cond.filter}{character string, the conditions to define for what cells
-the arguments \code{cond.seed}, \code{cond.growth} and \code{cond.isol}
-have to be evaluated. It can be \code{NULL}. Absolute conditions can be
-used (see \code{\link{conditions}}).}
+\item{cond.filter}{character string, defines for what cells the arguments
+\code{cond.seed}, \code{cond.growth} and \code{cond.isol} have to be
+evaluated. It can be \code{NULL}. Absolute conditions can be used (see
+\code{\link{conditions}}).}
 
 \item{cond.seed}{character string, the conditions to identify seed cells.
-Absolute conditions can be used (see \code{\link{conditions}}), including
-\code{"variable_x == max(variable_x)"} or \code{"variable_x ==
-  min(variable_x)"} if seed cell correspond to local maxima or minima. It
-cannot be \code{NULL}.}
-
-\item{sort.col}{character, the column name in the \code{attTbl} on which the
-\code{sort.seed} is based on.}
-
-\item{sort.seed}{character, sort seeds based on column values. If
-\code{"max"}, seeds are evaluated from the maximum to the minimum. If
-\code{"min"}, seeds are evaluated from the minimum to the maximum.}
+Absolute conditions can be used (see \code{\link{conditions}}). It cannot
+be \code{NULL}.}
 
 \item{cond.growth}{character string, the conditions to define a growth buffer
 around seed cells. It can be \code{NULL}. Absolute and focal cell
@@ -66,11 +57,22 @@ conditions can be used (see \code{\link{conditions}}).}
 in \code{cond.growth} are evaluated.}
 
 \item{cond.isol}{character string, the conditions to define an isolation
-buffer around seed cells. It can be \code{NULL}. Absolute and focal cell
-conditions can be used (see \code{\link{conditions}}).}
+buffer around seed cells and growth buffers. It can be \code{NULL}.
+Absolute and focal cell conditions can be used (see
+\code{\link{conditions}}).}
 
 \item{lag.isol}{numeric, it defines the lag on which focal cell conditions in
 \code{cond.isol} are evaluated.}
+
+\item{sort.col}{character, the column name in the \code{attTbl} on which the
+\code{sort.seed} is based on. It determines in what order seed buffers are
+computed.}
+
+\item{sort.seed}{character, the order seed buffers are computed is based on
+the value seed cells have in the \code{sort.col}. If
+\code{sort.seed="max"}, buffers are computed from the seed cell having the
+maximum value to the seed cell having the minimum value. If
+\code{sort.seed="min"}, buffers are computed in the opposite order.}
 
 \item{saveRDS}{filename, if a file name is provided save the class vector as
 an RDS file.}
@@ -78,15 +80,17 @@ an RDS file.}
 \item{overWrite}{logic, if the RDS names already exist, existing files are
 overwritten.}
 
-\item{silent}{logic, progress is not printed on the console.}
+\item{isol.buff}{logic, return the isolation buffer (class = -999).}
 
-\item{isolationBuff}{logic, return the isolation buffer (class = -1).}
+\item{silent}{logic, progress is not printed on the console.}
 }
 \value{
-Classification vector.
+Class vector. See \code{\link{conditions}} for more details about
+class vectors.
 }
 \description{
-Returns a vector of cell numbers at the locations of seed cells.
+Returns a vector of cell numbers at the locations of seed cells and growth
+buffers.
 }
 \details{
 This function implements an algorithm to identify seed cells, growth
@@ -110,57 +114,28 @@ growth buffer) from another.
 }
 
 \cr\strong{Iterations}
-\itemize{
-\item The argument \code{cond.filter} defines the set of cells to be considered
+
+The argument \code{cond.filter} defines the set of cells to be considered
 by the function.
+\enumerate{
 \item A seed cell is identified based on \code{cond.seed} and receives a
 classification number as specified by the argument \code{class}. If
 \code{class=NULL}, then a new class is assigned to every new seed cell.
-\item Cells continuous and continuous to the seed cell meeting the conditions
+\item Cells contiguous and continuous to the seed cell meeting the conditions
 specified by \code{cond.growth} are assigned to the same class of the seed
 cell (growth buffer).
-\item Cells continuous and continuous to the seed cell (and its growth buffer)
+\item Cells contiguous and continuous to the seed cell (and its growth buffer)
 meeting the conditions specified by \code{cond.isol} are assigned to the
-isolation buffer (\code{class = -1}).
+isolation buffer (\code{class = -999}).
 \item A new seed cell is identified and a new iteration starts. Seed, growth
 and isolation cells identified in previous iteration are ignored in
 successive iterations.
-\item The function stops when it cannot identify any new seed cell.
 }
 
-\cr\strong{Node structure}
-\itemize{
-\item The evaluation of \code{cond.growth} and \code{cond.isol} follows a node
-structure. Let us consider \code{cond.growth} as an example.
-\item At \code{level_0} there is a single node, a cell previously classified as
-\code{seed}. Every unclassified cell adjacent to the node in \code{level_0}
-that evaluates positively to \code{cond.growth} becomes a \code{level_1}
-node. The \code{level_0} cell becomes the \code{referenceNode} for
-\code{level_1}
-\item Then, the algorithm considers the first node at \code{level_1}.
-Unclassified cells adjacent to the first node evaluating positively to
-\code{cond.growth} become \code{level_2} nodes. The first node of
-\code{level_1} is set as a \code{referenceNode} for \code{level_2}.
-\item The algorithm then evaluates if one or more cells adjacent to the first
-node in \code{level_2} evaluate positively to \code{cond.growth}. If any
-does, then the first node of \code{level_2} is set as \code{referenceNode}
-for \code{level_3}.
-\item The algorithm continues in this way until \code{level_n} where none of
-the adjacent cells evaluate positively to \code{cond.growth}.
-\item At this point the algorithm considers cells adjacent to the second node
-at \code{level_n-1}. If any cell has a positive evaluation, then second
-node in \code{level_n-1} is set as \code{referenceNode} for \code{level_n}
-and the algorithm continues as described above.
-\item On the contrary, if none of the cells evaluate positively to
-\code{cond.growth}, the algorithm will remain at at \code{level_n-1} and
-will consider the next node. If none of the nodes at \code{level_n-1} has
-any neighboring cell evaluating positively to \code{cond.growth}, then the
-algorithm will move down to \code{level_n-2}.
-\item The evaluation of \code{cond.growth} will stop once the algorithm returns
-to \code{level_0}.
-}
+The function stops when it cannot identify any new seed cell.
 
-\strong{Relative conditions and evaluation lag}
+\cr\strong{Relative focal cell conditions and evaluation lag}
+
 This implementation allows to track back to \code{level_0} all the
 connected cells having a positive evaluation. When conditions relative to
 the focal cell are considered (see \code{\link{conditions}}), the arguments
@@ -282,7 +257,7 @@ mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
 mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
 mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
 mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (LAG = INF):")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (lag.growth=Inf):")
 mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
 mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
 mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
@@ -300,7 +275,7 @@ mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
 mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
 mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
 mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (LAG = 0):")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (lag.growth=0):")
 mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
 mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
 mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
