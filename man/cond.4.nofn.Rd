@@ -9,14 +9,14 @@ cond.4.nofn(
   ngbList,
   rNumb = FALSE,
   classVector,
-  nbs_of,
-  conditions,
   class,
-  min.border = NULL,
-  overwrite_class = FALSE,
+  nbs_of,
+  cond,
+  min.bord = NULL,
   max.iter = +Inf,
-  fn_perc = 1,
+  peval = 1,
   directional = FALSE,
+  ovw_class = FALSE,
   hgrowth = FALSE
 )
 }
@@ -36,39 +36,39 @@ numbers for large rasters.}
 that have already been classified. See \code{\link{conditions}} for more
 information about class vectors.}
 
+\item{class}{numeric, the classification number to assign to all cells that
+meet the function conditions.}
+
 \item{nbs_of}{numeric or numeric vector, indicates the class(es) of focal and
 anchor cells. Conditions are only evaluated at positions adjacent to anchor
 and focal cells. If the classification number assigned with the argument
 \code{class} is also included in the argument \code{nbs_of}, the function
 takes into account \emph{class continuity} (see \code{\link{conditions}}).}
 
-\item{conditions}{character string, the conditions a cell have to meet to be
+\item{cond}{character string, the conditions a cell have to meet to be
 classified as indicated by the argument \code{class}. The classification
 number is only assigned to unclassified cells unless the argument
 \code{overwrite_class = TRUE}. See \code{\link{conditions}} for more
 details.}
 
-\item{class}{numeric, the classification number to assign to all cells that
-meet the function conditions.}
-
-\item{min.border}{numeric value between 0 and 1. A test cell is classified if
+\item{min.bord}{numeric value between 0 and 1. A test cell is classified if
 conditions are true \strong{AND} if at least as many neighbors as the percentage
 specified by \code{min.border} belong to one of the classes of
 \code{nbs_of}. Percentages are computed counting only valid neighbors
 (i.e., neighbors with complete cases).}
 
-\item{overwrite_class}{logic, reclassify cells that were already classified
-and that meet the function conditions.}
-
 \item{max.iter}{integer, the maximum number of iterations.}
 
-\item{fn_perc}{numeric value between 0 and 1. If \emph{absolute or relative
+\item{peval}{numeric value between 0 and 1. If \emph{absolute or relative
 neighborhood conditions} are considered, test cells are classified if the
 conditions are true for at least as many evaluations as the ones specified
 by the argument \code{fn_perc} (see \code{\link{conditions}}).}
 
 \item{directional}{logic, absolute or relative neighborhood conditions are
 tested using the \emph{directional neighborhood} (see \code{\link{conditions}}).}
+
+\item{ovw_class}{logic, reclassify cells that were already classified
+and that meet the function conditions.}
 
 \item{hgrowth}{logic, if true the classes in \code{nbs_of} are treated as
 discrete raster objects and the argument \code{class} is ignored.}

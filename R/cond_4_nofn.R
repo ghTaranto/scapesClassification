@@ -14,32 +14,32 @@
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified. See \code{\link{conditions}} for more
 #'   information about class vectors.
+#' @param class numeric, the classification number to assign to all cells that
+#'   meet the function conditions.
 #' @param nbs_of numeric or numeric vector, indicates the class(es) of focal and
 #'   anchor cells. Conditions are only evaluated at positions adjacent to anchor
 #'   and focal cells. If the classification number assigned with the argument
 #' \code{class} is also included in the argument \code{nbs_of}, the function
 #' takes into account _class continuity_ (see \code{\link{conditions}}).
-#' @param conditions character string, the conditions a cell have to meet to be
+#' @param cond character string, the conditions a cell have to meet to be
 #'   classified as indicated by the argument \code{class}. The classification
 #'   number is only assigned to unclassified cells unless the argument
 #'   \code{overwrite_class = TRUE}. See \code{\link{conditions}} for more
 #'   details.
-#' @param class numeric, the classification number to assign to all cells that
-#'   meet the function conditions.
-#' @param min.border numeric value between 0 and 1. A test cell is classified if
+#' @param min.bord numeric value between 0 and 1. A test cell is classified if
 #'   conditions are true **AND** if at least as many neighbors as the percentage
 #'   specified by \code{min.border} belong to one of the classes of
 #'   \code{nbs_of}. Percentages are computed counting only valid neighbors
 #'   (i.e., neighbors with complete cases).
-#' @param overwrite_class logic, reclassify cells that were already classified
-#'   and that meet the function conditions.
 #' @param max.iter integer, the maximum number of iterations.
-#' @param fn_perc numeric value between 0 and 1. If _absolute or relative
+#' @param peval numeric value between 0 and 1. If _absolute or relative
 #'   neighborhood conditions_ are considered, test cells are classified if the
 #'   conditions are true for at least as many evaluations as the ones specified
 #'   by the argument \code{fn_perc} (see \code{\link{conditions}}).
 #' @param directional logic, absolute or relative neighborhood conditions are
 #'   tested using the _directional neighborhood_ (see \code{\link{conditions}}).
+#' @param ovw_class logic, reclassify cells that were already classified
+#'   and that meet the function conditions.
 #' @param hgrowth logic, if true the classes in \code{nbs_of} are treated as
 #'   discrete raster objects and the argument \code{class} is ignored.
 #'
@@ -320,122 +320,27 @@ cond.4.nofn <- function(attTbl,
                         ngbList,
                         rNumb = FALSE,
                         classVector,
-                        nbs_of,
-                        conditions,
                         class,
-                        min.border = NULL,
-                        overwrite_class = FALSE,
+                        nbs_of,
+                        cond,
+                        min.bord = NULL,
                         max.iter = +Inf,
-                        fn_perc = 1,
+                        peval = 1,
                         directional = FALSE,
+                        ovw_class = FALSE,
                         hgrowth = FALSE) {
 
   # TEST FOR COLUMN CELL IN attTbl
   if (!("Cell" %in% names(attTbl))){
-    stop("attribute table mising 'Cell' column. Check ?attTbl.")
+    stop("attribute table mising 'Cell' column. Check ?attTbl")
   }
-
 
   # TEST FOR CORRESPONDENCE attTbl, ngbList
   if (length(ngbList) != nrow(attTbl)) {
     stop("ngbList and attTbl shoud have the same length/nrows")
   }
 
-
-  ## HANDLE CONDITION STRING
-  # REMOVE SPACES AND DOUBLES (&& ||)
-  conditions <- stringr::str_replace_all(conditions, "\\&\\&", "\\&")
-  conditions <- stringr::str_replace_all(conditions, "\\|\\|", "\\|")
-  conditions <- stringr::str_replace_all(conditions, " ", "")
-
-  # TEST FOR CONDITION INTEGRITY
-  conditions(names(attTbl), conditions, silent = TRUE)
-
-  # DECONSTRUCT SRING TO DETECT CONDITION TYPES
-  cVect <- unlist(strsplit(conditions,"\\&|\\|"))
-  cVect <- cVect[cVect != ""]
-
-  vList <- list()
-
-  for(x in seq_along(cVect)){
-
-    v_ab <-
-      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "(?!\\[|\\{)"))]
-    v_fc <-
-      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "\\[\\]"))]
-    v_fn <-
-      names(attTbl)[stringr::str_detect(cVect[x], paste0(names(attTbl), "\\{\\}"))]
-    v_fnAB <- character()
-
-    for (v in v_ab) {
-      cVect[x] <-
-        stringr::str_replace_all(cVect[x], paste0(v, "(?!\\[|\\{)"), paste0("l_ab$", v))
-    }
-
-    for (v in v_fc) {
-      cVect[x] <-
-        stringr::str_replace_all(cVect[x], paste0(v, "\\[\\]"), paste0("l_fc$", v))
-    }
-
-    if(length(v_ab) == 0 & length(v_fn) > 0){
-
-      cnd    <- "l_fnAB$"
-      v_fnAB <- v_fn
-      v_fn   <- character()
-
-      for (v in v_fnAB) {
-        cVect[x] <-
-          stringr::str_replace_all(cVect[x], paste0(v, "\\{\\}"), paste0("l_fnAB$", v))
-      }
-
-    } else {
-
-      for (v in v_fn) {
-        cVect[x] <-
-          stringr::str_replace_all(cVect[x], paste0(v, "\\{\\}"), paste0("l_fn$", v))
-      }
-
-    }
-
-    vList[["v_ab"]]   <- c(vList[["v_ab"]], v_ab)
-    vList[["v_fc"]]   <- c(vList[["v_fc"]], v_fc)
-    vList[["v_fn"]]   <- c(vList[["v_fn"]], v_fn)
-    vList[["v_fnAB"]] <- c(vList[["v_fnAB"]], v_fnAB)
-
-  }
-
-  # RECONSTRUCT CONDITION STRINGS AND VARIABLES
-  ands <- stringr::str_locate_all(conditions, "\\&")[[1]]
-  ors  <- stringr::str_locate_all(conditions, c("\\|"))[[1]]
-
-  lg_op      <- as.data.frame( rbind(ands, ors) )
-  lg_op$type <- c(rep("&", nrow(ands)), rep("|", nrow(ors)))
-  lg_op      <- lg_op[order(lg_op$start),]
-
-  cond_parsed <- character()
-  for(x in seq_along(cVect)){
-
-    cond_parsed <- paste0(cond_parsed, cVect[x])
-
-    if(x <= nrow(lg_op)){
-      cond_parsed <- paste0(cond_parsed, lg_op$type[x])
-    }
-
-  }
-
-  cond_parsed <- parse(text=cond_parsed)
-
-
-  ## OVERWRITE CLASSES
-  if (!overwrite_class | is.na(overwrite_class)) {
-    flt <- parse(text = "is.na(classVector[n_ind])")
-  } else {
-    flt <-
-      parse(text = "(classVector[n_ind] != class | is.na(classVector[n_ind]))")
-  }
-
-
-  ## CONVERT NBS FORM CELL IDS TO CELL INDECES
+  # CONVERT NBS FORM CELL IDS TO CELL INDECES
   if(!rNumb){
     fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
     ngbList <- match(unlist(ngbList), attTbl$Cell)
@@ -448,40 +353,38 @@ cond.4.nofn <- function(attTbl,
     rm(fct, no_nas)
   }
 
+  # HANDLE CONDITION STRING
+  cond        <- cond_parse(cond, names(attTbl))
+  cond_parsed <- cond[[1]]
+
   ## CONDITIONS TYPE CONTROLS
-  v_ab   <- vList$v_ab
-  v_fc   <- vList$v_fc
-  v_fn   <- vList$v_fn
-  v_fnAB <- vList$v_fnAB
+  v_ab  <- cond[[2]][["v_ab"]]
+  v_fc  <- cond[[2]][["v_fc"]]
+  v_n   <- cond[[2]][["v_n"]]
+  v_nAB <- cond[[2]][["v_nAB"]]
 
-  fa   <- FALSE
-  fc   <- FALSE
-  fn   <- FALSE
-  fnAB <- FALSE
+  if (length(v_ab) > 0)  {fa = TRUE} else {fa = FALSE}
+  if (length(v_fc) > 0)  {fc = TRUE} else {fc = FALSE}
+  if (length(v_n) > 0)   {tn = TRUE} else {tn = FALSE}
+  if (length(v_nAB) > 0) {tnAB = TRUE} else {tnAB = FALSE}
 
-  if (length(v_ab) > 0) {fa = TRUE}
-  if (length(v_fc) > 0) {fc = TRUE}
-  if (length(v_fn) > 0) {fn = TRUE}
-  if (length(v_fnAB) > 0) {fnAB = TRUE}
-
-  ###INITIALIZE ALGORITHM #########################################################################
-  itr <- 0
-  if (is.na(max.iter) | is.null(max.iter)) {
-    max.iter <- +Inf
+  ## OVERWRITE CLASSES
+  if (!ovw_class | is.na(ovw_class)) {
+    flt <- parse(text = "is.na(classVector[n_ind])")
+  } else {
+    flt <-
+      parse(text = "(classVector[n_ind] != class | is.na(classVector[n_ind]))")
   }
 
-  if (is.null(min.border)) {
-    tb <- F
-  } else {
-    if (min.border > 1 |
-        min.border < 0)
-      stop("min.border have to be a numeric value between 0 and 1")
+  ###INITIALIZE ALGORITHM #########################################################################
+  if(is.null(min.bord)){tb <- F}
+  if(!is.null(min.bord)){
+    if (min.bord > 1|min.bord < 0){
+      stop("min.bord have to be a value between 0 and 1")}
     tb <- T
   }
 
-  if (is.na(fn_perc)) {
-    fn_perc <- 1
-  }
+  if (peval>1|peval<0){stop("peval have to be a value between 0 and 1")}
 
   # HOMOGENEOUS GROWTH
   if(hgrowth){
@@ -496,6 +399,7 @@ cond.4.nofn <- function(attTbl,
 
     }
 
+    # FOCAL CELLS BY RASTER OBJECT
     new_cell_id       <- new_cell_id_list[[1]]
     classification_t0 <- classification_t0_list[[1]]
     class   <- nbs_of[1]
@@ -504,6 +408,7 @@ cond.4.nofn <- function(attTbl,
     # NORMAL BEHAVIOUR
   } else {
 
+    # FOCAL CELLS
     new_cell_id       <- which(classVector %in% nbs_of)
     classification_t0 <- new_cell_id
 
@@ -517,7 +422,8 @@ cond.4.nofn <- function(attTbl,
   }
 
   ### RUN ALGORITHM #################################################################### while ####
-  continue          <- TRUE
+  continue <- TRUE
+  itr <- 0
 
   while (continue & itr < max.iter) {
     continue <- FALSE
@@ -526,7 +432,6 @@ cond.4.nofn <- function(attTbl,
     list_new_cell_ind <- list()
 
     for (c in new_cell_id) {
-      #
 
       n_ind    <- ngbList[[c]]
       n_indAll <- n_ind
@@ -542,8 +447,10 @@ cond.4.nofn <- function(attTbl,
 
       ### TEST FOR CONDITIONS #################### while//for//if//relative_condition ####
       fct <- 1:length(n_ind)
-      if (fn) {
-        # IF CONSIDERING FOCAL NEIGHBORHOOD
+
+      # CONSIDERING TEST NEIGHBORHOOD
+      if (tn) {
+
         if (directional) {
           fn_ind <- lapply(ngbList[n_ind], intersect, y = c(c, n_indAll))
         } else {
@@ -562,13 +469,13 @@ cond.4.nofn <- function(attTbl,
         fct <-
           rep(seq_along(lengths(fn_ind)), lengths(fn_ind)) # NUMBER OF FOCAL NEIGHBORS FOR EACH N_IND
 
-        l_fn <-
-          lapply(as.list(v_fn), function(x)
+        l_n <-
+          lapply(as.list(v_n), function(x)
             attTbl[[x]][unlist(fn_ind)])
-        names(l_fn) <- v_fn
+        names(l_n) <- v_n
       }
 
-      if (fnAB) {
+      if (tnAB) {
         # IF CONSIDERING ABSOLUTE CONDITION FOCAL NEIGHBORHOOD
         fn_ind <- mapply(c, ngbList[n_ind], n_ind, SIMPLIFY=FALSE)
 
@@ -588,10 +495,10 @@ cond.4.nofn <- function(attTbl,
         fct <-
           rep(seq_along(lengths(fn_ind)), lengths(fn_ind)) # NUMBER OF FOCAL NEIGHBORS FOR EACH N_IND
 
-        l_fnAB <-
-          lapply(as.list(v_fnAB), function(x)
+        l_nAB <-
+          lapply(as.list(v_nAB), function(x)
             attTbl[[x]][unlist(fn_ind)])
-        names(l_fnAB) <- v_fnAB
+        names(l_nAB) <- v_nAB
       }
 
       # FOCAL CELL CONDITION
@@ -615,13 +522,12 @@ cond.4.nofn <- function(attTbl,
       ### TEST FOR CELLS MEETING CONDITIONS ########################### while//for//conditions ####
       ev_cond <- eval(cond_parsed)
 
-      if (fn|fnAB) {
+      if (tn|tnAB) {
 
-        # if (fn|fnAB) {
         ev_cond <-
           sapply(split(ev_cond, fct), function(x)
             sum(x) / length(x), USE.NAMES = F)
-        i       <- which(ev_cond >= fn_perc)
+        i       <- which(ev_cond >= peval)
       } else {
         i <- which(ev_cond)
       }
@@ -647,7 +553,7 @@ cond.4.nofn <- function(attTbl,
         for (mb in 1:length(i)) {
           nbg_index <- ngbList[[n_ind[mb]]]
           test_min_border[mb] <-
-            sum(classVector[nbg_index] %in% nbs_itr) / 8 >= min.border
+            sum(classVector[nbg_index] %in% nbs_itr) / 8 >= min.bord
 
         }
 
