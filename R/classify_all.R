@@ -34,8 +34,8 @@
 #' # DUMMY DATA
 #' ############################################################################
 #' # LOAD LIBRARIES
-#' library(terra)
 #' library(scapesClassification)
+#' library(terra)
 #'
 #' # LOAD THE DUMMY RASTER
 #' r <- list.files(system.file("extdata", package = "scapesClassification"),
@@ -68,21 +68,25 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
+#' par(mfrow=c(1,2))
+#' m <- c(3, 1, 5, 1)
 #'
 #' # 1)
-#' plot(r_cv, type="classes", axes=FALSE, legend=FALSE, asp=NA, colNA="#818792",
-#'      col=c("#78b2c4", "#cfc1af"))
+#' plot(r_cv, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar=m,
+#'      colNA="#818792", col=c("#78b2c4", "#cfc1af"))
 #' text(r)
-#' title("EXAMPLE CV", adj = 0.0, line = 0.5)
+#' mtext(side=3, line=2, adj=0, cex=1, font=2, "COND.4.ALL")
+#' mtext(side=3, line=1, adj=0, cex=0.9, "Step1: 'dummy_var==1', Class: 1")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "Step2: 'dummy_var<=3', Class: 2")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
 #'        legend = c("Class 1", "Class 2", "Unclassified cells"))
 #'
 #' # 2)
-#' plot(r_ca, type="classes", axes=FALSE, legend=FALSE, asp=NA, colNA="#818792",
-#'      col=c("#78b2c4", "#cfc1af"))
+#' plot(r_ca, type="classes", axes=FALSE, legend=FALSE, asp=NA,  mar=m,
+#'      colNA="#818792", col=c("#78b2c4", "#cfc1af"))
 #' text(r)
-#' title("CLASSIFY.ALL", adj = 0.0, line = 0.5)
+#' mtext(side=3, line=2, adj=0, cex=1, font=2, "CLASSIFY.ALL")
+#' mtext(side=3, line=1, adj=0, cex=0.9, "Classify all unclassified cells")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
 #'        legend = c("Class 1", "Class 2"))
 

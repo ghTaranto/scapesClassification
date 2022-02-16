@@ -42,7 +42,7 @@ same classification number as the seed cell to which they refer.}
 
 \item{cond.filter}{character string, the conditions to define for what cells
 the arguments \code{cond.seed}, \code{cond.growth} and \code{cond.isol}
-have to evaluated. It can be \code{NULL}. Absolute conditions can be
+have to be evaluated. It can be \code{NULL}. Absolute conditions can be
 used (see \code{\link{conditions}}).}
 
 \item{cond.seed}{character string, the conditions to identify seed cells.
@@ -72,13 +72,13 @@ conditions can be used (see \code{\link{conditions}}).}
 \item{lag.isol}{numeric, it defines the lag on which focal cell conditions in
 \code{cond.isol} are evaluated.}
 
-\item{saveRDS}{filename, if a file name is provided save the anchor cell
-vector as an RDS file.}
+\item{saveRDS}{filename, if a file name is provided save the class vector as
+an RDS file.}
 
 \item{overWrite}{logic, if the RDS names already exist, existing files are
 overwritten.}
 
-\item{isolationBuff}{logic, return the isolation buffer (class = -1)..}
+\item{isolationBuff}{logic, return the isolation buffer (class = -1).}
 
 \item{silent}{logic, progress is not printed on the console.}
 }
@@ -89,55 +89,78 @@ Classification vector.
 Returns a vector of cell numbers at the locations of seed cells.
 }
 \details{
-This function implements an algorithm to identify local maxima or
-minima based on a set of \code{\link{conditions}}. It is possible to
-identify local maxima or minima considering only a subset of cells using
-the argument \code{cond.filter}.
+This function implements an algorithm to identify seed cells, growth
+buffers and isolation buffers.
 
-The algorithm starts identifying the cell(s) meeting the conditions of the
-argument \code{cond.seed}. This cell(s) can be referred to as \code{seed}
-cell(s). If a \code{cond.growth} argument is provided, all cells around the
-\code{seed} meeting the conditions of \code{cond.growth} are also
-classified as \code{seed}. The algorithm will continue looking for new
-\code{seed} cells as long as among the neighbors of the newly classified
-\code{seed} cells there are cells that meet the conditions of
-\code{cond.growth}. In the next step, cells adjacent to \code{seed} cells
-meeting the conditions of the argument \code{cond.isol} are classified as
-\code{isolator} cells. As for \code{seed} cells, the algorithm will
-continue looking for \code{isolator} cells as long as among the neighbors
-of the newly classified \code{isolator} cells there are cells that meet the
-conditions of \code{cond.isol}. When a cell is classified either as
-\code{seed} or as \code{isolator}, then it is ignored in all successive
-iterations of the algorithm. The \code{cond.seed}, \code{cond.growth},
-\code{cond.isol} process is repeated until all cells are classified either
-as \code{seed} or as \code{isolator}.
+\cr\strong{Condition arguments}
 
-The evaluation of \code{cond.growth} and \code{cond.isol} follows a node
-structure. Let us consider \code{cond.growth} as an example and refer to
-'the conditions of the \code{cond.growth} argument' simply as \code{cond}.
-At \code{level_0} there is a single node, a cell previously classified as
-\code{seed}. Each cell adjacent to the node in \code{level_0} that evaluate
-positively to \code{cond} represents a node at \code{level_1}. Suppose that
-at \code{level_1} there are one or more nodes. The algorithm then considers
-the first of these nodes and looks for neighbor cells evaluating positively
-to \code{cond}. If one or more cells do, then the first node of
-\code{level_1} is set as \code{referenceNode} for \code{level_2}. The
-algorithm then evaluates if one or more cells adjacent to the first node in
-\code{level_2} evaluate positively to \code{cond}. If any does, then the
-first node of \code{level_2} is set as \code{referenceNode} for
-\code{level_3}. The algorithm continues in this way until \code{level_n}
-where none of the adjacent cells evaluate positively to \code{cond}. At
-this point the algorithm considers cells adjacent to the second node at
-\code{level_n-1}. If any cell has a positive evaluation, then second node
-in \code{level_n-1} is set as \code{referenceNode} for \code{level_n} and
-the algorithm continues as described above. On the contrary, if none of the
-cells evaluate positively to \code{cond}, the algorithm will remain at at
-\code{level_n-1} and will consider the next node. If none of the nodes at
-\code{level_n-1} has any neighboring cell evaluating positively to
-\code{cond}, then the algorithm will move down to \code{level_n-2}. The
-evaluation of \code{cond.growth} will stop once the algorithm returns to
-\code{level_0}.
+The function takes as inputs four sets of conditions with
+\code{cond.growth} and \code{cond.isol} taking into account class
+contiguity and continuity (see \code{\link{conditions}}):
+\enumerate{
+\item \strong{\code{cond.filter}}, the conditions to define what cells have to be
+evaluated by the function.
+\item \strong{\code{cond.seed}}, the conditions to identify, at each iteration, the
+seed cell. The seed cell is the cell around which growth and isolation
+conditions are applied.
+\item \strong{\code{cond.growth}}, the conditions to define a buffer around the
+seed cell.
+\item \strong{\code{cond.isol}}, the conditions to isolate one seed cell (and its
+growth buffer) from another.
+}
 
+\cr\strong{Iterations}
+\itemize{
+\item The argument \code{cond.filter} defines the set of cells to be considered
+by the function.
+\item A seed cell is identified based on \code{cond.seed} and receives a
+classification number as specified by the argument \code{class}. If
+\code{class=NULL}, then a new class is assigned to every new seed cell.
+\item Cells continuous and continuous to the seed cell meeting the conditions
+specified by \code{cond.growth} are assigned to the same class of the seed
+cell (growth buffer).
+\item Cells continuous and continuous to the seed cell (and its growth buffer)
+meeting the conditions specified by \code{cond.isol} are assigned to the
+isolation buffer (\code{class = -1}).
+\item A new seed cell is identified and a new iteration starts. Seed, growth
+and isolation cells identified in previous iteration are ignored in
+successive iterations.
+\item The function stops when it cannot identify any new seed cell.
+}
+
+\cr\strong{Node structure}
+\itemize{
+\item The evaluation of \code{cond.growth} and \code{cond.isol} follows a node
+structure. Let us consider \code{cond.growth} as an example.
+\item At \code{level_0} there is a single node, a cell previously classified as
+\code{seed}. Every unclassified cell adjacent to the node in \code{level_0}
+that evaluates positively to \code{cond.growth} becomes a \code{level_1}
+node. The \code{level_0} cell becomes the \code{referenceNode} for
+\code{level_1}
+\item Then, the algorithm considers the first node at \code{level_1}.
+Unclassified cells adjacent to the first node evaluating positively to
+\code{cond.growth} become \code{level_2} nodes. The first node of
+\code{level_1} is set as a \code{referenceNode} for \code{level_2}.
+\item The algorithm then evaluates if one or more cells adjacent to the first
+node in \code{level_2} evaluate positively to \code{cond.growth}. If any
+does, then the first node of \code{level_2} is set as \code{referenceNode}
+for \code{level_3}.
+\item The algorithm continues in this way until \code{level_n} where none of
+the adjacent cells evaluate positively to \code{cond.growth}.
+\item At this point the algorithm considers cells adjacent to the second node
+at \code{level_n-1}. If any cell has a positive evaluation, then second
+node in \code{level_n-1} is set as \code{referenceNode} for \code{level_n}
+and the algorithm continues as described above.
+\item On the contrary, if none of the cells evaluate positively to
+\code{cond.growth}, the algorithm will remain at at \code{level_n-1} and
+will consider the next node. If none of the nodes at \code{level_n-1} has
+any neighboring cell evaluating positively to \code{cond.growth}, then the
+algorithm will move down to \code{level_n-2}.
+\item The evaluation of \code{cond.growth} will stop once the algorithm returns
+to \code{level_0}.
+}
+
+\strong{Relative conditions and evaluation lag}
 This implementation allows to track back to \code{level_0} all the
 connected cells having a positive evaluation. When conditions relative to
 the focal cell are considered (see \code{\link{conditions}}), the arguments
@@ -150,6 +173,137 @@ considering the initial node cell at \code{level_0}. If the lag is greater
 than the level at which the evaluation occurs, then the conditions are
 evaluated considering the initial node cell at \code{level_0} (e.g.,
 \code{level_1}, \code{lag = 2}).
+}
+\examples{
+# DUMMY DATA
+############################################################################
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"),
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
+r <- terra::rast(r)
+
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+# SET FIGURE MARGINS
+m <- c(4.2, 1, 1, 15)
+
+############################################################################
+# EXAMPLE PLOTS
+############################################################################
+# 1.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)")
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, col=terrain.colors(30)[-1],
+     asp=NA, axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
+mtext(side=1, line=2, cex=0.9, adj=1, "NULL")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+
+# 2.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
+                  cond.growth = "dummy_var<dummy_var[] & dummy_var>2")
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
+     axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
+mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[] & dummy_var>2")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+
+# 3.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
+                  cond.growth = "dummy_var<dummy_var[] & dummy_var>2",
+                  cond.isol = "dummy_var<dummy_var[]")
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
+     axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
+mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[] & dummy_var>2")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "dummy_var<dummy_var[]")
+
+# 4.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.seed = "dummy_var >= 5", cond.growth = "dummy_var >= 5")
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
+     axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "NULL")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var >= 5")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
+mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var >= 5")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+
+# 5.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
+                  cond.growth = "dummy_var<dummy_var[]", lag.growth = Inf)
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
+     axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (LAG = INF):")
+mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+
+# 6.
+as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
+                  cond.growth = "dummy_var<dummy_var[]", lag.growth = 0)
+
+plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
+     axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
+text(r)
+lines(r)
+mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
+mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
+mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
+mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
+mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (LAG = 0):")
+mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
+mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
+mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}

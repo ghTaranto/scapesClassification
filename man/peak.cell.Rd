@@ -47,8 +47,8 @@ neighboring cells have larger values.}
 # DUMMY DATA
 ################################################################################
 # LOAD LIBRARIES
-library(terra)
 library(scapesClassification)
+library(terra)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
@@ -79,22 +79,25 @@ r_pcb <- cv.2.rast(r, at$Cell, classVector = pc_b, plot = FALSE)
 
 #PLOTS
 ###############################################################################
-par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
+par(mfrow=c(1,2))
+m <- c(4, 1, 4, 1)
 
 # PLOT 1 - p_edge = FALSE
-plot(r_pca, axes=FALSE, legend=FALSE, asp=NA,
+plot(r_pca, axes=FALSE, legend=FALSE, asp=NA, mar=m,
      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
-title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = FALSE")
+mtext(side=3, line=1, adj=0, cex=1, font=2, "PEAK.CELL")
+mtext(side=3, line=0, adj=0, cex=0.9, "p_edge = FALSE")
 legend("bottomright", bg = "white",
        legend = c("Peak cell", "Unclassified cells"),
        fill = c("#cfad89", "#818792"))
 
 # PLOT 2 - p_edge = TRUE
-plot(r_pcb, axes=FALSE, legend=FALSE, asp=NA,
+plot(r_pcb, axes=FALSE, legend=FALSE, asp=NA, mar=m,
     colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
-title("PEAK.CELL", adj = 0.0, line = 1, sub = "argument: p_edge = TRUE")
+mtext(side=3, line=1, adj=0, cex=1, font=2, "PEAK.CELL")
+mtext(side=3, line=0, adj=0, cex=0.9, "p_edge = TRUE")
 legend("bottomright", bg = "white",
        legend = c("Peak cell", "Unclassified cells"),
        fill = c("#cfad89", "#818792"))

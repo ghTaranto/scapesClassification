@@ -58,8 +58,8 @@ the argument \code{class}.
 ################################################################################
 # LOAD DATA
 ################################################################################
-library(terra)
 library(scapesClassification)
+library(terra)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
@@ -95,24 +95,28 @@ r_cv2 <- cv.2.rast(r, at$Cell, classVector = cv2)
 ################################################################################
 # PLOTS
 ################################################################################
-par(mar = c(4, 0.5, 4, 0.5), mfrow=c(1,2))
+par(mfrow=c(1,2))
+m <- c(4, 1, 4, 1)
 
 # 1)
-plot(r_cv1, type="classes", axes=FALSE, legend=FALSE, asp=NA, col="#78b2c4", colNA="#818792")
+plot(r_cv1, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar=m,
+     col="#78b2c4", colNA="#818792")
 text(r)
-title("COND.4.ALL", adj = 0.0, line = 1,
-      sub = "New class vector
-      rule: 'dummy_var == 1'; class: 1")
+mtext(side=3, line=1, adj=0, cex=1, font=2, "COND.4.ALL")
+mtext(side=3, line=0, adj=0, cex=0.9, "New class vector")
+mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var == 1'")
+mtext(side=1, line=1, cex=0.9, adj=0, "Class: 1")
 legend("bottomleft", bg = "white", fill = c("#78b2c4", "#818792"),
        legend = c("Class 1", "Unclassified cells"))
 
 # 2)
-plot(r_cv2, type="classes", axes=FALSE, legend=FALSE, asp=NA, col=c("#78b2c4","#cfad89"),
-     colNA="#818792")
+plot(r_cv2, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar=m,
+     col=c("#78b2c4","#cfad89"), colNA="#818792")
 text(r)
-title("COND.4.ALL", adj = 0.0, line = 1,
-      sub = "Update class vector (class 1 is not overwritten)
-      rule: 'dummy_var <= 3'; class: 2")
+mtext(side=3, line=1, adj=0, cex=1, font=2, "COND.4.ALL")
+mtext(side=3, line=0, adj=0, cex=0.9, "Update class vector (class 1 is not overwritten)")
+mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var <= 3'")
+mtext(side=1, line=1, cex=0.9, adj=0, "Class: 2")
 legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Class 1", "Class 2", "Unclassified cells"))
 }

@@ -45,8 +45,8 @@
 #' # DUMMY DATA
 #' ################################################################################
 #' # LOAD LIBRARIES AND DATA
-#' library(terra)
 #' library(scapesClassification)
+#' library(terra)
 #'
 #' # CELL NUMBERS OF A DUMMY RASTER (7X7)
 #' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
@@ -77,29 +77,33 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(2,2), mar=c(2, 2, 3, 2))
+#' par(mfrow=c(2,2))
+#' m = c(1, 3.5, 2.5, 3.5)
 #'
 #' # 1)
-#' plot(r_cv1,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
+#' plot(r_cv1,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4",mar=m)
 #' text(r_cn)
-#' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
-#'       sub = "class2cell = TRUE; class2nbs = FALSE")
+#' mtext(side=3, line=1, adj=0, cex=1, font=2, "ANCHOR.CELL")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "anchor cells '1:7'")
+#' mtext(side=1, line=0, cex=0.9, adj=0, "class2cell = TRUE; class2nbs = FALSE")
 #' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
 #'
 #' # 2)
-#' plot(r_cv2,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
+#' plot(r_cv2,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4",mar=m)
 #' text(r_cn)
-#' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
-#'       sub = "class2cell = FALSE; class2nbs = TRUE")
+#' mtext(side=3, line=1, adj=0, cex=1, font=2, "ANCHOR.CELL")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "anchor cells '1:7'")
+#' mtext(side=1, line=0, cex=0.9, adj=0, "class2cell = FALSE; class2nbs = TRUE")
 #' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
 #'
 #' # 3)
-#' plot(r_cv3,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4")
+#' plot(r_cv3,type="classes",axes=FALSE,legend=FALSE,asp=NA,colNA="#818792",col="#78b2c4",mar=m)
 #' text(r_cn)
-#' title("ANCHOR.CELL (anchor cells '1:7')", adj = 0.0, line = 0.2,
-#'       sub = "class2cell = TRUE; class2nbs = TRUE")
+#' mtext(side=3, line=1, adj=0, cex=1, font=2, "ANCHOR.CELL")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "anchor cells '1:7'")
+#' mtext(side=1, line=0, cex=0.9, adj=0, "class2cell = TRUE; class2nbs = TRUE")
 #' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
 

@@ -91,19 +91,20 @@ at <- attTbl(r, var_names = c("dummy_var"))
 rcn <- r; rcn[] <- 1:9
 
 ## PLOT DATA AND CELL NUMBERS ##
-par(mar = c(2, 0.5, 2, 0.5), mfrow=c(1,2))
+par(mfrow=c(1,2))
+m <- c(4, 1, 4, 1)
 
-plot(r, col="grey90", colNA="red3", asp = NA, axes=FALSE, legend=FALSE)
+plot(r, col="grey90", colNA="red3", mar=m, asp=NA, axes=FALSE, legend=FALSE)
 text(r)
 lines(r)
-title("Dummy_var")
+mtext(side=3, line=0.2, adj=0, cex=1.5, font=2, "Dummy_var")
 legend("bottomright", ncol = 1, bg = "white", fill = c("red3"),
        legend = c("NA cells (1 and 4)"))
 
-plot(rcn, col="grey90", colNA="red3", asp = NA, axes=FALSE, legend=FALSE)
+plot(rcn, col="grey90", mar=m, asp = NA, axes=FALSE, legend=FALSE)
 text(rcn)
 lines(rcn)
-title("Cell numbers")
+mtext(side=3, line=0.2, adj=0, cex=1.5, font=2, "Cell numbers")
 
 
 ## NEIGHBORHOODS - CELL NUMBERS ##

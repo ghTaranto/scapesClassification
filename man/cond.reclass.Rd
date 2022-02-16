@@ -69,8 +69,8 @@ condition string can only include one neighborhood condition (\code{'{}'})
 (see \code{\link{conditions}}).}
 }
 \examples{
-library(terra)
 library(scapesClassification)
+library(terra)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
@@ -113,13 +113,18 @@ r_cr <- cv.2.rast(r, at$Cell,classVector = cr, plot = FALSE)
 ################################################################################
 # PLOTS
 ################################################################################
-plot(r_cr, type="classes", axes=FALSE, legend = FALSE, asp=NA,
+m <- c(3, 8, 2, 8)
+
+plot(r_cr, type="classes", axes=FALSE, legend = FALSE, asp=NA, mar=m,
      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 text(r)
-title("COND.RECLASS", adj = 0.0, line = 1,
- sub =
- "Rule: 'dummy_var > 1'; Function: cond.4.all; Class: 1
-Rule: 'dummy_var > 5'; Function: cond.reclass; Class: 2")
+mtext(side=3, line=0, adj=0, cex=1, font=2, "COND.RECLASS")
+mtext(side=1, line=0, cex=0.9, adj=0, "Step1")
+mtext(side=1, line=0, cex=0.9, adj=0.5, "cond.4.all: 'dummy_var > 1'")
+mtext(side=1, line=0, cex=0.9, adj=1, "Class: 1")
+mtext(side=1, line=1, cex=0.9, adj=0, "Step2")
+mtext(side=1, line=1, cex=0.9, adj=0.5, "cond.reclass: 'dummy_var > 5'")
+mtext(side=1, line=1, cex=0.9, adj=1, "Class: 2")
 legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
        legend = c("Class 1","Class 2 (reclass)","Unclassified cells"))
 }

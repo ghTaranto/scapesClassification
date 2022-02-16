@@ -63,8 +63,8 @@ is reclassifies as indicated by the argument \code{reclass}.
 cell.}
 }
 \examples{
-library(terra)
 library(scapesClassification)
+library(terra)
 
 # LOAD THE DUMMY RASTER
 r <- list.files(system.file("extdata", package = "scapesClassification"),
@@ -135,40 +135,40 @@ r_rc2 <- cv.2.rast(r, at$Cell,classVector = rc2, plot = FALSE)
 ################################################################################
 # PLOTS
 ################################################################################
-par(mfrow=c(2,2), mar=c(3, 2, 4, 2))
+par(mfrow=c(2,2))
+m = c(0.1, 3.5, 3.2, 3.5)
 
 
 # 1)
-plot(r_cv, type="classes", axes=FALSE, legend = FALSE, asp = NA,
+plot(r_cv, type="classes", axes=FALSE, legend = FALSE, asp = NA, mar=m,
      colNA="#818792", col=c("#1088a0", "#78b2c4"))
 text(r)
-title("STEPS 1&2. COND.4.ALL", adj = 0.0, line = 1,
-      sub="Step1. Rule: 'dummy_var > 5'; class: 1\nStep2. Rule: 'dummy_var > 3'; class: 2")
-legend("bottomright", ncol = 1, bg = "white",
+mtext(side=3, line=2, adj=0, cex=1, font=2, "COND.4.ALL")
+mtext(side=3, line=1, adj=0, cex=0.9, "Step1: 'dummy_var > 5', class: 1")
+mtext(side=3, line=0, adj=0, cex=0.9, "Step2: 'dummy_var > 3', class: 2")
+legend("bottomright", ncol = 1, bg = "white", y.intersp= 1.2,
        legend = c("Class 1", "Class 2", "Unclassified cells"),
       fill = c("#1088a0", "#78b2c4", "#818792"))
 
 # 2)
-plot(r_rc1, type="classes", axes=FALSE, legend = FALSE, asp = NA,
+plot(r_rc1, type="classes", axes=FALSE, legend = FALSE, asp = NA, mar=m,
      colNA="#818792", col=c("#1088a0", "#78b2c4", "#cfad89"))
 text(r)
-title("STEP 3a. RECLASS.NBS", adj = 0.0, line = 1,
-      sub="reclass_all = FALSE\nreclass based on 'cell contiguity'")
-legend("bottomright", ncol = 1, bg = "white",
-       legend = c("Class 1", "Class 2", "Reclassified cells",
-                  "Unclassified cells"),
-       fill = c("#1088a0", "#78b2c4", "#cfad89", "#818792"))
+mtext(side=3, line=2, adj=0, cex=1, font=2, "RECLASS.NBS")
+mtext(side=3, line=1, adj=0, cex=0.9, "Reclass: class 2 adjacent to class 1")
+mtext(side=3, line=0, adj=0, cex=0.9, "reclass_all = FALSE")
+legend("bottomright", ncol = 1, bg = "white", y.intersp= 1.2,
+       legend = c("Reclassified cells"), fill = c("#cfad89"))
 
 # 3)
-plot(r_rc2, type="classes", axes=FALSE, legend = FALSE, asp = NA,
+plot(r_rc2, type="classes", axes=FALSE, legend = FALSE, asp = NA, mar=m,
      colNA="#818792", col=c("#1088a0", "#78b2c4", "#cfad89"))
 text(r)
-title("STEP 3b. RECLASS.NBS", adj = 0.0, line = 1,
-      sub="reclass_all = TRUE\nreclass based on 'cell continuity'")
-legend("bottomright", ncol = 1, bg = "white",
-       legend = c("Class 1", "Reclassified cells",
-                  "Unclassified cells"),
-       fill = c("#1088a0", "#cfad89", "#818792"))
+mtext(side=3, line=2, adj=0, cex=1, font=2, "RECLASS.NBS")
+mtext(side=3, line=1, adj=0, cex=0.9, "Reclass: class 2 adjacent to class 1")
+mtext(side=3, line=0, adj=0, cex=0.9, "reclass_all = TRUE")
+legend("bottomright", ncol = 1, bg = "white", y.intersp= 1.2,
+       legend = c("Reclassified cells"), fill = c("#cfad89"))
 }
 \seealso{
 \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=cond.reclass]{cond.reclass()}}, \code{\link[=classify.all]{classify.all()}}

@@ -56,8 +56,8 @@ numeric output is equivalent to the output of the function
 # DUMMY DATA
 ################################################################################
 # LOAD LIBRARIES AND DATA
-library(terra)
 library(scapesClassification)
+library(terra)
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
 r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
@@ -88,41 +88,50 @@ r4 <- r_cn; r4[] <- NA; r4[ac4] <- 1
 ################################################################################
 # PLOTS
 ################################################################################
-par(mfrow=c(2,2), mar=c(3, 2, 2, 2))
+par(mfrow=c(2,2))
+m = c(1, 3.5, 2.5, 3.5)
 
 # 1)
-plot(r1, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
+plot(r1, type="classes", col="#78b2c4", colNA="grey", axes=FALSE, legend=FALSE, asp=NA, mar=m)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
-title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = FALSE\nac=",
-      paste0(sort(ac1), collapse = ",")))
+mtext(side=3, line=1, cex=0.9, adj=0, "only_NAs = FALSE")
+mtext(side=3, line=0, cex=0.9, adj=0, "fill_NAs = FALSE")
+ac1 <- paste("ac =", paste0(sort(ac1), collapse = ","))
+mtext(side=1, line=0, cex=0.9, adj=0, ac1)
 legend("bottomleft", ncol = 1, bg = "white",
-       legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
+       legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 2)
-plot(r2, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE,legend = FALSE, asp = NA)
+plot(r2, type="classes", col="#78b2c4", colNA="grey", axes=FALSE,legend=FALSE, asp=NA, mar=m)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
-title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = FALSE\nac=",
-      paste0(sort(ac2), collapse = ",")))
+mtext(side=3, line=1, cex=0.9, adj=0, "only_NAs = TRUE")
+mtext(side=3, line=0, cex=0.9, adj=0, "fill_NAs = FALSE")
+ac2 <- paste("ac =", paste0(sort(ac2), collapse = ","))
+mtext(side=1, line=0, cex=0.9, adj=0, ac2)
 legend("bottomleft", ncol = 1, bg = "white",
-       legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
+       legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 3)
-plot(r3, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
+plot(r3, type="classes", col="#78b2c4", colNA="grey", axes=FALSE, legend=FALSE, asp=NA, mar=m)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
-title(adj = 0.0, line = 1, sub = paste0("only_NAs = FALSE; fill_NAs = TRUE\nac=",
-      paste0(sort(ac3), collapse = ",")))
+mtext(side=3, line=1, cex=0.9, adj=0, "only_NAs = FALSE")
+mtext(side=3, line=0, cex=0.9, adj=0, "fill_NAs = TRUE")
+ac3 <- paste("ac =", paste0(sort(ac3), collapse = ","))
+mtext(side=1, line=0, cex=0.9, adj=0, ac3)
 legend("bottomleft", ncol = 1, bg = "white",
-       legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
+       legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
 
 # 4)
-plot(r4, type="classes", col="#78b2c4", colNA= "grey", axes=FALSE, legend = FALSE, asp = NA)
+plot(r4, type="classes", col="#78b2c4", colNA="grey", axes=FALSE, legend=FALSE, asp=NA, mar=m)
 plot(pol, add = TRUE, lwd = 2.5, border = "red")
 text(r_cn)
-title(adj = 0.0, line = 1, sub = paste0("only_NAs = TRUE; fill_NAs = TRUE\nac=",
-      paste0(sort(ac4), collapse = ",")))
+mtext(side=3, line=1, cex=0.9, adj=0, "only_NAs = TRUE")
+mtext(side=3, line=0, cex=0.9, adj=0, "fill_NAs = TRUE")
+ac4 <- paste("ac =", paste0(sort(ac4), collapse = ","))
+mtext(side=1, line=0, cex=0.9, adj=0, ac4)
 legend("bottomleft", ncol = 1, bg = "white",
-       legend = c("Anchor cell", "Polygon"), fill = c("#78b2c4", "red"))
+       legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
 }

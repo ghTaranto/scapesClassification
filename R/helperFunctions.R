@@ -229,9 +229,6 @@
 #' cond <- "bathymetry>10"
 #' conditions(names_attTbl, cond)
 #'
-#' cond <- "classVector != 1"
-#' conditions(names_attTbl, cond)
-#'
 #' cond <- "bathymetry[]>bathymetry | abs(slope{}) < 5"
 #' conditions(names_attTbl, cond)
 #'
@@ -246,6 +243,11 @@
 #'
 #' cond <- "baxxxthymetryxxx[]>10 &  abs(slope{}) < 5"
 #' conditions(names_attTbl, cond)
+#'
+#' # 'seedVector' and 'classVector' are not valid names
+#' names_attTbl <- c(names_attTbl, "classVector", "seedVector")
+#' cond <- TRUE
+#' conditions1(names_attTbl, cond)
 #' }
 #'
 #' ################################################################################
@@ -269,53 +271,54 @@
 #' fcn <- terra::vect(fcn, type="polygons")
 #'
 #' # PLOT - FOCAL EVALUATION DEFINITIONS
-#' l <- paste0("Focal cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40",
-#'             "\n",
-#'             "Test cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33",
-#'            "\n",
-#'             "Directional neighborhood: 24, 25, 26, 31, 32, 33")
-#'
-#' plot(r_cv, type = "class", asp = NA, legend = FALSE, axes = FALSE,
-#'      col = c("#1088a0", "goldenrod3"), colNA= "grey90")
+#' m <- c(3.5, 8, 1.2, 8)
+#' plot(r_cv, type = "class", asp = NA, legend = FALSE, axes = FALSE, mar = m,
+#'      col = c("goldenrod3","#1088a0"), colNA= "grey90")
 #' text(r)
-#' lines(tcn, col="goldenrod3", lwd=2)
-#' lines(fcn, col="#1088a0", lwd=2)
-#' title(adj = 0.0, line = 2, sub =l)
-#' legend("bottomleft", ncol = 1, bg = "white",
-#'        legend = c("Focal cell", "Test cell"),
-#'        fill = c("#1088a0", "goldenrod3"))
+#' mtext(side=3, line=0, adj=0, cex=1, font=2, "FOCAL EVALUATION")
+#' mtext(side=1, line=0, adj=0, cex=0.9,
+#'       "Focal cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33")
+#' mtext(side=1, line=1, cex=0.9, adj=0,
+#'       "Test cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40")
+#' mtext(side=1, line=2, cex=0.9, adj=0,
+#'      "Directional neighborhood: 24, 25, 26, 31, 32, 33")
+#' lines(tcn, col="#1088a0", lwd=2)
+#' lines(fcn, col="#cfad8999", lwd=2)
+#' legend("bottomleft", ncol = 1, bg = "white", y.intersp= 1.3,
+#'        legend = c("Focal cell", "Test cell"), fill = c("#1088a0", "goldenrod3"))
 
 conditions <- function(names_attTbl,
                        cond,
                        silent = FALSE) {
-  match_pattern <-
-    paste0(paste(names_attTbl, collapse = "|"), "|classVector|([0-9]+)")
 
-  # CHECK FOR DOUBLE FOCAL NEIGHBORHOOD CONDITION
-  doubleFNcond <- stringr::str_replace_all(cond, "\\&\\&", "\\&")
-  doubleFNcond <- stringr::str_replace_all(doubleFNcond, "\\|\\|", "\\|")
-  doubleFNcond <- stringr::str_replace_all(doubleFNcond, " ", "")
+  if(any(grepl("seedVector|classVector", names_attTbl))){
+    nvn <- names_attTbl[grepl("seedVector|classVector", names_attTbl)]
+    stop(paste0(paste0("'",unique(nvn),"'",collapse = " and "),
+                ": not valid column name(s). Please change column name(s) in the 'attTbl'."))
+  }
 
+  cond <- gsub("\\&\\&", "\\&", cond)
+  cond <- gsub("\\|\\|", "\\|", cond)
+  cond <- gsub(" ", "", cond)
 
-  doubleFNcond <- unlist(strsplit(doubleFNcond,"\\&|\\|"))
-  doubleFNcond <- doubleFNcond[doubleFNcond != ""]
+  # CHECK FOR DOUBLE TEST CELL NEIGHBORHOODS NOT ALLOWED
+  doubleTNcond <- unlist(strsplit(cond,"\\&|\\|"))
+  doubleTNcond <- doubleTNcond[doubleTNcond != ""]
+  doubleTNcond <- sapply(as.list(doubleTNcond), function(x)grepl("\\{\\}", x, perl = TRUE))
 
-  doubleFNcond <- sapply(as.list(doubleFNcond), function(x)stringr::str_detect(x, "\\{\\}"))
-
-  if(sum(doubleFNcond, na.rm = TRUE) > 1){stop("Only one 'neighborhood' condition allowed.")}
+  if(sum(doubleTNcond, na.rm = TRUE) > 1){stop("Only one 'neighborhood' condition allowed.")}
 
   # CHECK FOR SPELLING ERRORS
+  match_pattern <-
+    paste0(paste(names_attTbl, collapse = "|"), "|([0-9]+)")
+
   tc_spl <-
-    unlist(strsplit(
-      cond,
-      ",| |\\(|\\+|\\*|>|<|=|-|\\)|\\||\\&|\t|\\{|\\||\\!|\\^|\\%|\\{|\\}|\\%in\\%|\n"
+    unlist(strsplit(cond,
+                    ",| |\\(|\\+|\\*|>|<|=|-|\\)|\\||\\&|\t|\\{|\\||\\!|\\^|\\%|\\{|\\}|\\%in\\%|\n"
     ))
   tc_spl <- tc_spl[tc_spl != ""]
-
   tc_spl <- tc_spl[which(!(tc_spl %in% c("between",ls("package:base"))))]
-
   tc_spl <- tc_spl[which(!(tc_spl %in% c("T", "TRUE", "F", "FALSE")))]
-
   tc_spl <- tc_spl[!grepl(match_pattern, tc_spl)]
 
   if (length(tc_spl > 0)) {
@@ -329,9 +332,8 @@ conditions <- function(names_attTbl,
   }
 
   # CHECK FOR SYNTAX ERRORS
-  c_eval <- stringr::str_replace_all(cond, paste(c("classVector", names_attTbl), collapse = "\\b|\\b"), "1")
-  c_eval <- stringr::str_replace_all(c_eval, "\\[|\\]|\\{|\\}", "")
-
+  c_eval <- gsub(paste(c("classVector", names_attTbl), collapse = "\\b|\\b"), "1", cond)
+  c_eval <- gsub("\\[|\\]|\\{|\\}", "", c_eval)
   c_eval <- try(eval(parse(text = c_eval)), silent = TRUE)
 
   if(class(c_eval) == "try-error"){
@@ -344,39 +346,32 @@ conditions <- function(names_attTbl,
   if(!silent){
 
     c_split <- unlist(strsplit(cond, "&|\\|"))
-    counts  <- stringr::str_count(c_split, paste0(names_attTbl,collapse = "|"))
+    counts  <-  sapply(c_split, function(x){length(gregexpr(paste0(names_attTbl,collapse = "|"), x)[[1]])})
 
-    abs_cond <- stringr::str_detect(c_split, paste0(names_attTbl, ("(?!\\[|\\{)"), collapse = "|"))
+    abs_cond <- grepl(paste0(names_attTbl, ("(?!\\[|\\{)"), collapse = "|"), c_split, perl=TRUE)
     abs_cond <- any(counts == 1 & abs_cond)
 
-    fc_cond_r <- stringr::str_detect(c_split, "\\[\\]")
+    fc_cond_r <- grepl("\\[\\]", c_split, perl = TRUE)
+    fc_cond_a <- fc_cond_r
     fc_cond_r <- any(counts > 1 & fc_cond_r)
-
-    fc_cond_a <- stringr::str_detect(c_split, "\\[\\]")
     fc_cond_a <- any(counts == 1 & fc_cond_a)
 
-    fn_cond_r <- stringr::str_detect(c_split, "\\{\\}")
-    fn_cond_r <- any(counts > 1 & fn_cond_r)
-
-    fn_cond_a <- stringr::str_detect(c_split, "\\{\\}")
-    fn_cond_a <- any(counts == 1 & fn_cond_a)
-
-    cv_cond  <- any(stringr::str_detect(c_split, "classVector"))
+    tn_cond_r <- grepl("\\{\\}", c_split, perl = TRUE)
+    tn_cond_a <- tn_cond_r
+    tn_cond_r <- any(counts > 1 & tn_cond_r)
+    tn_cond_a <- any(counts == 1 & tn_cond_a)
 
     verify_types <- c(abs_cond,
                       fc_cond_a,
                       fc_cond_r,
-                      fn_cond_a,
-                      fn_cond_r,
-                      cv_cond)
+                      tn_cond_a,
+                      tn_cond_r)
 
     cond_types <- c("'Absolute test cell'",
                     "'Absolute focal cell'",
                     "'Relative focal cell'",
                     "'Absolute neighborhood'",
-                    "'Relative neighborhood'",
-                    "'Class vector'")
-
+                    "'Relative neighborhood'")
 
     detc_cond <- cond_types[verify_types]
     if(length(detc_cond) == 0){detc_cond <- "unknown"}
@@ -384,7 +379,6 @@ conditions <- function(names_attTbl,
     print(paste0(paste0(detc_cond, collapse = " AND "), " condition type(s) detected."))
   }
 }
-
 
 #' Class vector to raster
 #'
@@ -433,3 +427,5 @@ cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = 
   return(r2)
 
 }
+
+

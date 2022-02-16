@@ -214,9 +214,6 @@ names_attTbl <- c("bathymetry", "slope")
 cond <- "bathymetry>10"
 conditions(names_attTbl, cond)
 
-cond <- "classVector != 1"
-conditions(names_attTbl, cond)
-
 cond <- "bathymetry[]>bathymetry | abs(slope{}) < 5"
 conditions(names_attTbl, cond)
 
@@ -231,6 +228,11 @@ conditions(names_attTbl, cond)
 
 cond <- "baxxxthymetryxxx[]>10 &  abs(slope{}) < 5"
 conditions(names_attTbl, cond)
+
+# 'seedVector' and 'classVector' are not valid names
+names_attTbl <- c(names_attTbl, "classVector", "seedVector")
+cond <- TRUE
+conditions1(names_attTbl, cond)
 }
 
 ################################################################################
@@ -254,21 +256,21 @@ fcn <- rbind(c(1/7*2, 1/7*4), c(1/7*5, 1/7*4), c(1/7*5, 1/7*1), c(1/7*2, 1/7*1),
 fcn <- terra::vect(fcn, type="polygons")
 
 # PLOT - FOCAL EVALUATION DEFINITIONS
-l <- paste0("Focal cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40",
-            "\n",
-            "Test cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33",
-           "\n",
-            "Directional neighborhood: 24, 25, 26, 31, 32, 33")
-
-plot(r_cv, type = "class", asp = NA, legend = FALSE, axes = FALSE,
-     col = c("#1088a0", "goldenrod3"), colNA= "grey90")
+m <- c(3.5, 8, 1.2, 8)
+plot(r_cv, type = "class", asp = NA, legend = FALSE, axes = FALSE, mar = m,
+     col = c("goldenrod3","#1088a0"), colNA= "grey90")
 text(r)
-lines(tcn, col="goldenrod3", lwd=2)
-lines(fcn, col="#1088a0", lwd=2)
-title(adj = 0.0, line = 2, sub =l)
-legend("bottomleft", ncol = 1, bg = "white",
-       legend = c("Focal cell", "Test cell"),
-       fill = c("#1088a0", "goldenrod3"))
+mtext(side=3, line=0, adj=0, cex=1, font=2, "FOCAL EVALUATION")
+mtext(side=1, line=0, adj=0, cex=0.9,
+      "Focal cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33")
+mtext(side=1, line=1, cex=0.9, adj=0,
+      "Test cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40")
+mtext(side=1, line=2, cex=0.9, adj=0,
+     "Directional neighborhood: 24, 25, 26, 31, 32, 33")
+lines(tcn, col="#1088a0", lwd=2)
+lines(fcn, col="#cfad8999", lwd=2)
+legend("bottomleft", ncol = 1, bg = "white", y.intersp= 1.3,
+       legend = c("Focal cell", "Test cell"), fill = c("#1088a0", "goldenrod3"))
 }
 \seealso{
 \code{\link[=anchor.seed]{anchor.seed()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.all]{cond.4.all()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}},
