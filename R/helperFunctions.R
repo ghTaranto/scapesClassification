@@ -385,7 +385,7 @@ conditions <- function(names_attTbl,
 
 cond_parse <- function(names_attTbl, cond){
 
-  scapesClassification::conditions(names_attTbl = names_attTbl, cond = cond, silent= TRUE)
+  scapesClassification::conditions(names_attTbl, cond, silent = TRUE)
 
   cond <- gsub("\\&\\&", "\\&", cond)
   cond <- gsub("\\|\\|", "\\|", cond)

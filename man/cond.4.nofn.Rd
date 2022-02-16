@@ -145,20 +145,21 @@ m <- c(2, 8, 2.5, 8)
 # ABSOLUTE TEST CELL CONDITION - NO CLASS CONTINUITY
 ######################################################################################
 
+
 # conditions: "dummy_var >= 3"
 cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
 
                    # CLASS VECTOR - INPUT
                    classVector = at$cv,
 
-                   # FOCAL CELL CLASS
-                   nbs_of = 0,
-
                    # CLASSIFICATION NUMBER
                    class = 1,
 
+                   # FOCAL CELL CLASS
+                   nbs_of = 0,
+
                    # ABSOLUTE TEST CELL CONDITION
-                   conditions = "dummy_var >= 3")
+                   cond = "dummy_var >= 3")
 
 # CONVERT THE CLASS VECTOR INTO A RASTER
 r_cv1 <- cv.2.rast(r, at$Cell,classVector = cv1, plot = FALSE)
@@ -180,14 +181,14 @@ legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 # conditions: "dummy_var >= 3"
 cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv,
 
+                  # CLASSIFICATION NUMBER
+                   class = 1,
+
                    nbs_of = c(0,  # FOCAL CELL CLASS
                               1), # CLASSIFICATION NUMBER
 
-                  # CLASSIFICATION NUMBER
-                   class = 1,     # CLASSIFICATION NUMBER
-
                    # ABSOLUTE CONDITION
-                   conditions = "dummy_var >= 3")
+                   cond = "dummy_var >= 3")
 
 # CONVERT THE CLASS VECTOR INTO A RASTER
 r_cv2 <- cv.2.rast(r, at$Cell,classVector = cv2, plot = FALSE)
@@ -210,10 +211,10 @@ legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 cv3 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # ABSOLUTE NEIGHBORHOOD CONDITION
-                   conditions = "dummy_var{} >= 3",
+                   cond = "dummy_var{} >= 3",
 
                    # RULE HAS TO BE TRUE FOR 100\% OF THE EVALUATIONS
-                   fn_perc = 1)
+                   peval = 1)
 
 # CONVERT THE CLASS VECTOR INTO A RASTER
 r_cv3 <- cv.2.rast(r, at$Cell,classVector = cv3, plot = FALSE)
@@ -238,10 +239,10 @@ legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 cv4 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # RELATIVE NEIGHBORHOOD CONDITION
-                   conditions = "dummy_var > dummy_var{}",
+                   cond = "dummy_var > dummy_var{}",
 
                    # RULE HAS TO BE TRUE FOR AT LEAST 60\% OF THE EVALUATIONS
-                   fn_perc = 0.6)
+                   peval = 0.6)
 
 
 # CONVERT THE CLASS VECTOR INTO A RASTER
@@ -267,7 +268,7 @@ legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 cv5 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, nbs_of = c(0,1), class = 1,
 
                    # RELATIVE FOCAL CELL CONDITION
-                   conditions = "dummy_var > dummy_var[]")
+                   cond = "dummy_var > dummy_var[]")
 
 
 # CONVERT THE CLASS VECTOR INTO A RASTER
@@ -296,17 +297,17 @@ ro[which(at$dummy_var == 8)] <- 2
 # Not homogeneous growth
 nhg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = ro,
                    nbs_of = 1, class = 1, # GROWTH ROBJ 1
-                   conditions = "dummy_var <= dummy_var[] & dummy_var != 1")
+                   cond = "dummy_var <= dummy_var[] & dummy_var != 1")
 
 nhg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = nhg, # UPDATE nhg
                    nbs_of = 2, class = 2, # GROWTH ROBJ 2
-                   conditions = "dummy_var <= dummy_var[] & dummy_var != 1")
+                   cond = "dummy_var <= dummy_var[] & dummy_var != 1")
 
 
 # Homogeneous growth
 hg <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = ro,
                   nbs_of = c(1, 2), class = NULL,
-                  conditions = "dummy_var <= dummy_var[] & dummy_var != 1",
+                  cond = "dummy_var <= dummy_var[] & dummy_var != 1",
                   hgrowth = TRUE) # HOMOGENEOUS GROWTH
 
 # Convert class vectors into rasters
