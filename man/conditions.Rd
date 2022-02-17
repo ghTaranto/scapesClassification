@@ -69,7 +69,9 @@ locations and are based on class (dis)contiguity and class continuity.
 cells contiguous to focal cells (identified in the \code{cond.*} functions
 by the argument \code{nbs_of}).
 \item \strong{Class continuity:} \cr join into the same class cells that respect the
-same rules and that are connected to the same focal cells.
+same rules and that are connected to the same focal cells. This means that,
+at each iteration, newly classified cells become focal cells and conditions
+are tested in their neighborhood.
 \item Function using \emph{focal evaluation}: \code{\link{anchor.seed}},
 \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
 \code{\link{reclass.nbs}} and \code{\link{classify.all}}.

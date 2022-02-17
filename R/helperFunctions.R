@@ -68,7 +68,9 @@
 #'   by the argument \code{nbs_of}).
 #'
 #'   * __Class continuity:__ \cr join into the same class cells that respect the
-#'   same rules and that are connected to the same focal cells.
+#'   same rules and that are connected to the same focal cells. This means that,
+#'   at each iteration, newly classified cells become focal cells and conditions
+#'   are tested in their neighborhood.
 #'
 #'   * Function using _focal evaluation_: \code{\link{anchor.seed}},
 #'   \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},

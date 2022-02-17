@@ -92,8 +92,8 @@ the argument \code{class}.
 
 \item \emph{Class continuity} is considered if the classification number
 assigned with the argument \code{class} is also included in the argument
-\code{nbs_of}. This means that at each iteration, newly classified cells
-become new focal cells and conditions are tested in their neighborhood.
+\code{nbs_of}. This means that, at each iteration, newly classified cells
+become focal cells and conditions are tested in their neighborhood.
 
 \item All types of conditions can be used. The condition string can only
 include one neighborhood condition (\code{'{}'}) (see

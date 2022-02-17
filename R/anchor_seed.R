@@ -21,26 +21,27 @@
 #'   \code{\link{conditions}}).
 #' @param cond.seed character string, the conditions to identify seed cells.
 #'   Absolute conditions can be used (see \code{\link{conditions}}). It cannot
-#'   be \code{NULL}.
+#' be \code{NULL}.
 #' @param cond.growth character string, the conditions to define a growth buffer
 #'   around seed cells. It can be \code{NULL}. Absolute and focal cell
-#' conditions can be used (see \code{\link{conditions}}).
-#' @param lag.growth numeric, it defines the lag on which focal cell conditions
-#'   in \code{cond.growth} are evaluated.
+#'   conditions can be used (see \code{\link{conditions}}).
+#' @param lag.growth 0 or Inf, defines the evaluation lag of _focal cell
+#'   conditions_ in \code{cond.growth}.
 #' @param cond.isol character string, the conditions to define an isolation
 #'   buffer around seed cells and growth buffers. It can be \code{NULL}.
 #'   Absolute and focal cell conditions can be used (see
 #'   \code{\link{conditions}}).
-#' @param lag.isol numeric, it defines the lag on which focal cell conditions in
-#'   \code{cond.isol} are evaluated.
+#' @param lag.isol 0 or Inf, defines the evaluation lag of _focal cell
+#'   conditions_ in \code{cond.isol}.
 #' @param sort.col character, the column name in the \code{attTbl} on which the
 #'   \code{sort.seed} is based on. It determines in what order seed buffers are
 #'   computed.
 #' @param sort.seed character, the order seed buffers are computed is based on
-#'   the value seed cells have in the \code{sort.col}. If
-#'   \code{sort.seed="max"}, buffers are computed from the seed cell having the
-#'   maximum value to the seed cell having the minimum value. If
-#'   \code{sort.seed="min"}, buffers are computed in the opposite order.
+#'   the value seed cells have in the column of attribute table column named
+#'   \code{sort.col}. If \code{sort.seed="max"}, buffers are computed from the
+#'   seed cell having the maximum value to the seed cell having the minimum
+#'   value. If \code{sort.seed="min"}, buffers are computed in the opposite
+#'   order.
 #' @param saveRDS filename, if a file name is provided save the class vector as
 #'   an RDS file.
 #' @param overWrite logic, if the RDS names already exist, existing files are
@@ -86,30 +87,32 @@
 #'   specified by \code{cond.growth} are assigned to the same class of the seed
 #'   cell (growth buffer).
 #'
-#'   3. Cells contiguous and continuous to the seed cell (and its growth buffer)
-#'   meeting the conditions specified by \code{cond.isol} are assigned to the
-#'   isolation buffer (\code{class = -999}).
+#'   3. Cells contiguous and continuous to the seed cell (and to its growth
+#'   buffer) meeting the conditions specified by \code{cond.isol} are assigned
+#'   to the isolation buffer (\code{class = -999}).
 #'
-#'   4. A new seed cell is identified and a new iteration starts. Seed, growth
-#'   and isolation cells identified in previous iteration are ignored in
-#'   successive iterations.
+#'   4. A new seed cell is identified based on \code{cond.seed} which is now
+#'   only evaluated for cells that were not identified as seed, growth or
+#'   isolation cells in previous iterations.
 #'
-#'   The function stops when it cannot identify any new seed cell.
+#'   5. A new iteration starts. Seed, growth and isolation cells identified in
+#'   previous iteration are ignored in successive iterations.
+#'
+#'   6. The function stops when it cannot identify any new seed cell.
 #'
 #'   \cr**Relative focal cell conditions and evaluation lag**
 #'
-#'   This implementation allows to track back to \code{level_0} all the
-#'   connected cells having a positive evaluation. When conditions relative to
-#'   the focal cell are considered (see \code{\link{conditions}}), the arguments
-#'   \code{lag.growth} and \code{lag.isol} determine to which
-#'   \code{referenceNode} newly evaluated cells have to be compared to. A lag of
-#'   \code{1} indicates that the conditions at \code{level_n} have to be
-#'   evaluated considering the \code{referenceNode} at \code{level_n-1}. A lag
-#'   set as \code{Inf} indicates that at any level the conditions are evaluated
-#'   considering the initial node cell at \code{level_0}. If the lag is greater
-#'   than the level at which the evaluation occurs, then the conditions are
-#'   evaluated considering the initial node cell at \code{level_0} (e.g.,
-#'   \code{level_1}, \code{lag = 2}).
+#'   * The arguments \code{lag.growth} and \code{lag.isol} control the
+#'   evaluation lag of _relative focal cell conditions_ (see
+#'   \code{\link{conditions}}).
+#'
+#'   * When \code{lag.*} are set to \code{0} _relative focal cell conditions_
+#'   have a standard behavior and compare the value of the \code{test cells}
+#'   against the value of the \code{focal cell}.
+#'
+#'   * When \code{lag.*} are set to \code{Inf} _relative focal cell conditions_
+#'   compare the value of the \code{test cells} against the value of the
+#'   \code{seed cell} identified at the start of the iteration.
 #'
 #' @seealso [conditions()], [attTbl()], [ngbList()]
 #'
@@ -132,118 +135,109 @@
 #' # COMPUTE THE LIST OF NEIGBORHOODS
 #' nbs <- ngbList(r)
 #'
-#' # SET FIGURE MARGINS
-#' m <- c(4.2, 1, 1, 15)
 #'
 #' ############################################################################
 #' # EXAMPLE PLOTS
 #' ############################################################################
-#' # 1.
-#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
-#'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)")
+#' par(mfrow=c(1,2))
+#' m <- c(4.5, 0.5, 2, 3.2)
 #'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, col=terrain.colors(30)[-1],
-#'      asp=NA, axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "NULL")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
-#'
-#' # 2.
-#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
-#'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
-#'                   cond.growth = "dummy_var<dummy_var[] & dummy_var>2")
-#'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
-#'      axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[] & dummy_var>2")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
-#'
-#' # 3.
+#' # 1a. Do not show isol.buff
 #' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
 #'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
 #'                   cond.growth = "dummy_var<dummy_var[] & dummy_var>2",
 #'                   cond.isol = "dummy_var<dummy_var[]")
 #'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
-#'      axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[] & dummy_var>2")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "dummy_var<dummy_var[]")
+#' plot(cv.2.rast(r,classVector=as), type="classes", mar=m, col=c("#00A600", "#E6E600"),
+#'      axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "1a. Do not show 'isol.buff'")
+#' mtext(side=1, line=0, cex=1, font=2, adj=1, "cond.filter:")
+#' mtext(side=1, line=1, cex=1, font=2, adj=1, "cond.seed:")
+#' mtext(side=1, line=2, cex=1, font=2, adj=1, "cond.growth:")
+#' mtext(side=1, line=3, cex=1, font=2, adj=1, "cond.isol:")
+#' text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,"SEED",col="red",cex=0.80)
 #'
-#' # 4.
-#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
-#'                   cond.seed = "dummy_var >= 5", cond.growth = "dummy_var >= 5")
-#'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
-#'      axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "NULL")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var >= 5")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth:")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var >= 5")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
-#'
-#' # 5.
+#' # 1b. Show isol.buff
 #' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
 #'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
+#'                   cond.growth = "dummy_var<dummy_var[] & dummy_var>2",
+#'                   cond.isol = "dummy_var<dummy_var[]", isol.buff = TRUE)
+#'
+#' plot(cv.2.rast(r,classVector=as), type="classes", col=c("#00000040", "#00A600", "#E6E600"),
+#'      mar=m, axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "1b. Show 'isol.buff' (class=-999)")
+#' mtext(side=1, line=0, cex=1, adj=0, "dummy_var > 1")
+#' mtext(side=1, line=1, cex=1, adj=0, "dummy_var == max(dummy_var)")
+#' mtext(side=1, line=2, cex=1, adj=0, "dummy_var<dummy_var[] & dummy_var>2")
+#' mtext(side=1, line=3, cex=1, adj=0, "dummy_var<dummy_var[]")
+#' text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,"SEED",col="red",cex=0.80)
+#'
+#'
+#' # 2a. Lag.growth = Inf
+#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+#'                  cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
 #'                   cond.growth = "dummy_var<dummy_var[]", lag.growth = Inf)
 #'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
-#'      axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (lag.growth=Inf):")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+#' plot(cv.2.rast(r,classVector=as), type="classes", mar=m, col=c("#00A600"),
+#'      axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "2a. Lag.growth* = Inf")
+#' mtext(side=1, line=0, cex=1, font=2, adj=1, "cond.filter:")
+#' mtext(side=1, line=1, cex=1, font=2, adj=1, "cond.seed:")
+#' mtext(side=1, line=2, cex=1, font=2, adj=1, "cond.growth*:")
+#' mtext(side=1, line=3, cex=1, font=2, adj=1, "cond.isol:")
+#' text(xFromCell(r,c(20)),yFromCell(r,c(20))-0.05,"SEED",col="red",cex=0.80)
 #'
-#' # 6.
+#' # 2b. Lag.growth = 0
 #' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
 #'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var == max(dummy_var)",
 #'                   cond.growth = "dummy_var<dummy_var[]", lag.growth = 0)
 #'
-#' plot(cv.2.rast(r,classVector = as), type="classes", mar=m, asp=NA,
-#'      axes=FALSE, plg=list(x=1, y=1, cex=.75, title="Classes", y.intersp= 1.4))
-#' text(r)
-#' lines(r)
-#' mtext(side=1, line=0, cex=0.9, font=2, adj=0, "cond.filter:")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "dummy_var > 1")
-#' mtext(side=1, line=1, cex=0.9, font=2, adj=0, "cond.seed:")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "dummy_var == max(dummy_var)")
-#' mtext(side=1, line=2, cex=0.9, font=2, adj=0, "cond.growth (lag.growth=0):")
-#' mtext(side=1, line=2, cex=0.9, adj=1, "dummy_var<dummy_var[]")
-#' mtext(side=1, line=3, cex=0.9, font=2, adj=0, "cond.isol:")
-#' mtext(side=1, line=3, cex=0.9, adj=1, "NULL")
+#' plot(cv.2.rast(r,classVector=as), type="classes", mar=m, col=c("#00A600", "#E6E600"),
+#'      axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "2b. Lag.growth* = 0")
+#' mtext(side=1, line=0, cex=1, adj=0, "dummy_var > 1")
+#' mtext(side=1, line=1, cex=1, adj=0, "dummy_var == max(dummy_var)")
+#' mtext(side=1, line=2, cex=1, adj=0, "dummy_var < dummy_var[]")
+#' mtext(side=1, line=3, cex=1, adj=0, "NULL")
+#' text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,"SEED",col="red",cex=0.80)
+#'
+#' # 3a. Without sorting
+#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+#'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var >= 5",
+#'                   cond.isol = "dummy_var<dummy_var[]", isol.buff = TRUE)
+#'
+#' seeds <- which(!is.na(as) & as !=-999)
+#' cc    <- c("#00000040", terrain.colors(8)[8:1])
+#' plot(cv.2.rast(r,classVector=as), type="classes", mar=m, col=cc,
+#'      axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "3a. Without sorting")
+#' mtext(side=1, line=0, cex=1, font=2, adj=1, "cond.filter:")
+#' mtext(side=1, line=1, cex=1, font=2, adj=1, "cond.seed:")
+#' mtext(side=1, line=2, cex=1, font=2, adj=1, "cond.growth:")
+#' mtext(side=1, line=3, cex=1, font=2, adj=1, "cond.isol:")
+#' text(xFromCell(r,seeds),yFromCell(r,seeds)-0.05,"SEED",col="red",cex=0.80)
+#'
+#' # 3b. Sort buffer evaluation based on 'dummy_var' values
+#' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
+#'                   cond.filter = "dummy_var > 1", cond.seed = "dummy_var >= 5",
+#'                   cond.isol = "dummy_var<dummy_var[]", isol.buff = TRUE,
+#'                   sort.col = "dummy_var", sort.seed = "max")
+#'
+#' seeds <- which(!is.na(as) & as !=-999)
+#' plot(cv.2.rast(r,classVector=as), type="classes",col=c("#00000040", "#00A600", "#E6E600"),
+#'      mar=m, axes=FALSE, plg=list(x=1, y=1, cex=.80, title="Classes"))
+#' text(r); lines(r)
+#' mtext(side=3, line=0, cex=1, font=2, adj=0, "3b. Sort.col='dummy_var'; Sort.seed='max'")
+#' mtext(side=1, line=0, cex=1, adj=0, "dummy_var > 1")
+#' mtext(side=1, line=1, cex=1, adj=0, "dummy_var >= 5")
+#' mtext(side=1, line=2, cex=1, adj=0, "NULL")
+#' mtext(side=1, line=3, cex=1, adj=0, "dummy_var < dummy_var[]; isol.buff = -999")
+#' text(xFromCell(r,seeds),yFromCell(r,seeds)-0.05,"SEED",col="red",cex=0.80)
 
 anchor.seed <- function(attTbl,
                         ngbList,
