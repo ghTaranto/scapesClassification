@@ -15,14 +15,14 @@
 #' @param classVector numeric vector, defines the cells in the attribute table
 #'   that have already been classified. See \code{\link{conditions}} for more
 #'   information about class vectors.
-#' @param conditions character string, the conditions a cell have to meet to be
-#'   classified as indicated by the argument \code{reclass}. See
-#'   \code{\link{conditions}} for more details.
 #' @param class numeric or numeric vector, indicates the class(es) for which
 #'   conditions have to be evaluated.
+#' @param cond character string, the conditions a cell have to meet to be
+#'   classified as indicated by the argument \code{reclass}. See
+#'   \code{\link{conditions}} for more details.
 #' @param reclass numeric, the classification number to assign to all cells that
 #'   meet the function conditions.
-#' @param fn_perc numeric value between 0 and 1. If a _neighborhood condition_
+#' @param peval numeric value between 0 and 1. If a _neighborhood condition_
 #'   is considered, test cells are classified if the conditions are true for at
 #'   least as many evaluations as the ones specified by the argument
 #'   \code{fn_perc} (see \code{\link{conditions}}).
@@ -46,6 +46,8 @@
 #'
 #' @export
 #' @examples
+#' # DUMMY DATA
+#' ######################################################################################
 #' library(scapesClassification)
 #' library(terra)
 #'
@@ -60,14 +62,12 @@
 #' # COMPUTE THE LIST OF NEIGBORHOODS
 #' nbs <- ngbList(r)
 #'
-#'
-#
 #' ################################################################################
 #' # RECLASS.NBS
 #' ################################################################################
 #'
 #' # Compute an example class vector
-#' cv <- cond.4.all(attTbl = at, conditions = "dummy_var > 1", class = 1)
+#' cv <- cond.4.all(attTbl = at, cond = "dummy_var > 1", class = 1)
 #'
 #' # Reclassify cells
 #' cr <- cond.reclass(attTbl = at, ngbList = nbs,
@@ -78,73 +78,83 @@
 #'                    # CELLS TO RECLASSIFY HAVE THIS CLASS
 #'                    class = 1,
 #'
-#'                    # ABSOLUTE CONDITION
-#'                    conditions = "dummy_var > 5",
+#'                    # ABSOLUTE NEIGHBORHOOD CONDITION
+#'                    cond = "dummy_var{} >= 5", peval = 1,
 #'
 #'                    # NEW CLASSIFICATION NUMBER
 #'                    reclass = 2)
 #'
 #' # Convert class vectors to rasters
-#' r_cr <- cv.2.rast(r, at$Cell,classVector = cr, plot = FALSE)
-#'
+#' r_cv <- cv.2.rast(r, cv)
+#' r_cr <- cv.2.rast(r, cr)
 #'
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' m <- c(3, 8, 2, 8)
+#' par(mfrow=c(1,2))
+#' m <- c(3, 1, 5, 4)
 #'
-#' plot(r_cr, type="classes", axes=FALSE, legend = FALSE, asp=NA, mar=m,
-#'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
-#' text(r)
-#' mtext(side=3, line=0, adj=0, cex=1, font=2, "COND.RECLASS")
-#' mtext(side=1, line=0, cex=0.9, adj=0, "Step1")
-#' mtext(side=1, line=0, cex=0.9, adj=0.5, "cond.4.all: 'dummy_var > 1'")
-#' mtext(side=1, line=0, cex=0.9, adj=1, "Class: 1")
-#' mtext(side=1, line=1, cex=0.9, adj=0, "Step2")
-#' mtext(side=1, line=1, cex=0.9, adj=0.5, "cond.reclass: 'dummy_var > 5'")
-#' mtext(side=1, line=1, cex=0.9, adj=1, "Class: 2")
-#' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
-#'        legend = c("Class 1","Class 2 (reclass)","Unclassified cells"))
+#' # 1.
+#' r_cv[which(is.na(values(r_cv)))] <- 10
+#' plot(r_cv, type="classes", mar=m, col=c("#78b2c4","#818792"), axes=FALSE,
+#'      plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "NA")))
+#' text(r); lines(r)
+#' mtext(side=3, line=1, adj=0, cex=1, font=2, "1. COND.4.ALL")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "New class vector")
+#' mtext(side=1, line=0, cex=1, adj=0, "Class: 1")
+#' mtext(side=1, line=1, cex=1, adj=0, "Rule: 'dummy_var > 1'")
+#'
+#' # 2.
+#' r_cr[which(is.na(values(r_cr)))] <- 10
+#' plot(r_cr, type="classes", mar=m, col=c("#78b2c4","#cfad89","#818792"), axes=FALSE,
+#'      plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "reclass", "NA")))
+#' text(r); lines(r)
+#' mtext(side=3, line=1, adj=0, cex=1, font=2, "2. COND.RECLASS")
+#' mtext(side=3, line=0, adj=0, cex=0.9, "Reclassify cells meeting conditions")
+#' mtext(side=1, line=0, cex=1, adj=0, "Class: 2")
+#' mtext(side=1, line=1, cex=1, adj=0, "Rule: 'dummy_var{ } >= 5'; peval = 1")
 
 cond.reclass <- function(attTbl,
                          ngbList = NULL,
                          rNumb = FALSE,
                          classVector,
-                         conditions,
                          class,
+                         cond,
                          reclass,
-                         fn_perc = 1) {
+                         peval = 1) {
 
-  ### PARSE CONDITIONS
-  v_ab <-
-    names(attTbl)[stringr::str_detect(conditions, paste0("\\b", names(attTbl), "(?!\\[|\\{)", "\\b"))]
-  v_fn <-
-    names(attTbl)[stringr::str_detect(conditions, paste0(names(attTbl), "\\{\\}"))]
-
-  for (v in v_ab) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0("\\b", v, "(?!\\[|\\{)", "\\b"), paste0("l_ab$", v))
-  }
-  for (v in v_fn) {
-    conditions <-
-      stringr::str_replace_all(conditions, paste0(v, "\\{\\}"), paste0("l_fn$", v))
+  # TEST FOR COLUMN CELL IN attTbl
+  if (!("Cell" %in% names(attTbl))){
+    stop("attribute table mising 'Cell' column. Check ?attTbl")
   }
 
-  cond_parsed <- parse(text = conditions)
-
-  if (length(v_fn) != 0) {
-    fn = TRUE
-  } else{
-    fn = FALSE
+  # TEST FOR CORRESPONDENCE attTbl, ngbList
+  if (length(ngbList) != nrow(attTbl) & !is.null(ngbList)) {
+    stop("ngbList and attTbl shoud have the same length/nrows")
   }
 
+  # HANDLE CONDITION STRING
+  cond <- cond_parse(names(attTbl), cond)
 
-  if(!fn){
+  ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
+  if(!all(ctype %in% c("v_ab", "v_nAB"))){
+    stop("Only absolute cell and absolute neighborhood conditions are allowed (see ?conditions)")
+  }
+
+  cond_parsed <- cond[[1]]
+
+  # CONDITIONS TYPE CONTROLS
+  v_ab  <- cond[[2]][["v_ab"]]
+  v_nAB <- cond[[2]][["v_nAB"]]
+
+  if(length(v_ab) > 0)  {fa = TRUE}   else {fa = FALSE}
+  if(length(v_nAB) > 0) {tnAB = TRUE} else {tnAB = FALSE}
+
+  if(!tnAB){
 
     c <- which(classVector %in% class)
 
-    l_ab <- lapply(as.list(v_ab), function(x)
-      attTbl[[x]][c])
+    l_ab <- lapply(as.list(v_ab), function(x) attTbl[[x]][c])
     names(l_ab) <- v_ab
 
     c <- c[eval(cond_parsed)]
@@ -156,6 +166,10 @@ cond.reclass <- function(attTbl,
   }
 
   # CONVERT NBS FORM CELL IDS TO CELL INDECES
+  if(is.null(ngbList) & tnAB){
+    stop("Provide 'ngbList' to evaluate neighborhood conditions")
+  }
+
   if(!rNumb){
     fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
     ngbList <- match(unlist(ngbList), attTbl$Cell)
@@ -168,55 +182,51 @@ cond.reclass <- function(attTbl,
     rm(fct, no_nas)
   }
 
-  ###INITIALIZE ALGORITHM #########################################################################
-  new_cell_id       <- which(classVector %in% class)
+  ### INITIALIZE VARIABLES ########################################################################
+  new_cell_id <- which(classVector %in% class)
 
   l_ab <- list()
   l_fn <- list()
 
-  ### RUN ALGORITHM #################################################################### while ####
+  ### START ALGORITHM #############################################################################
   for (c in new_cell_id) {
-    #
 
-    n_ind    <- ngbList[[c]]
+    # Test cell neighborhood
+    n_ind <- ngbList[[c]]
+    fct <- 1
 
-    if (length(n_ind) == 0 & fn) {
-      next
+    # Absolute neighborhood condition
+    if (tnAB) {
+      # IF CONSIDERING ABSOLUTE CONDITION FOCAL NEIGHBORHOOD
+      fn_ind <- c(c, n_ind)
+      fct    <- seq_along(fn_ind)
+
+      l_nAB <- lapply(v_nAB, function(x)attTbl[[x]][fn_ind])
+      names(l_nAB) <- v_nAB
     }
 
+    # Focal cell condition
+    if(fa){
 
-    ### TEST FOR CONDITIONS #################### while//for//if//relative_condition ####
-    if (fn) {
-      # IF CONSIDERING FOCAL NEIGHBORHOOD
-      l_fn <- lapply(as.list(v_fn), function(x)
-        attTbl[[x]][n_ind])
-      names(l_fn) <- v_fn
+      l_ab <-
+        lapply(v_ab, function(x)
+          attTbl[[x]][rep(c, length(fct))])
+      names(l_ab) <- v_ab
+
     }
 
-    l_ab <- lapply(as.list(v_ab), function(x)
-      attTbl[[x]][c])
-    names(l_ab) <- v_ab
-
-
-    ##################################################### while//for//if//relative_condition ####
-
-    ### TEST FOR CELLS MEETING CONDITIONS ########################### while//for//conditions ####
+    # Evaluate conditions
     ev_cond <- eval(cond_parsed)
-    ev_cond <- ev_cond[!is.na(ev_cond)]
 
-    if(length(ev_cond) == 0){next}
-
-    if (fn & length(ev_cond) > 0) {
-      rc <- sum(ev_cond) / length(n_ind) >= fn_perc
-    } else {
-      rc <- ev_cond
+    if (tnAB) {
+      ev_cond <- sum(ev_cond)/length(ev_cond) >= peval
     }
 
-    if (rc & length(ev_cond) > 0) {
-      classVector[c] <- reclass
-    }
+    if(!ev_cond){next}
 
-  } #FOR ENDS
+    classVector[c] <- reclass
+
+  }
 
   return(classVector)
 

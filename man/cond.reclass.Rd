@@ -9,10 +9,10 @@ cond.reclass(
   ngbList = NULL,
   rNumb = FALSE,
   classVector,
-  conditions,
   class,
+  cond,
   reclass,
-  fn_perc = 1
+  peval = 1
 )
 }
 \arguments{
@@ -32,17 +32,17 @@ numbers for large rasters.}
 that have already been classified. See \code{\link{conditions}} for more
 information about class vectors.}
 
-\item{conditions}{character string, the conditions a cell have to meet to be
-classified as indicated by the argument \code{reclass}. See
-\code{\link{conditions}} for more details.}
-
 \item{class}{numeric or numeric vector, indicates the class(es) for which
 conditions have to be evaluated.}
+
+\item{cond}{character string, the conditions a cell have to meet to be
+classified as indicated by the argument \code{reclass}. See
+\code{\link{conditions}} for more details.}
 
 \item{reclass}{numeric, the classification number to assign to all cells that
 meet the function conditions.}
 
-\item{fn_perc}{numeric value between 0 and 1. If a \emph{neighborhood condition}
+\item{peval}{numeric value between 0 and 1. If a \emph{neighborhood condition}
 is considered, test cells are classified if the conditions are true for at
 least as many evaluations as the ones specified by the argument
 \code{fn_perc} (see \code{\link{conditions}}).}
@@ -69,6 +69,8 @@ condition string can only include one neighborhood condition (\code{'{}'})
 (see \code{\link{conditions}}).}
 }
 \examples{
+# DUMMY DATA
+######################################################################################
 library(scapesClassification)
 library(terra)
 
@@ -83,13 +85,12 @@ at <- attTbl(r, "dummy_var")
 # COMPUTE THE LIST OF NEIGBORHOODS
 nbs <- ngbList(r)
 
-
 ################################################################################
 # RECLASS.NBS
 ################################################################################
 
 # Compute an example class vector
-cv <- cond.4.all(attTbl = at, conditions = "dummy_var > 1", class = 1)
+cv <- cond.4.all(attTbl = at, cond = "dummy_var > 1", class = 1)
 
 # Reclassify cells
 cr <- cond.reclass(attTbl = at, ngbList = nbs,
@@ -100,33 +101,41 @@ cr <- cond.reclass(attTbl = at, ngbList = nbs,
                    # CELLS TO RECLASSIFY HAVE THIS CLASS
                    class = 1,
 
-                   # ABSOLUTE CONDITION
-                   conditions = "dummy_var > 5",
+                   # ABSOLUTE NEIGHBORHOOD CONDITION
+                   cond = "dummy_var{} >= 5", peval = 1,
 
                    # NEW CLASSIFICATION NUMBER
                    reclass = 2)
 
 # Convert class vectors to rasters
-r_cr <- cv.2.rast(r, at$Cell,classVector = cr, plot = FALSE)
-
+r_cv <- cv.2.rast(r, cv)
+r_cr <- cv.2.rast(r, cr)
 
 ################################################################################
 # PLOTS
 ################################################################################
-m <- c(3, 8, 2, 8)
+par(mfrow=c(1,2))
+m <- c(3, 1, 5, 4)
 
-plot(r_cr, type="classes", axes=FALSE, legend = FALSE, asp=NA, mar=m,
-     colNA="#818792", col=c("#78b2c4", "#cfad89"))
-text(r)
-mtext(side=3, line=0, adj=0, cex=1, font=2, "COND.RECLASS")
-mtext(side=1, line=0, cex=0.9, adj=0, "Step1")
-mtext(side=1, line=0, cex=0.9, adj=0.5, "cond.4.all: 'dummy_var > 1'")
-mtext(side=1, line=0, cex=0.9, adj=1, "Class: 1")
-mtext(side=1, line=1, cex=0.9, adj=0, "Step2")
-mtext(side=1, line=1, cex=0.9, adj=0.5, "cond.reclass: 'dummy_var > 5'")
-mtext(side=1, line=1, cex=0.9, adj=1, "Class: 2")
-legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
-       legend = c("Class 1","Class 2 (reclass)","Unclassified cells"))
+# 1.
+r_cv[which(is.na(values(r_cv)))] <- 10
+plot(r_cv, type="classes", mar=m, col=c("#78b2c4","#818792"), axes=FALSE,
+     plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "NA")))
+text(r); lines(r)
+mtext(side=3, line=1, adj=0, cex=1, font=2, "1. COND.4.ALL")
+mtext(side=3, line=0, adj=0, cex=0.9, "New class vector")
+mtext(side=1, line=0, cex=1, adj=0, "Class: 1")
+mtext(side=1, line=1, cex=1, adj=0, "Rule: 'dummy_var > 1'")
+
+# 2.
+r_cr[which(is.na(values(r_cr)))] <- 10
+plot(r_cr, type="classes", mar=m, col=c("#78b2c4","#cfad89","#818792"), axes=FALSE,
+     plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "reclass", "NA")))
+text(r); lines(r)
+mtext(side=3, line=1, adj=0, cex=1, font=2, "2. COND.RECLASS")
+mtext(side=3, line=0, adj=0, cex=0.9, "Reclassify cells meeting conditions")
+mtext(side=1, line=0, cex=1, adj=0, "Class: 2")
+mtext(side=1, line=1, cex=1, adj=0, "Rule: 'dummy_var{ } >= 5'; peval = 1")
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}
