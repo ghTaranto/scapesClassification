@@ -4,23 +4,17 @@
 \alias{cond.4.all}
 \title{Test conditions for all cells}
 \usage{
-cond.4.all(
-  attTbl,
-  conditions,
-  classVector = NULL,
-  class,
-  overwrite_class = FALSE
-)
+cond.4.all(attTbl, cond, classVector = NULL, class, ovw_class = FALSE)
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{conditions}{character string, the conditions a cell have to meet to be
+\item{cond}{character string, the conditions a cell have to meet to be
 classified as indicated by the argument \code{class}. If there is a
 \code{classVector} input, the classification number is only assigned to
-\code{classVector} NA-cells unless the argument \code{overwrite_class =
-  TRUE}. See \code{\link{conditions}} for more details.}
+unclassified cells unless the argument \code{ovw_class = TRUE}. See
+\code{\link{conditions}} for more details.}
 
 \item{classVector}{numeric vector, if provided, it defines the cells in the
 attribute table that have already been classified. See
@@ -29,7 +23,7 @@ attribute table that have already been classified. See
 \item{class}{numeric, the classification number to assign to all cells that
 meet the function conditions.}
 
-\item{overwrite_class}{logic, if there is a \code{classVector} input,
+\item{ovw_class}{logic, if there is a \code{classVector} input,
 reclassify cells that were already classified and that meet the function
 conditions.}
 }
@@ -77,13 +71,13 @@ nbs <- ngbList(r)
 ################################################################################
 # compute new class vector
 # conditions: "dummy_var == 1"
-cv1 <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 1)
+cv1 <- cond.4.all(attTbl = at, cond = "dummy_var == 1", class = 1)
 
 unique(cv1) # one class (class 1)
 
 # update class vector `cv1`
 # conditions: "dummy_var <= 3"
-cv2   <- cond.4.all(attTbl = at, conditions = "dummy_var <= 3", class = 2,
+cv2   <- cond.4.all(attTbl = at, cond = "dummy_var <= 3", class = 2,
                     classVector = cv1) # input previous class vector
 
 unique(cv2) # two classes (class 1 and class 2)
@@ -96,29 +90,27 @@ r_cv2 <- cv.2.rast(r, at$Cell, classVector = cv2)
 # PLOTS
 ################################################################################
 par(mfrow=c(1,2))
-m <- c(4, 1, 4, 1)
+m <- c(4.5, 0.5, 2, 3.2)
 
-# 1)
-plot(r_cv1, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar=m,
-     col="#78b2c4", colNA="#818792")
-text(r)
-mtext(side=3, line=1, adj=0, cex=1, font=2, "COND.4.ALL")
+# 1.
+r_cv1[which(is.na(values(r_cv1)))] <- 10
+plot(r_cv1, type="classes", mar=m, col=c("#78b2c4","#818792"), axes=FALSE,
+     plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "NA")))
+text(r); lines(r)
+mtext(side=3, line=1, adj=0, cex=1, font=2, "1. COND.4.ALL")
 mtext(side=3, line=0, adj=0, cex=0.9, "New class vector")
 mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var == 1'")
 mtext(side=1, line=1, cex=0.9, adj=0, "Class: 1")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#818792"),
-       legend = c("Class 1", "Unclassified cells"))
 
-# 2)
-plot(r_cv2, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar=m,
-     col=c("#78b2c4","#cfad89"), colNA="#818792")
-text(r)
-mtext(side=3, line=1, adj=0, cex=1, font=2, "COND.4.ALL")
-mtext(side=3, line=0, adj=0, cex=0.9, "Update class vector (class 1 is not overwritten)")
+# 2.
+r_cv2[which(is.na(values(r_cv2)))] <- 10
+plot(r_cv2, type="classes", mar=m, col=c("#78b2c4","#cfad89","#818792"), axes=FALSE,
+     plg=list(x=1, y=1, cex=.80, title="Classes",legend=c("1", "2", "NA")))
+text(r); lines(r)
+mtext(side=3, line=1, adj=0, cex=1, font=2, "2. COND.4.ALL")
+mtext(side=3, line=0, adj=0, cex=0.9, "Update class vector (class 1 not overwritten)")
 mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var <= 3'")
 mtext(side=1, line=1, cex=0.9, adj=0, "Class: 2")
-legend("bottomleft", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
-       legend = c("Class 1", "Class 2", "Unclassified cells"))
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}}, \code{\link[=cond.reclass]{cond.reclass()}}
