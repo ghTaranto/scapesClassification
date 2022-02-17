@@ -49,8 +49,7 @@ the argument \code{class}.
 \code{\link{conditions}}).}
 }
 \examples{
-################################################################################
-# LOAD DATA
+# DUMMY DATA
 ################################################################################
 library(scapesClassification)
 library(terra)

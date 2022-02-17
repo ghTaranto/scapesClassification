@@ -296,7 +296,7 @@
 #'
 #' r_hg[at$dummy_var == 10] <- 3
 #' r_hg[at$dummy_var == 8]  <- 4
-#'
+#' #t
 #' # 1)
 #' plot(r_nhg, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar = m,
 #'      colNA="#818792", col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
@@ -367,13 +367,13 @@ cond.4.nofn <- function(attTbl,
   v_n   <- cond[[2]][["v_n"]]
   v_nAB <- cond[[2]][["v_nAB"]]
 
-  if (length(v_ab) > 0)  {fa = TRUE} else {fa = FALSE}
-  if (length(v_fc) > 0)  {fc = TRUE} else {fc = FALSE}
-  if (length(v_n) > 0)   {tn = TRUE} else {tn = FALSE}
-  if (length(v_nAB) > 0) {tnAB = TRUE} else {tnAB = FALSE}
+  if(length(v_ab) > 0)  {fa = TRUE} else {fa = FALSE}
+  if(length(v_fc) > 0)  {fc = TRUE} else {fc = FALSE}
+  if(length(v_n) > 0)   {tn = TRUE} else {tn = FALSE}
+  if(length(v_nAB) > 0) {tnAB = TRUE} else {tnAB = FALSE}
 
   ## OVERWRITE CLASSES
-  if (!ovw_class | is.na(ovw_class)) {
+  if(!ovw_class | is.na(ovw_class)) {
     flt <- parse(text = "is.na(classVector[n_ind])")
   } else {
     flt <-
@@ -388,7 +388,7 @@ cond.4.nofn <- function(attTbl,
     tb <- T
   }
 
-  if (peval>1|peval<0){stop("peval have to be a value between 0 and 1")}
+  if(peval>1|peval<0){stop("peval have to be a value between 0 and 1")}
 
   # HOMOGENEOUS GROWTH
   if(hgrowth){
@@ -474,7 +474,7 @@ cond.4.nofn <- function(attTbl,
           rep(seq_along(lengths(fn_ind)), lengths(fn_ind)) # NUMBER OF FOCAL NEIGHBORS FOR EACH N_IND
 
         l_n <-
-          lapply(as.list(v_n), function(x)
+          lapply(v_n, function(x)
             attTbl[[x]][unlist(fn_ind)])
         names(l_n) <- v_n
       }
@@ -500,7 +500,7 @@ cond.4.nofn <- function(attTbl,
           rep(seq_along(lengths(fn_ind)), lengths(fn_ind)) # NUMBER OF FOCAL NEIGHBORS FOR EACH N_IND
 
         l_nAB <-
-          lapply(as.list(v_nAB), function(x)
+          lapply(v_nAB, function(x)
             attTbl[[x]][unlist(fn_ind)])
         names(l_nAB) <- v_nAB
       }
@@ -508,7 +508,7 @@ cond.4.nofn <- function(attTbl,
       # FOCAL CELL CONDITION
       if (fc) {
         l_fc <-
-          lapply(as.list(v_fc), function(x)
+          lapply(v_fc, function(x)
             rep(attTbl[[x]][c], length(fct)))
         names(l_fc) <- v_fc
       }
@@ -516,7 +516,7 @@ cond.4.nofn <- function(attTbl,
       # ABSOLUTE CONDITION
       if (fa) {
         l_ab <-
-          lapply(as.list(v_ab), function(x)
+          lapply(v_ab, function(x)
             attTbl[[x]][n_ind][fct])
         names(l_ab) <- v_ab
       }

@@ -326,7 +326,7 @@ r_nhg[at$dummy_var == 8]  <- 4
 
 r_hg[at$dummy_var == 10] <- 3
 r_hg[at$dummy_var == 8]  <- 4
-
+#t
 # 1)
 plot(r_nhg, type="classes", axes=FALSE, legend=FALSE, asp=NA, mar = m,
      colNA="#818792", col=c("#78b2c4", "#cfc1af", "#1088a0", "#cfad89"))
