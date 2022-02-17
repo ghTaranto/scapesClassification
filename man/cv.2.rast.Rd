@@ -44,3 +44,24 @@ length. The function assign the values of \code{vector} at the positions of
 \code{index} to an empty raster having the same spatial properties of the
 raster \code{r}.
 }
+\examples{
+library(scapesClassification)
+library(terra)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"),
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
+r <- terra::rast(r)
+
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+# Compute an example class vector
+cv <- cond.4.all(attTbl = at, cond = "dummy_var > 1", class = 1)
+
+# Class vector to raster
+cv.2.rast(r, cv, plot = TRUE)
+}

@@ -195,7 +195,7 @@ anchor.svo <- function(SpatRaster,
   r2[i_cell] <- 1
 
   if (plot)
-    raster::plot(r2, type="classes")
+    terra::plot(r2, type="classes")
   if (!is.null(saveRDS))
     saveRDS(i_cell, saveRDS)
   if (!is.null(writeRaster))

@@ -62,9 +62,9 @@ nbs <- ngbList(r)
 # CLASSIFY.ALL
 ################################################################################
 # compute example class vector
-cv <- cond.4.all(attTbl = at, conditions = "dummy_var == 1", class = 1)
+cv <- cond.4.all(attTbl = at, cond = "dummy_var == 1", class = 1)
 # update example calss vector
-cv <- cond.4.all(attTbl = at, conditions = "dummy_var <= 3", class = 2,
+cv <- cond.4.all(attTbl = at, cond = "dummy_var <= 3", class = 2,
                  classVector = cv) # input previous class vector
 
 # classify all unclassified cells

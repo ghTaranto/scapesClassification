@@ -506,6 +506,26 @@ cond_parse <- function(names_attTbl, cond){
 #' @return A class vector or a generic vector transformed into a raster.
 #'
 #' @export
+#' @examples
+#' library(scapesClassification)
+#' library(terra)
+#'
+#' # LOAD THE DUMMY RASTER
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
+#' r <- terra::rast(r)
+#'
+#' # COMPUTE THE ATTRIBUTE TABLE
+#' at <- attTbl(r, "dummy_var")
+#'
+#' # COMPUTE THE LIST OF NEIGBORHOODS
+#' nbs <- ngbList(r)
+#'
+#' # Compute an example class vector
+#' cv <- cond.4.all(attTbl = at, cond = "dummy_var > 1", class = 1)
+#'
+#' # Class vector to raster
+#' cv.2.rast(r, cv, plot = TRUE)
 
 cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
 
@@ -519,7 +539,7 @@ cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = 
   r2[index] <- classVector
 
   if (plot){
-    raster::plot(r2, type="classes")
+    terra::plot(r2, type="classes")
   }
 
   if (!is.null(writeRaster)){

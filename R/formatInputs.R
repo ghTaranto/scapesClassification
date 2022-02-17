@@ -1,6 +1,7 @@
 #' Attribute table
 #'
-#' Converts a raster into an attribute table (\code{data.frame}).
+#' Converts a single or a multi-layer raster into an attribute table
+#' (\code{data.frame}).
 #'
 #' @param SpatRaster a \code{SpatRaster} object (see \code{help("rast",
 #'   terra)}).
@@ -13,13 +14,13 @@
 #'
 #' @details Attribute tables come with a column named **\code{"Cell"}** which
 #'   stores raster cell numbers and associate each row of the attribute table
-#'   with a cell of the raster object. Each of the remaining columns stores the
-#'   values of one of the layers of the raster object. Note that only raster
+#'   with a cell of the raster object. The remaining columns of the attribute
+#'   table store the data contained in the raster layers. Note that only raster
 #'   cells having no missing value in no layer (**complete cases**) are included
 #'   in the attribute table.
 #'
 #' @note **Attribute table contains only complete cases**, i.e., raster cells
-#'   having a value for every layer in the stack.
+#'   having a value for every layer of the stack.
 #'
 #' @export
 #' @examples

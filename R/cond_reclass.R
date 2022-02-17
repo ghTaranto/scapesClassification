@@ -6,8 +6,8 @@
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
 #' @param ngbList list, the list of neighborhoods returned by the function
-#'   \code{\link{ngbList}}. Only necessary if using a _neighborhood condition_
-#'   (see \code{\link{conditions}}).
+#'   \code{\link{ngbList}}. Only necessary if using an _absolute neighborhood
+#'   condition_ (see \code{\link{conditions}}).
 #' @param rNumb logic, the neighborhoods of the argument \code{ngbList} are
 #'   identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
 #'   (\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
@@ -22,21 +22,21 @@
 #'   \code{\link{conditions}} for more details.
 #' @param reclass numeric, the classification number to assign to all cells that
 #'   meet the function conditions.
-#' @param peval numeric value between 0 and 1. If a _neighborhood condition_
-#'   is considered, test cells are classified if the conditions are true for at
-#'   least as many evaluations as the ones specified by the argument
-#'   \code{fn_perc} (see \code{\link{conditions}}).
+#' @param peval numeric value between 0 and 1. If _absolute neighborhood
+#'   conditions_ are considered, test cells are classified if the number of
+#'   positive evaluations is equal or greater than the percentage specified by
+#'   the argument \code{peval} (see \code{\link{conditions}}).
 #'
 #' @return Update \code{classVector} with the new cells that were classified by
 #'   the function. See \code{\link{conditions}} for more information about class
 #'   vectors.
 #'
 #' @details \itemize{ \item The function evaluates the conditions of the
-#'   argument \code{conditions} for all cells in the classes of the
+#'   argument \code{cond} for all cells in the classes of the
 #'   argument \code{class}.
 #'
-#'   \item Cells that meet the function conditions are classified as indicted by
-#'   the argument \code{reclass}.
+#'   \item Cells that meet the function conditions are re-classified as indicted
+#'   by the argument \code{reclass}.
 #'
 #'   \item Absolute test cell and neighborhood conditions can be used. The
 #'   condition string can only include one neighborhood condition (\code{'{}'})

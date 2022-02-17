@@ -82,10 +82,10 @@ nbs <- ngbList(r)
 ################################################################################
 
 # Compute an inital class vector with `cond.4.all`
-cv <- cond.4.all(attTbl = at, conditions = "dummy_var > 5", class = 1)
+cv <- cond.4.all(attTbl = at, cond = "dummy_var > 5", class = 1)
 
 # Update the class vector with a second class
-cv <- cond.4.all(attTbl = at, conditions = "dummy_var >= 2", class = 2,
+cv <- cond.4.all(attTbl = at, cond = "dummy_var >= 2", class = 2,
                  classVector = cv)
 
 

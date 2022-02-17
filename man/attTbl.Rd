@@ -18,13 +18,14 @@ table. If \code{NULL}, then the original layers' names are used.}
 data.frame
 }
 \description{
-Converts a raster into an attribute table (\code{data.frame}).
+Converts a single or a multi-layer raster into an attribute table
+(\code{data.frame}).
 }
 \details{
 Attribute tables come with a column named \strong{\code{"Cell"}} which
 stores raster cell numbers and associate each row of the attribute table
-with a cell of the raster object. Each of the remaining columns stores the
-values of one of the layers of the raster object. Note that only raster
+with a cell of the raster object. The remaining columns of the attribute
+table store the data contained in the raster layers. Note that only raster
 cells having no missing value in no layer (\strong{complete cases}) are included
 in the attribute table.
 }
