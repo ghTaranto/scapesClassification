@@ -31,7 +31,7 @@ in the attribute table.
 }
 \note{
 \strong{Attribute table contains only complete cases}, i.e., raster cells
-having a value for every layer in the stack.
+having a value for every layer of the stack.
 }
 \examples{
 library(scapesClassification)

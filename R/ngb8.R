@@ -21,11 +21,11 @@
 #' m <- matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
 #' m
 #'
-#' nbs <- nbg8(3, 4)
+#' nbs <- ngb8(3, 4)
 #' nbs
 
 
-nbg8 <- function(n_row, n_col){
+ngb8 <- function(n_row, n_col){
 
   n_cel <- n_row * n_col
   m     <- matrix(1:n_cel, n_row, n_col, byrow = T)

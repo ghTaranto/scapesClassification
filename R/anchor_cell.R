@@ -152,7 +152,7 @@ anchor.cell <-
     ###
     if (class2nbs) {
       nbs_anchor <-
-        nbg8(n_row = terra::nrow(SpatRaster), terra::ncol(SpatRaster))
+        ngb8(n_row = terra::nrow(SpatRaster), terra::ncol(SpatRaster))
       nbs_anchor <- unlist(nbs_anchor[anchor])
 
       if (!overwrite_class) {

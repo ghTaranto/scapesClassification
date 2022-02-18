@@ -154,5 +154,5 @@ setdiff(nbs_CELL[[1]], at$Cell[ nbs_ROW[[1]] ])
 r[c(1,4)]
 }
 \seealso{
-\code{\link[=nbg8]{nbg8()}}, \code{\link[=attTbl]{attTbl()}}
+\code{\link[=ngb8]{ngb8()}}, \code{\link[=attTbl]{attTbl()}}
 }

@@ -164,7 +164,7 @@ anchor.svo <- function(SpatRaster,
   }
 
   if (fill_NAs) {
-    nbs <- nbg8(terra::nrow(SpatRaster) , terra::ncol(SpatRaster))
+    nbs <- ngb8(terra::nrow(SpatRaster) , terra::ncol(SpatRaster))
 
     continue <- T
     i_cell0  <- i_cell

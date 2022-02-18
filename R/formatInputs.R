@@ -138,7 +138,7 @@ attTbl <- function(SpatRaster, var_names = NULL){
 #'   \code{"n"} stores the neighborhood of the raster cell located in the
 #'   \code{nth} row of the attribute table (\code{attTbl$Cell[n]}).
 #'
-#' @seealso [nbg8()], [attTbl()]
+#' @seealso [ngb8()], [attTbl()]
 #'
 #' @note
 #'   * There is always a correspondence between the indices of the attribute
@@ -234,7 +234,7 @@ attTbl <- function(SpatRaster, var_names = NULL){
 ngbList <- function(SpatRaster, rNumb = FALSE, attTbl = NULL){
 
   ind <- which(stats::complete.cases( as.data.frame(terra::values(SpatRaster)) ))
-  nbs <- nbg8(terra::nrow(SpatRaster[[1]]), terra::ncol(SpatRaster[[1]]))
+  nbs <- ngb8(terra::nrow(SpatRaster[[1]]), terra::ncol(SpatRaster[[1]]))
 
   nbs <- nbs[ind]
 
