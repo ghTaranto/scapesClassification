@@ -76,21 +76,20 @@ Note that raster cells 1 and 4 have missing values, therefore, they are not incl
 Any column of the attribute table can be indexed back into the original raster object using the `Cell` column or the function `cv.2.rast()`. 
 
 ```{r atbl_2_rast, collapse=TRUE}
-# ClassVector or attribute table variable to raster
+# Table variable to raster
 r2 <- cv.2.rast(r, at$dummy_var, at$Cell)
 
-# OR
+# Equivalent to
 
-r3          <- r
-r3[]        <- NA
+r3 <- r ; r3[] <- NA
 r3[at$Cell] <- at$dummy_var
 
 # r, r2 and r3 are equivalent
 all.equal(values(r), values(r2), values(r3))
 
 # PLOT r2 
-plot(r2, type="classes", axes=FALSE, legend = FALSE)
-text(xyFromCell(r2, 1:9),as.character(values(r2)[,1]), cex=1.2)
+plot(r2, type="classes", legend = FALSE, col="black")
+text(xyFromCell(r2, 1:9),as.character(values(r2)[,1]), cex=1.2, col="white")
 ```
 
 ### List of neighborhoods 
@@ -155,11 +154,11 @@ nbs_ROW[1]
 # Row numbers can be converted into cell numbers
 at$Cell[ nbs_ROW[[1]] ]
 
-# Cells 1 and 4 are omitted from 'at$Cell[ nbs_ROW[[1]] ]' 
+# Cells 1 and 4 are omitted from the neighborhood ('nbs_ROW') of cell #2 
 # because they have missing values
 r[c(1,4)]
 ```
 
 <br />
 
-> The list of neighborhoods is computed and stored in memory to improve the performance of the classification algorithms. The performance increase is greater when neighbors are identified by row numbers rather than by cell numbers.
+> _The list of neighborhoods is computed and stored in memory to improve the performance of the classification algorithms. The performance increase is greater when neighbors are identified by row numbers rather than by cell numbers._
