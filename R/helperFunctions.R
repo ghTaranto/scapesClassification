@@ -22,16 +22,16 @@
 #'   * Classification rules evaluate either to true or false and determine what
 #'   raster cells have to be classified.
 #'
-#'   * All variables included in an attribute table (see \code{\link{attTbl}})
-#'   can be included in a condition string by name (e.g., var name =
-#'   \code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
-#'
 #'   * Conditions are passed to \code{scapesClassification} functions as a
 #'   single character string. They can consist of combination of variables names
 #'   (as named in the attribute table, see \code{\link{attTbl}}), arithmetic
 #'   \code{(+|-|*|/|^|%%|%/%)}, relational \code{(>|<|>=|<=|==|!=|%/%)} and
 #'   logic operators \code{(&||)} and base R functions (e.g.,
 #'   \code{abs(variable_name)}).
+#'
+#'   * All variables included in an attribute table (see \code{\link{attTbl}})
+#'   can be included in a condition string by name (e.g., var name =
+#'   \code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
 #'
 #'   \cr **Class vectors**
 #'
@@ -385,7 +385,7 @@ conditions <- function(names_attTbl,
 #'
 #' @export
 
-cond_parse <- function(names_attTbl, cond){
+cond.parse <- function(names_attTbl, cond){
 
   scapesClassification::conditions(names_attTbl, cond, silent = TRUE)
 

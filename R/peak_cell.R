@@ -18,11 +18,11 @@
 #'   cells. Edge cells are considered cells on the edge of the raster and cell
 #'   neighboring NA-cells.
 #'
-#' @details \itemize{ \item A local maximum is defined as a cell on a raster
-#'   surface where all neighboring cells have smaller values.
+#' @details \itemize{ \item A _local maximum_ is defined as a cell on a raster
+#'   surface with all neighboring cells having smaller values.
 #'
-#'   \item A local minimum is defined as a cell on a raster surface where all
-#'   neighboring cells have larger values.}
+#'   \item A _local minimum_ is defined as a cell on a raster surface with all
+#'   neighboring cells having larger values.}
 #'
 #' @return A \code{classVector} with peak cells identified by the numeric class
 #'   \code{1}. See \code{\link{conditions}} for more details about class

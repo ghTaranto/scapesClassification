@@ -37,11 +37,11 @@ vectors.
 Identify local maxima or minima on a raster surface.
 }
 \details{
-\itemize{ \item A local maximum is defined as a cell on a raster
-surface where all neighboring cells have smaller values.
+\itemize{ \item A \emph{local maximum} is defined as a cell on a raster
+surface with all neighboring cells having smaller values.
 
-\item A local minimum is defined as a cell on a raster surface where all
-neighboring cells have larger values.}
+\item A \emph{local minimum} is defined as a cell on a raster surface with all
+neighboring cells having larger values.}
 }
 \examples{
 # DUMMY DATA

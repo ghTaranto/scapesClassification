@@ -111,7 +111,7 @@ cond.4.all <- function(attTbl,
   }
 
   # PARSE CONDITION
-  cond <- cond_parse(names(attTbl), cond)
+  cond <- cond.parse(names(attTbl), cond)
 
   ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
   if(!all("v_ab" == ctype)){

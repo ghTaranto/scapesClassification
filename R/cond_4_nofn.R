@@ -141,7 +141,7 @@
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "CONDITION: ABSOLUTE TEST CELL")
-#' mtext(side=3, line=0, adj=0, cex=1, "Class contiguity: NO")
+#' mtext(side=3, line=0, adj=0, cex=1, "Class continuity: NO")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var >= 3'")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 #'        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
@@ -170,7 +170,7 @@
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "CONDITION: ABSOLUTE TEST CELL")
-#' mtext(side=3, line=0, adj=0, cex=1, "Class contiguity: YES")
+#' mtext(side=3, line=0, adj=0, cex=1, "Class continuity: YES")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var >= 3'")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
 #'        legend = c("Focal cell", "Classified cells", "Unclassified cells"))
@@ -196,7 +196,7 @@
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "CONDITION: ABSOLUTE NEIGHBORHOOD")
-#' mtext(side=3, line=0, adj=0, cex=1, "Class contiguity: YES")
+#' mtext(side=3, line=0, adj=0, cex=1, "Class continuity: YES")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var{ } >= 3'")
 #' mtext(side=1, line=0, cex=0.9, adj=1, "('{ }' cell neighborhood)")
 #' mtext(side=1, line=1, cex=0.9, adj=0, "Fn_perc: 1 (100%)")
@@ -225,7 +225,7 @@
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "CONDITION: RELATIVE NEIGHBORHOOD")
-#' mtext(side=3, line=0, adj=0, cex=1, "Class contiguity: YES")
+#' mtext(side=3, line=0, adj=0, cex=1, "Class continuity: YES")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var > dummy_var{ }'")
 #' mtext(side=1, line=0, cex=0.9, adj=1, "('{ }' cell neighborhood)")
 #' mtext(side=1, line=1, cex=0.9, adj=0, "Fn_perc: 0.6 (60%)")
@@ -251,7 +251,7 @@
 #'      colNA="#818792", col=c("#78b2c4", "#cfad89"))
 #' text(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "CONDITION: RELATIVE FOCAL CELL")
-#' mtext(side=3, line=0, adj=0, cex=1, "Class contiguity: YES")
+#' mtext(side=3, line=0, adj=0, cex=1, "Class continuity: YES")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var > dummy_var[ ]'")
 #' mtext(side=1, line=0, cex=0.9, adj=1, "('[ ]' focal cell)")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfad89", "#818792"),
@@ -358,7 +358,7 @@ cond.4.nofn <- function(attTbl,
   }
 
   # HANDLE CONDITION STRING
-  cond        <- cond_parse(names(attTbl), cond)
+  cond        <- cond.parse(names(attTbl), cond)
   cond_parsed <- cond[[1]]
 
   ## CONDITIONS TYPE CONTROLS

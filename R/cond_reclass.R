@@ -134,7 +134,7 @@ cond.reclass <- function(attTbl,
   }
 
   # HANDLE CONDITION STRING
-  cond <- cond_parse(names(attTbl), cond)
+  cond <- cond.parse(names(attTbl), cond)
 
   ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
   if(!all(ctype %in% c("v_ab", "v_nAB"))){

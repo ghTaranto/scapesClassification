@@ -308,7 +308,7 @@ anchor.seed <- function(attTbl,
 
   # Filter
   if(!is.null(cond.filter)){
-    cond_filter <- cond_parse(names(attTbl), cond.filter)
+    cond_filter <- cond.parse(names(attTbl), cond.filter)
 
     ctype <- names(cond_filter[[2]])[lengths(cond_filter[[2]])>0]
     if(!all("v_ab" == ctype)){
@@ -325,7 +325,7 @@ anchor.seed <- function(attTbl,
   }
 
   # Seed
-  cond <- cond_parse(names(attTbl), cond.seed)
+  cond <- cond.parse(names(attTbl), cond.seed)
 
   ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
   if(!all("v_ab" == ctype)){
@@ -340,7 +340,7 @@ anchor.seed <- function(attTbl,
   gc_true <- FALSE
   if(!is.null(cond.growth)){
     if(!is.null(cond.filter)){cond.growth <- paste0(cond.growth,"&",cond.filter)}
-    cond <- cond_parse(names(attTbl), cond.growth)
+    cond <- cond.parse(names(attTbl), cond.growth)
     gc_true <- TRUE
 
     ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
@@ -360,7 +360,7 @@ anchor.seed <- function(attTbl,
   ic_true <- FALSE
   if(!is.null(cond.isol)){
     if(!is.null(cond.filter)){cond.isol <- paste0(cond.isol,"&",cond.filter)}
-    cond <- cond_parse(names(attTbl), cond.isol)
+    cond <- cond.parse(names(attTbl), cond.isol)
     ic_true <- TRUE
 
     ctype <- names(cond[[2]])[lengths(cond[[2]])>0]
