@@ -1,31 +1,87 @@
-#' Geomorphic Units' Borders
+#' Raster object borders
 #'
-#' Takes as input a list of elements representing geomorphic units and identify
-#' the border of each unit.
+#' Identify the borders of raster objects.
 #'
-#' @param group named list, each element represents a geomorphic unit. Each unit
-#'   is identified by the indices pointing to the raster cells in the attribute
-#'   table that compose that unit (see \code{\link{attTbl}}).
-#' @param ngbList list, it has to contain the list of 8-neighbors of each cell
-#'   in \code{attTbl$Cell} (see \code{\link{attTbl}}). This list has to be
-#'   generated setting the argument of the function \code{\link{ngbList}}
-#'   \code{index = TRUE} (see \code{\link{ngbList}}).
+#' @param group named list, each element represents a raster object composed of
+#'   several raster cells. If there are NA values on the raster surface, raster
+#'   cells must be identified by attribute table row indices (each corresponding
+#'   to a raster cell) (see \code{\link{attTbl}}).
+#' @param ngbList list, the list of neighborhoods returned by the function
+#'   \code{\link{ngbList}}. The list of neighborhoods has to be computed setting
+#'   the argument \code{rNumb=TRUE}.
 #' @param silent logic, progress bar is not printed on the console.
 #'
-#' @seealso [attTbl()], [ngbList()]
+#' @seealso [attTbl()], [ngbList()], [obj.nbs()]
 #'
-#' @note Note that \code{group} has to be a named list whose names correspond to
-#'   geomorphic unit-IDs.
+#' @note \itemize{ \item Note that \code{group} has to be a **named** list whose
+#'   names correspond to raster object IDs.
 #'
-#' @return The function returns a named list. Each element of the list
-#'   represents a geomorphic unit as identified by the list's names, while the
-#'   values of each element of the list consist of indices. These indices point
-#'   to the rows in the attribute table that correspond to the raster cells
-#'   comprising the borders. The actual raster cells comprising borders can be
-#'   extracted from the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
-#'   \code{\link{attTbl}}).
+#'   \item If there are NA values on the raster surface, raster cells must be
+#'   identified by attribute table row indices (each corresponding to a raster
+#'   cell). Row indices can be converted into raster cells using the cell column
+#'   of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+#'   \code{\link{attTbl}})}.
+#'
+#' @return The function returns a named list of object borders. List names
+#'   identify the objects; list element values identify the raster cell
+#'   comprising the borders.
+#'
 #' @export
-
+#' @examples
+#' # DUMMY DATA
+#' ######################################################################################
+#' # LOAD LIBRARIES
+#' library(scapesClassification)
+#' library(terra)
+#'
+#' # LOAD THE DUMMY RASTER
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
+#' r <- terra::rast(r)
+#'
+#' # ADD ONE NA VALUE
+#' r[11] <- NA
+#'
+#' # COMPUTE THE ATTRIBUTE TABLE
+#' at <- attTbl(r, "dummy_var")
+#'
+#' # COMPUTE THE LIST OF NEIGBORHOODS
+#' nbs <- ngbList(r, rNumb=TRUE, attTbl=at) # rnumb MUST be true to use obj.border
+#'
+#' ################################################################################
+#' # COMPUTE RASTER OBJECTS
+#' ################################################################################
+#' at$cv <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
+#'                      cond.filter = "dummy_var > 1",
+#'                      cond.seed   = "dummy_var==max(dummy_var)",
+#'                      cond.growth = "dummy_var<dummy_var[]",
+#'                      lag.growth  = 0)
+#'
+#' RO <- split(1:NROW(at), at$cv)
+#'
+#' print(RO) # values are attribute table row indices
+#'
+#' ################################################################################
+#' # COMPUTE BORDERS
+#' ################################################################################
+#' RO_bd <- obj.border(RO, nbs, silent = TRUE)
+#'
+#' print(RO_bd)
+#'
+#' RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
+#' RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
+#'
+#' print(RO_bd1)
+#' print(RO_bd2)
+#'
+#' ################################################################################
+#' # PLOT BORDERS
+#' ################################################################################
+#' plot(cv.2.rast(r,at$cv), type="classes", col=c("#E6E600","#00A600"),
+#'      main="Borders")
+#' points(terra::xyFromCell(r, RO_bd1), pch=20, col="blue")
+#' points(terra::xyFromCell(r, RO_bd2), pch=20, col="red")
+#' text(xyFromCell(r, 11), "NA\nvalue")
 
 obj.border <- function(group, ngbList, silent = FALSE){
 
@@ -64,41 +120,104 @@ obj.border <- function(group, ngbList, silent = FALSE){
 }
 
 
-#' Geomorphic Units' Neighbors
+#' Raster objects' neighbors
 #'
-#' Identify all the units adjacent to geomorphic units of interest. For each
-#' adjacent unit, individual borders are identified. Both function inputs and
-#' outputs use indices pointing to raster cells in the attribute table (see
-#' \code{\link{attTbl}} and \code{\link{ngbList}} with the argument \code{index
-#' = TRUE}).
+#' Identify the IDs of neighboring raster objects and their shared borders.
 #'
-#' @param grp.bord named list returned by the function \code{\link{obj.border}}.
-#'   Each element of the list represents a geomorphic unit identified by the
-#'   list's names, while the values of each element of the list consist of the
-#'   indices pointing to the rows in the attribute table that correspond to the
-#'   raster cells constituting the border.
-#' @param ngbList list, it has to contain the list of 8-neighbors of each cell
-#'   in \code{attTbl$Cell} (see \code{\link{attTbl}}). This list has to be
-#'   generated setting the argument of the function \code{\link{ngbList}}
-#'   \code{index = TRUE}. (see \code{\link{ngbList}}).
-#' @param only_grp character vector, if geomorphic unit-IDs are provided as a
-#'   character vector, then these are the only ones considered. If this argument
-#'   is set as \code{NULL}, then all the geomorphic units included in the
-#'   argument \code{grp.bord} are considered.
+#' @param grp.bord named list, the list of borders returned by the function
+#'   \code{\link{obj.border}}.
+#' @param ngbList list, the list of neighborhoods returned by the function
+#'   \code{\link{ngbList}}. The list of neighborhoods has to be computed setting
+#'   the argument \code{rNumb=TRUE}.
+#' @param only_grp character vector. If \code{NULL}, all IDs in \code{grp.bord}
+#'   are considered. If IDs are provided as a character vector, then these IDs
+#'   are the only one considered.
 #' @param silent logic, progress bar is not printed on the console.
 #'
+#' @seealso [attTbl()], [ngbList()], [obj.border()]
+#'
+#' @note If there are NA values on the raster surface, raster cells are
+#'   identified by attribute table row indices (each corresponding to a raster
+#'   cell). Row indices can be converted into raster cells using the cell column
+#'   of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+#'   \code{\link{attTbl}}).
+#'
 #' @return The function returns a named list. Each element of the list represent
-#'   a geomorphic unit as identified by the list's names. Each element is
+#'   a raster object as identified by the list's names. Each element is
 #'   constituted by a nested named list. The names of the nested lists are the
-#'   IDs of all the adjacent geomorphic units. The values of each nested list
-#'   consist of indices. These indices point to the rows in the attribute table
-#'   (see \code{\link{attTbl}}) that correspond to the raster cells that mark
-#'   the border between the geomorphic unit and the adjacent unit. The actual
-#'   raster cells comprising borders can be extracted from the attribute table
-#'   (e.g. \code{attTbl$Cell[indices]}) (see \code{\link{attTbl}}).
+#'   IDs of neighboring raster objects.
 #'
 #' @export
-
+#' @examples
+#' # DUMMY DATA
+#' ######################################################################################
+#' # LOAD LIBRARIES
+#' library(scapesClassification)
+#' library(terra)
+#'
+#' # LOAD THE DUMMY RASTER
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
+#' r <- terra::rast(r)
+#'
+#' # ADD ONE NA VALUE
+#' r[11] <- NA
+#'
+#' # COMPUTE THE ATTRIBUTE TABLE
+#' at <- attTbl(r, "dummy_var")
+#'
+#' # COMPUTE THE LIST OF NEIGBORHOODS
+#' nbs <- ngbList(r, rNumb=TRUE, attTbl=at) # rnumb MUST be true to use obj.nbs
+#'
+#' ################################################################################
+#' # COMPUTE RASTER OBJECTS
+#' ################################################################################
+#' at$cv <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
+#'                      cond.filter = "dummy_var > 1",
+#'                      cond.seed   = "dummy_var==max(dummy_var)",
+#'                      cond.growth = "dummy_var<dummy_var[]",
+#'                      lag.growth  = 0)
+#'
+#' RO <- split(1:NROW(at), at$cv)
+#'
+#' print(RO)
+#'
+#' ################################################################################
+#' # COMPUTE BORDERS
+#' ################################################################################
+#' RO_bd <- obj.border(RO, nbs, silent = TRUE)
+#'
+#' ################################################################################
+#' # COMPUTE SHARED BORDERS
+#' ################################################################################
+#' RO_sbd <- obj.nbs(RO_bd, nbs, silent = TRUE)
+#'
+#' # Convert row indices to cell numbers
+#' RO_sbd1 <- RO_sbd[["1"]]
+#' RO_sbd1 <- at$Cell[unlist(RO_sbd1)]
+#'
+#' RO_sbd2 <- RO_sbd[["2"]]
+#' RO_sbd2 <- at$Cell[unlist(RO_sbd2)]
+#'
+#' # Borders in `RO_sbd` are identified by row indices
+#' print(RO_sbd[["1"]]) # Row indices
+#' print(RO_sbd1) # Cell numbers
+#'
+#' print(RO_sbd[["2"]])  # Row indices
+#' print(RO_sbd2) # Cell numbers
+#'
+#' # Neighbor objects
+#' names(RO_sbd[["1"]]) # RO1 has one neighbor, RO2
+#' names(RO_sbd[["2"]]) # RO2 has one neighbor, RO1
+#'
+#' ################################################################################
+#' # PLOT BORDERS
+#' ################################################################################
+#' plot(cv.2.rast(r,at$cv), type="classes", col=c("#E6E600","#00A600"),
+#'      main="Shared borders")
+#' points(terra::xyFromCell(r, RO_sbd1), pch=20, col="blue")
+#' points(terra::xyFromCell(r, RO_sbd2), pch=20, col="red")
+#' text(xyFromCell(r, 11), "NA\nvalue")
 
 obj.nbs <- function(grp.bord, ngbList, only_grp = NULL, silent = FALSE){
 

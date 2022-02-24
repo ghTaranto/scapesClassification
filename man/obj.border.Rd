@@ -2,39 +2,96 @@
 % Please edit documentation in R/objectFunctions.R
 \name{obj.border}
 \alias{obj.border}
-\title{Geomorphic Units' Borders}
+\title{Raster object borders}
 \usage{
 obj.border(group, ngbList, silent = FALSE)
 }
 \arguments{
-\item{group}{named list, each element represents a geomorphic unit. Each unit
-is identified by the indices pointing to the raster cells in the attribute
-table that compose that unit (see \code{\link{attTbl}}).}
+\item{group}{named list, each element represents a raster object composed of
+several raster cells. If there are NA values on the raster surface, raster
+cells must be identified by attribute table row indices (each corresponding
+to a raster cell) (see \code{\link{attTbl}}).}
 
-\item{ngbList}{list, it has to contain the list of 8-neighbors of each cell
-in \code{attTbl$Cell} (see \code{\link{attTbl}}). This list has to be
-generated setting the argument of the function \code{\link{ngbList}}
-\code{index = TRUE} (see \code{\link{ngbList}}).}
+\item{ngbList}{list, the list of neighborhoods returned by the function
+\code{\link{ngbList}}. The list of neighborhoods has to be computed setting
+the argument \code{rNumb=TRUE}.}
 
 \item{silent}{logic, progress bar is not printed on the console.}
 }
 \value{
-The function returns a named list. Each element of the list
-represents a geomorphic unit as identified by the list's names, while the
-values of each element of the list consist of indices. These indices point
-to the rows in the attribute table that correspond to the raster cells
-comprising the borders. The actual raster cells comprising borders can be
-extracted from the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
-\code{\link{attTbl}}).
+The function returns a named list of object borders. List names
+identify the objects; list element values identify the raster cell
+comprising the borders.
 }
 \description{
-Takes as input a list of elements representing geomorphic units and identify
-the border of each unit.
+Identify the borders of raster objects.
 }
 \note{
-Note that \code{group} has to be a named list whose names correspond to
-geomorphic unit-IDs.
+\itemize{ \item Note that \code{group} has to be a \strong{named} list whose
+names correspond to raster object IDs.
+
+\item If there are NA values on the raster surface, raster cells must be
+identified by attribute table row indices (each corresponding to a raster
+cell). Row indices can be converted into raster cells using the cell column
+of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+\code{\link{attTbl}})}.
+}
+\examples{
+# DUMMY DATA
+######################################################################################
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"),
+                pattern = "dummy_raster\\\\.tif", full.names = TRUE)
+r <- terra::rast(r)
+
+# ADD ONE NA VALUE
+r[11] <- NA
+
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r, rNumb=TRUE, attTbl=at) # rnumb MUST be true to use obj.border
+
+################################################################################
+# COMPUTE RASTER OBJECTS
+################################################################################
+at$cv <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
+                     cond.filter = "dummy_var > 1",
+                     cond.seed   = "dummy_var==max(dummy_var)",
+                     cond.growth = "dummy_var<dummy_var[]",
+                     lag.growth  = 0)
+
+RO <- split(1:NROW(at), at$cv)
+
+print(RO) # values are attribute table row indices
+
+################################################################################
+# COMPUTE BORDERS
+################################################################################
+RO_bd <- obj.border(RO, nbs, silent = TRUE)
+
+print(RO_bd)
+
+RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
+RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
+
+print(RO_bd1)
+print(RO_bd2)
+
+################################################################################
+# PLOT BORDERS
+################################################################################
+plot(cv.2.rast(r,at$cv), type="classes", col=c("#E6E600","#00A600"),
+     main="Borders")
+points(terra::xyFromCell(r, RO_bd1), pch=20, col="blue")
+points(terra::xyFromCell(r, RO_bd2), pch=20, col="red")
+text(xyFromCell(r, 11), "NA\nvalue")
 }
 \seealso{
-\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=obj.nbs]{obj.nbs()}}
 }

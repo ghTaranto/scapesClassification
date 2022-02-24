@@ -143,11 +143,11 @@ previous iteration are ignored in successive iterations.
 \item The arguments \code{lag.growth} and \code{lag.isol} control the
 evaluation lag of \emph{relative focal cell conditions} (see
 \code{\link{conditions}}).
-\item When \code{lag.*} are set to \code{0} \emph{relative focal cell conditions}
-have a standard behavior and compare the value of the \code{test cells}
+\item When \code{lag.*} are set to \code{0}, \emph{relative focal cell conditions}
+have a standard behavior and compare the values of the \code{test cells}
 against the value of the \code{focal cell}.
-\item When \code{lag.*} are set to \code{Inf} \emph{relative focal cell conditions}
-compare the value of the \code{test cells} against the value of the
+\item When \code{lag.*} are set to \code{Inf}, \emph{relative focal cell conditions}
+compare the values of the \code{test cells} against the value of the
 \code{seed cell} identified at the start of the iteration.
 }
 }

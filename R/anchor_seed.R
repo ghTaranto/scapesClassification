@@ -108,12 +108,12 @@
 #'   evaluation lag of _relative focal cell conditions_ (see
 #'   \code{\link{conditions}}).
 #'
-#'   * When \code{lag.*} are set to \code{0} _relative focal cell conditions_
-#'   have a standard behavior and compare the value of the \code{test cells}
+#'   * When \code{lag.*} are set to \code{0}, _relative focal cell conditions_
+#'   have a standard behavior and compare the values of the \code{test cells}
 #'   against the value of the \code{focal cell}.
 #'
-#'   * When \code{lag.*} are set to \code{Inf} _relative focal cell conditions_
-#'   compare the value of the \code{test cells} against the value of the
+#'   * When \code{lag.*} are set to \code{Inf}, _relative focal cell conditions_
+#'   compare the values of the \code{test cells} against the value of the
 #'   \code{seed cell} identified at the start of the iteration.
 #'
 #' @seealso [conditions()], [attTbl()], [ngbList()]
@@ -591,7 +591,7 @@ anchor.seed <- function(attTbl,
     if(!silent){
       n      <- length(flt_ok)
       dtime  <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
-      cat("\r", paste0("Evaluated cells: ", N-n, "/", N, "; Elapsed time: ", dtime, " mins"))
+      cat("\r", paste0("Itr.", cnumb, ") Evaluated cells: ", N-n, "/", N, "; Elapsed time: ", dtime, " mins"))
     }
 
   }#while (seed.cond)
