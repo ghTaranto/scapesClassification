@@ -13,17 +13,31 @@ template:
     docsearch:
       api_key: 5cc755c9236170520ae6400a64cf71d5
       index_name: scapesclassification
+    include:
+    in_header: |
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@alpha"/></pre></li>
+    after_body: |
+      <script src="https://cdn.jsdelivr.net/npm/@docsearch/js@alpha"></script>
+      <script type="text/javascript">
+        docsearch({
+          appId: TT6ZDSTFRT,
+          apiKey: 5cc755c9236170520ae6400a64cf71d5,
+          indexName: scapesclassification,
+          container: 'div'
+          debug: false // Set debug to true if you want to inspect the modal
+        });
+      </script>
 
 reference:
   - title: Format input functions
     contents:
       - "`attTbl`"
       - "`ngbList`"
-      - "`nbg8`"
+      - "`ngb8`"
   - title: Helper functions
     contents:
       - "`conditions`"
-      - "`cond_parse`"
+      - "`cond.parse`"
       - "`cv.2.rast`"
   - title: Classification functions
   - subtitle: Anchor cell functions
@@ -46,6 +60,7 @@ reference:
       - "`classify.all`"
   - title: Raster object functions
     contents:
+      - "`cond.4.nofn`"
       - "`anchor.seed`"
       - "`obj.border`"
       - "`obj.nbs`"
@@ -71,30 +86,12 @@ navbar:
         - text: Implementation
         - text: Format inputs
           href: articles/scapesClassification_01_1_FormatInputs.html
-        - text: Rule evaluation
-          href: articles/scapesClassification_01_2_RuleEvaluation.html
-        - text: Classification rules
-          href: articles/scapesClassification_01_3_ClassRules.html
+        - text: Rule evaluation and types
+          href: articles/scapesClassification_01_2_RulesEvalTypes.html
         - text: Classification functions
-          href: articles/scapesClassification_01_4_ClassFunctions.html
-        - text: Function anchor.seed
-          href: articles/scapesClassification_01_5_FunctionAnchorSeed.html
-    workex:
-      text: Working example
-      menu:
-        - text: Geomorphic management units (GMUs)
-        - text: 0. Overview
-          href: articles/scapesClassification_02_0_GMU.html
-        - text: 1. Format input data
-          href: articles/scapesClassification_02_1_DATA.html
-        - text: 2. Island shelf unit (ISU)
-          href: articles/scapesClassification_02_2_ISU.html
-        - text: 3. Local maxima on gridded data
-          href: articles/scapesClassification_02_3_PKS.html
-        - text: 4. Independent objects on raster surfaces
-          href: articles/scapesClassification_02_4_OBJ.html
-        - text: 5. Raster object manipulation
-          href: articles/scapesClassification_02_5_OBJ2.html
+          href: articles/scapesClassification_01_3_ClassFunctions.html
+        - text: Object functions
+          href: articles/scapesClassification_01_4_ObjFunctions.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/ghTaranto/scapesClassification

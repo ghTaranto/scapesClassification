@@ -15,7 +15,7 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE, out.width="600px", fig.al
 
 
 ## Rasters 
-[Raster*](https://rspatial.org/raster/spatial/4-rasterdata.html) objects are central to `(scapes)Classifications`. They define the area over which classifications are performed and provide the spatial data users deem important to build their classification rules. In addition, rasters provide information about where individual cells are located and how they relate with each other. As we will see in the next sections, raster cells are the basic unit of `(scapes)Classifications`. 
+Single and multi-layer rasters  are central to `(scapes)Classifications`. They define the area over which classifications are performed and provide the spatial data users deem important to build their classification rules. In addition, rasters provide information about where individual cells are located and how they relate with each other. As we will see in the next sections, raster cells are the basic unit of `(scapes)Classifications`. 
 
 > Raster provided to `scapesClassifications` functions should be of the class `SpatRaster` from the package **terra**.
 

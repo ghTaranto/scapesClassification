@@ -33,42 +33,13 @@
       <a href="../articles/scapesClassification_01_1_FormatInputs.html">Format inputs</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_2_RuleEvaluation.html">Rule evaluation</a>
+      <a href="../articles/scapesClassification_01_2_RulesEvalTypes.html">Rule evaluation and types</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
+      <a href="../articles/scapesClassification_01_3_ClassFunctions.html">Classification functions</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_4_ClassFunctions.html">Classification functions</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_01_5_FunctionAnchorSeed.html">Function anchor.seed</a>
-    </li>
-  </ul></li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Working example
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
-    <li>
-      <a href="../articles/scapesClassification_02_0_GMU.html">0. Overview</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_1_DATA.html">1. Format input data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_2_ISU.html">2. Island shelf unit (ISU)</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_3_PKS.html">3. Local maxima on gridded data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_4_OBJ.html">4. Independent objects on raster surfaces</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_5_OBJ2.html">5. Raster object manipulation</a>
+      <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
 <li>
@@ -139,10 +110,15 @@ vectors.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>A local maximum is defined as a cell on a raster surface where all
-neighboring cells have smaller values.</p>
-<p>A local minimum is defined as a cell on a raster surface where all
-neighboring cells have larger or equal values.</p>
+    
+<ul><li><p>A <em>local maximum</em> is defined as a cell on a raster
+surface with all neighboring cells having smaller values.</p></li>
+<li><p>A <em>local minimum</em> is defined as a cell on a raster surface with all
+neighboring cells having larger values.</p></li>
+</ul></div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p><code><a href="conditions.html">conditions()</a></code>, <code><a href="attTbl.html">attTbl()</a></code>, <code><a href="ngbList.html">ngbList()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -150,13 +126,13 @@ neighboring cells have larger or equal values.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># DUMMY DATA</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"><span class="co"># LOAD LIBRARIES</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/terra/" class="external-link">terra</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># LOAD THE DUMMY RASTER</span></span>
 <span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"scapesClassification"</span><span class="op">)</span>,</span>
 <span class="r-in">                pattern <span class="op">=</span> <span class="st">"dummy_raster\\.tif"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># COMPUTE THE ATTRIBUTE TABLE</span></span>
 <span class="r-in"><span class="va">at</span> <span class="op">&lt;-</span> <span class="fu"><a href="attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dummy_var"</span><span class="op">)</span></span>
@@ -182,27 +158,29 @@ neighboring cells have larger or equal values.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">#PLOTS</span></span>
 <span class="r-in"><span class="co">###############################################################################</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">0.5</span>, <span class="fl">4</span>, <span class="fl">0.5</span><span class="op">)</span>, mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># PLOT 1 - p_edge = FALSE</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_pca</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"PEAK.CELL"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>, sub <span class="op">=</span> <span class="st">"argument: p_edge = FALSE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_pca</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, legend<span class="op">=</span><span class="cn">FALSE</span>, asp<span class="op">=</span><span class="cn">NA</span>, mar<span class="op">=</span><span class="va">m</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">1</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"PEAK.CELL"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"p_edge = FALSE"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Peak cell"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Peak cell"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
+<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># PLOT 2 - p_edge = TRUE</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_pcb</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">    colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"PEAK.CELL"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>, sub <span class="op">=</span> <span class="st">"argument: p_edge = TRUE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_pcb</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, legend<span class="op">=</span><span class="cn">FALSE</span>, asp<span class="op">=</span><span class="cn">NA</span>, mar<span class="op">=</span><span class="va">m</span>,</span>
+<span class="r-in">    colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">1</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"PEAK.CELL"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"p_edge = TRUE"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Peak cell"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Peak cell"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
+<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="peak.cell-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="co">###############################################################################</span></span>
 </code></pre></div>
     </div>
   </div>

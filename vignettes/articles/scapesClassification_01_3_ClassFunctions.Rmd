@@ -1,0 +1,734 @@
+---
+title: "Classification functions"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Classification functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FALSE, out.width = "100%")
+```
+
+## Class vectors
+
+Class vectors store function classifications by mapping raster cells to numeric classes (or to NA-values if no class is attributed). They are central to all classification funtions and present the following characteristics:
+
+* The n^th^ element of a class vector corresponds to the raster cell stored in the n^th^ row of the  [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table). 
+
+* They serve both as function input and output.
+
+* As inputs, they provide information about what cells have been classified allowing a [focal evaluation](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation) of classification rules.
+
+* Every time a class vector is provided as a function input, it is _updated_ by assigning a numeric class to _unclassified cells_ that meet function conditions. 
+
+* The sequential update of a class vector allows users to design multi-step classifications. 
+
+## Data and example plots
+
+We will use a single-layer dummy raster to illustrate `scapesClassification` functions. We will start by computing its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table) (where the raster is named `"dummy_var"`) and its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
+
+```{r def, message=FALSE, warning=FALSE, echo=TRUE}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"), 
+                 pattern = "dummy_raster\\.tif", full.names = T)
+r <- rast(r)
+```
+
+```{r def_at, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+head(at, 3)
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+head(nbs, 3)
+```
+
+In the following examples we will show how class vectors are computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
+
+> The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and (ii) use `terra::plot()` or any other software suitable for raster plots. 
+
+## Anchor cell functions
+
+**Functions:** `anchor.svo()`, `anchor.cell()`, `cond.4.all()` and `peak.cell()`.
+
+Anchor cells can be thought of as raster cells having particular characteristics from where the classification process can start. Once identified, they can serve as [focal cells](scapesClassification_01_2_RulesEvalTypes.html#en) around which new classification rules can be implemented. Anchor cells can be derived by: previous classifications, areas of constant environmental or geographic characteristics (e.g., flat areas), local maxima or minima (e.g., local peaks on a mountain ridge) or spatial objects (e.g., shapefiles).  
+
+Anchor cell functions can be easily identified because they do not necessarily require a class vector as an input. 
+
+### anchor.svo
+
+The function `anchor.svo()` returns a vector of cell numbers extracted at the locations of a spatial object. To show its functioning, we will add some NA-values to the dummy raster and we will create a polygon. 
+
+```{r anchor_svo_data, message=FALSE, warning=FALSE, collapse = TRUE}
+# CELL NUMBERS OF THE DUMMY RASTER
+r_cn <- rast(matrix(1:49, nrow = 7, byrow = TRUE)) # Dummy raster cell numbers
+
+# SET SOME NA-VALUE
+r_cn[c(9, 10, 11, 17, 18)] <- NA
+
+# BULD A DUMMY POLYGON
+pol <- rbind(c(0,0.95), c(0.28,1), c(0.24, 0.72), c(0.05,0.72), c(0,0.95))
+pol <- terra::vect(pol, type="polygons")
+```
+
+The way cell numbers are extracted depends on two function arguments: `only_NAs` and `fill_NAs` ([Figure 1](#figure1)).
+
+```{r anchor_svo, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a. ac1, only_NAs = FALSE; fill_NAs = FALSE
+ac1 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = FALSE)
+
+# b. ac2, only_NAs = TRUE; fill_NAs = FALSE
+ac2 <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = FALSE)
+
+# c. ac3, only_NAs = FALSE; fill_NAs = TRUE
+ac3 <- anchor.svo(r_cn, pol, only_NAs = FALSE, fill_NAs = TRUE)
+
+# d. ac4, only_NAs = TRUE; fill_NAs = TRUE
+ac4 <- anchor.svo(r_cn, pol, only_NAs = TRUE, fill_NAs = TRUE)
+```
+
+<a id="figure1"></a>
+
+```{r anchor_svo_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# ADD CELL NUMBERS TO AN EMPTY RASTER FOR PLOTTING
+rac1 <- r_cn; rac1[] <- NA; rac1[ac1] <- 1
+rac2 <- r_cn; rac2[] <- NA; rac2[ac2] <- 1
+rac3 <- r_cn; rac3[] <- NA; rac3[ac3] <- 1
+rac4 <- r_cn; rac4[] <- NA; rac4[ac4] <- 1
+
+# SET PLOT LAYOUT
+par(mfrow=c(2,2))
+
+m <- c(1, 1, 1, 1)
+# PLOT 1, only_NAs = FALSE; fill_NAs = FALSE
+################################################################################
+plot(rac1, col="#78b2c4", colNA= "#818792", axes=FALSE, legend = FALSE,  
+     ylim=c(-0.055,1.14), mar = m)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) ac1", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "only_NAs = FALSE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "fill_NAs = FALSE", family = "serif", 
+     col="#818792")
+ac <- paste0("ac: ", paste0(sort(ac1), collapse = ","))
+text(x=0, y=-0.04, cex=1, font=1, adj=0, ac, family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", fill = c("#78b2c4", "red"), xjust=1, yjust=0,
+       legend = c("Anchor cell", "Polygon"))
+################################################################################
+
+# PLOT 2, only_NAs = TRUE; fill_NAs = FALSE
+################################################################################
+plot(rac2, col="#78b2c4", colNA= "#818792", axes=FALSE, legend = FALSE,  
+     ylim=c(-0.055,1.14), mar = m)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) ac2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "only_NAs = TRUE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "fill_NAs = FALSE", family = "serif", 
+     col="#818792")
+ac <- paste0("ac: ", paste0(sort(ac2), collapse = ","))
+text(x=0, y=-0.04, cex=1, font=1, adj=0, ac, family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", fill = c("#78b2c4", "red"), xjust=1, yjust=0,
+       legend = c("Anchor cell", "Polygon"))
+################################################################################
+
+# PLOT 3, only_NAs = FALSE; fill_NAs = TRUE
+################################################################################
+plot(rac3, col="#78b2c4", colNA= "#818792", axes=FALSE, legend = FALSE,  
+     ylim=c(-0.055,1.14), mar = m)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(c) ac3", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "only_NAs = FALSE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "fill_NAs = TRUE", family = "serif", 
+     col="#818792")
+ac <- paste0("ac: ", paste0(sort(ac3), collapse = ","))
+text(x=0, y=-0.04, cex=1, font=1, adj=0, ac, family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", fill = c("#78b2c4", "red"), xjust=1, yjust=0,
+       legend = c("Anchor cell", "Polygon"))
+################################################################################
+
+# PLOT 4, only_NAs = TRUE; fill_NAs = TRUE
+################################################################################
+plot(rac4, col="#78b2c4", colNA= "#818792", axes=FALSE, legend = FALSE,  
+     ylim=c(-0.055,1.14), mar = m)
+plot(pol, add = TRUE, lwd = 2.5, border = "red")
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(d) ac4", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "only_NAs = TRUE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "fill_NAs = TRUE", family = "serif", 
+     col="#818792")
+ac <- paste0("ac: ", paste0(sort(ac4), collapse = ","))
+text(x=0, y=-0.04, cex=1, font=1, adj=0, ac, family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", fill = c("#78b2c4", "red"), xjust=1, yjust=0,
+       legend = c("Anchor cell", "Polygon"))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Anchor.svo** extracts cell numbers at the locations of a spatial polygon. Raster values are cell numbers. Raster cells not showing any number are NA-cells (cells `c(9, 10, 11, 17, 18)`).</span></div>
+
+---
+
+### anchor.cell
+
+The function `anchor.cell()` converts a vector of cell numbers (argument `anchor`) into a class vector. The conversion depends on two function arguments: `class2cell` and `class2nbs`. 
+
+We will show how the function works considering `anchor = 1:7` ([Figure 2](#figure2)).
+
+```{r anchor_cell, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# CELL NUMBERS OF THE DUMMY RASTER
+r_cn <- rast(matrix(1:49, nrow = 7, byrow = TRUE)) # Dummy raster cell numbers
+
+# a. cv1, class2cell = TRUE; class2nbs = FALSE
+cv1 <- anchor.cell(attTbl = at, SpatRaster = r_cn, class  = 10, anchor = 1:7,
+                   class2cell = TRUE,
+                   class2nbs  = FALSE)
+
+# b. cv2, class2cell = FALSE; class2nbs = TRUE
+cv2 <- anchor.cell(attTbl = at, SpatRaster = r_cn, class  = 10, anchor = 1:7,
+                   class2cell = FALSE,
+                   class2nbs  = TRUE)
+
+# c. cv3, class2cell = TRUE; class2nbs = TRUE
+cv3 <- anchor.cell(attTbl = at, SpatRaster = r_cn, class  = 10, anchor = 1:7,
+                   class2cell = TRUE,
+                   class2nbs  = TRUE)
+```
+
+<a id="figure2"></a>
+
+```{r anchor_cell_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# CONVERT CLASSVECTORS TO RASTERS
+r_cv1 <- cv.2.rast(r = r_cn, classVector = cv1)
+r_cv2 <- cv.2.rast(r = r_cn, classVector = cv2)
+r_cv3 <- cv.2.rast(r = r_cn, classVector = cv3)
+
+
+par(mfrow=c(2,2))
+m <- c(1, 1, 1, 1)
+
+# PLOT 1. class2cell = TRUE & class2nbs = FALSE
+################################################################################
+r_cv1[which(is.na(cv1))] <- 11
+
+plot(r_cv1, type = "classes", col=c("#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) cv1", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "class2cell = TRUE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "class2nbs = FALSE", family = "serif", 
+     col="#818792")
+text(x=0, y=-0.04, cex=1, font=1, adj=0, "anchor cells: 1:7", family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0,
+       fill = c("#78b2c4", "#818792"),
+       legend = c("Classified cells","Unclassified cells"))
+################################################################################
+
+# PLOT 2. class2cell = FALSE & class2nbs = TRUE
+################################################################################
+r_cv2[which(is.na(cv2))] <- 11
+
+plot(r_cv2, type = "classes", col=c("#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) cv2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "class2cell = FALSE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "class2nbs = TRUE", family = "serif", 
+     col="#818792")
+text(x=0, y=-0.04, cex=1, font=1, adj=0, "anchor cells: 1:7", family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0,
+       fill = c("#78b2c4", "#818792"),
+       legend = c("Classified cells","Unclassified cells"))
+################################################################################
+
+# PLOT 3. class2cell = TRUE & class2nbs = TRUE
+################################################################################
+r_cv3[which(is.na(cv3))] <- 11
+
+plot(r_cv3, type = "classes", col=c("#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r_cn)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(c) cv3", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "class2cell = FALSE;", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "class2nbs = TRUE", family = "serif", 
+     col="#818792")
+text(x=0, y=-0.04, cex=1, font=1, adj=0, "anchor cells: 1:7", family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0,
+       fill = c("#78b2c4", "#818792"),
+       legend = c("Classified cells","Unclassified cells"))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.cell** converts a vector of cell numbers (`anchor`) into a class vector. The input vector was `1:7`. Raster values are cell numbers.</span></div>
+
+Note that as the argument `class = 10`, classified cells have class 10.
+
+```{r anchor_cell_cv, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+at$Cell[which(cv1 == 10)]
+
+at$Cell[which(cv2 == 10)]
+
+at$Cell[which(cv3 == 10)]
+```
+---
+
+### cond.4.all
+
+The function `cond.4.all()` evaluates [absolute test cell conditions](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) for unclassified cells and classify them if conditions are true. It performs [global evaluations](scapesClassification_01_2_RulesEvalTypes.html#global-evaluation).
+
+The function can either return a new class vector (when no class vector input is provided) or update an existing class vector (i.e. classification number assigned only to unclassified cells meeting conditions). As an example we will first compute a new class vector with the rule `"dummy_var <= 1"`, and then update the same class vector with the rule `"dummy_var <= 3"` ([Figure 3](#figure3)). 
+
+```{r cond_4_all, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a. cv1, compute new class vector
+cv1   <- cond.4.all(attTbl = at, cond = "dummy_var <= 1", class = 1)
+
+# b. cv2, update class vector `cv1`
+cv2   <- cond.4.all(attTbl = at, cond = "dummy_var <= 3", class = 2,
+                   
+                   classVector = cv1) # Update cv1
+```
+
+<a id="figure3"></a>
+
+```{r cond_4_all_plotS, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv1 <- cv.2.rast(r, classVector = cv1)
+r_cv2 <- cv.2.rast(r, classVector = cv2)
+
+# PLOTs
+par(mfrow=c(1,2))
+m <- c(1,1,1,1)
+# PLOT 1
+################################################################################
+r_cv1[which(is.na(cv1))] <- 11
+
+plot(r_cv1, type = "classes", col=c("#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) cv1", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Rule: 'dummy_var <= 1'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "Class = 1", family = "serif", 
+     col="#818792")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
+       fill = c("#78b2c4", "#818792"),
+       legend = c("1","NA"))
+################################################################################
+
+# PLOT 2
+################################################################################
+r_cv2[which(is.na(cv2))] <- 11
+
+plot(r_cv2, type = "classes", col=c("#78b2c4","#cfad89","#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) cv2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Rule: 'dummy_var <= 3'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "Class = 2", family = "serif", 
+     col="#818792")
+text(x=0, y=-0.04, cex=1, font=1, adj=0, "Class 1 is not owerwritten.", family = "mono")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
+       fill = c("#78b2c4", "#cfad89", "#818792"),
+       legend = c("1","2","NA"))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - cond.4.all** classifies unclassified raster cells that meet function conditions. **(a)** A new class vector is computed (`cv1`). **(b)** The class vector `cv1` is updated and stored as `cv2`.</span></div>
+
+Note that `cv1` has only one class (`1`); `cv2` has two classes (`1,2`).
+
+```{r cond_4_all_cv, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+unique(cv1)
+
+unique(cv2)
+```
+
+---
+
+### peak.cell
+
+The function `peak.cell()` identify local maxima or minima on a raster surface. A _local maximum_ is defined as a cell on a raster surface with all neighboring cells having smaller values. A _local minimum_ is defined as a cell on a raster surface with all neighboring cells having larger values ([Figure 4](#figure4)). The argument `p_edge` determines if the search area includes edge cells (cells on the edge of the raster and cell neighboring NA-cells).
+
+```{r peak_cell, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# FIND LOCAL MAXIMA
+# a. lm1, p_edge = FALSE
+lm1 <- peak.cell(attTbl = at, ngbList = nbs, p_edge = FALSE,
+                 p_col = "dummy_var", p_fun = "max")
+
+# b. lm2, p_edge = TRUE
+lm2 <- peak.cell(attTbl = at, ngbList = nbs, p_edge = TRUE,
+                 p_col = "dummy_var", p_fun = "max")
+
+# FIND LOCAL MINIMA 
+lmin <- peak.cell(attTbl = at, ngbList = nbs, p_edge = TRUE,
+                  p_col = "dummy_var", p_fun = "min")
+
+# JOIN LOCAL MINIMA AN MAXIMA IN THE SAME CLASS VECTOR
+lm1[!is.na(lmin)] <- 2
+lm2[!is.na(lmin)] <- 2
+```
+
+<a id="figure4"></a>
+
+```{r peak_cell_plots, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO RASTERS
+r_lm1 <- cv.2.rast(r, lm1)
+r_lm2 <- cv.2.rast(r, lm2)
+
+# PLOTs
+par(mfrow=c(1,2))
+m <- c(1,1,1,1)
+
+# PLOT 1
+################################################################################
+r_lm1[which(is.na(lm1))] <- 11
+
+plot(r_lm1, type = "classes", col=c("#cfad89", "#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) lm1", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "p_edge = FALSE", family = "serif", 
+     col="#818792")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
+       fill = c("#cfad89", "#78b2c4", "#818792"),
+       legend = c("L.maxima","L.minima","NA"))
+################################################################################
+
+# PLOT 2
+################################################################################
+r_lm2[which(is.na(lm2))] <- 11
+
+plot(r_lm2, type = "classes", col=c("#cfad89", "#78b2c4", "#818792"), axes=FALSE, 
+     legend = FALSE, ylim=c(-0.055,1.14), mar = m)
+
+# REFERENCE PLOT
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) lm2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "p_edge = TRUE", family = "serif", 
+     col="#818792")
+legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
+       fill = c("#cfad89", "#78b2c4", "#818792"),
+       legend = c("L.maxima","L.minima","NA"))
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - peak.cell** identifies local maxima and minima on a raster. **(a)** Argument `p_edge=FALSE`. (`cv1`). **(b)** Argument `p_edge=TRUE`.</span></div>
+
+## User condition functions
+
+**Functions:** `cond.4.nofn()`, `cond.reclass()` and `cond.4.all()`.
+
+User condition functions present the `cond` argument and generally require a class vector as input. Excluding the function `cond.4.all()` (that can be considered both an anchor cell and a user condition function), user condition functions always perform [focal evaluations](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation). Focal evaluations only test classification rules at positions contiguous or continuous to focal cells. Focal cells have to be identified using the function argument `nofn`. 
+
+[Class continuity](scapesClassification_01_2_RulesEvalTypes.html#continuity) is taken into account when the classification number assigned with the function argument `class` is also included in the argument `nofn`. 
+
+### cond.4.nofn
+
+The function `cond.4.nofn()` evaluates conditions for cells neighboring specific classes and classify them if conditions are true. The function performs [focal evaluations](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation) and can evaluate any type of [conditions](scapesClassification_01_2_RulesEvalTypes.html#cr). 
+
+Let us assume that `cell 25` is our initial focal cell. 
+
+```{r cond_4_nofn0, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# SET CELL 25 AS A FOCAL CELL (class = 0)
+at$cv[at$Cell == 25] <- 0
+```
+
+We can now evaluate the [absolute neighborhood condition](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) `"dummy_var{} >= 3"` for cells contiguous and/or cell continuous to the focal cell ([Figure 5](#figure5)). We will set the argument `peval = 1`, meaning that a [test cell](scapesClassification_01_2_RulesEvalTypes.html#en) is classified only if its value and the value of all its neighboring cells is `>=3`. 
+
+```{r cond_4_nofn, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a. cv1, "dummy_var{} >= 3", CLASS CONTINUITY: NO
+cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, 
+                   
+                   nbs_of = 0, # Focal cell class
+                   class = 1,  # Classification number
+                   
+                   # ABSOLUTE NEIGHBORHOOD CONDITION (peval = 9/9)
+                   cond = "dummy_var{} >= 3", peval = 9/9)
+
+# b. cv2, "dummy_var{} >= 3", CLASS CONTINUITY: YES
+cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv, 
+                   
+                   nbs_of = c(0,  # Focal cell class
+                              1), # Classification number
+                   class = 1,     # Classification number
+                   
+                   # ABSOLUTE NEIGHBORHOOD CONDITION (peval = 9/9)
+                   cond = "dummy_var{} >= 3", peval = 9/9)
+```
+
+<a id="figure5"></a>
+ 
+```{r cond_4_nofn12_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv1 <- cv.2.rast(r, classVector = cv1)
+r_cv2 <- cv.2.rast(r, classVector = cv2)
+
+par(mfrow=c(1,2))
+m <- c(1,1,1,1)
+# PLOT 1
+################################################################################
+r_cv1[which(is.na(cv1))] <- 11
+
+plot(r_cv1, type = "classes", ylim=c(-0.055,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#818792"), 
+     plg=list(x=0.5, y=-0.01, cex=0.8, title = "Cell:", title.adj = 0.5,
+              legend=c("focal","classified", "unclassified"), xjust = 0.5, horiz =T))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) cv1", family = "serif")
+text(x=1, y=1.11, cex=1.1, font=4, adj=1, "Class continuity: NO", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Rule: 'dummy_var{ } >= 3'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 9/9", family = "serif", 
+     col="#818792")
+##########################################################################
+
+# PLOT 2
+##########################################################################
+r_cv2[which(is.na(cv2))] <- 11
+
+plot(r_cv2, type = "classes", ylim=c(-0.055,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#818792"), 
+     plg=list(x=0.5, y=-0.01, cex=0.8, title = "Cell:", title.adj = 0.5,
+              legend=c("focal","classified", "unclassified"), xjust = 0.5, horiz =T))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) cv2", family = "serif")
+text(x=1, y=1.11, cex=1.1, font=4, adj=1, "Class continuity: YES", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Rule: 'dummy_var{ } >= 3'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 9/9", family = "serif", 
+     col="#818792")
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 - cond.4.nofn** evaluates conditions for cells neighboring focal cells and classify them if conditions are true. An absolute neighborhood condition is evaluated with `peval = 9/9` (test cells are classified only if their value and the value of all their neighbors are `>=3`; 9 out of 9 positive evaluations). **(a)** The function do not consider class continuity. **(b)** The function consider class continuity.</span></div> 
+
+---
+
+### cond.reclass
+
+The function `cond.reclass()` evaluates conditions for cells of a class and reclassifies them if conditions are true. It can evaluate [absolute conditions](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) and [relative neighborhood conditions](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions). 
+
+In the following example we will use the latest class vector we computed (`cv2`). Classified cells (having `class = 1`) will be reclassified if 6/9 of the values including test cells and relative neighborhoods are `>=5` ([absolute neighborhood condition](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions), `"dummy_var{} >= 5"; peval = 6/9`) ([Figure 6](#figure6)).
+
+```{r cond_reclass, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# RECLASSIFY
+cv2_rclass <- cond.reclass(attTbl = at, ngbList = nbs, classVector = cv2,
+                   
+                   # CELLS TO RECLASSIFY HAVE THIS CLASS
+                   class = 1,
+                   
+                   # CELL MEETING CONDITIONS HAVING CLASS = 1 ARE RECLASSIFIED 
+                   cond = "dummy_var{} >= 5",
+                   
+                   # NEW CLASSIFICATION NUMBER
+                   reclass = 2,
+                   
+                   # RULE HAS TO BE TRUE FOR AT LEAST 6/9 EVALUATIONS
+                   peval = 6/9)
+```
+
+<a id="figure6"></a>
+
+```{r cond_reclass_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cr <- cv.2.rast(r, classVector = cv2_rclass)
+
+# PLOTs
+par(mfrow=c(1,2))
+m <- c(1,1,1,1)
+# PLOT 1
+################################################################################
+r_cv2[which(is.na(cv2))] <- 11
+
+plot(r_cv2, type = "classes", ylim=c(-0.055,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#818792"), 
+     plg=list(x=0.5, y=-0.01, cex=0.8, title = "Class:", title.adj = 0.5,
+              legend=c("focal","cv2", "NA"), xjust = 0.5, horiz =T))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) cv2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Rule: 'dummy_var{ } >= 3'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 9/9", family = "serif", 
+     col="#818792")
+##########################################################################
+
+# PLOT 2
+##########################################################################
+r_cr[which(is.na(cv2_rclass))] <- 11
+
+plot(r_cr, type = "classes", ylim=c(-0.055,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#cfad8930","#818792"), 
+     plg=list(x=0.5, y=-0.01, cex=0.8, title = "Class:", title.adj = 0.5,
+              legend=c("focal","cv2","reclass","NA"), xjust = 0.5, horiz=T))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) cv2_rclass", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Reclass: 'dummy_var{ } >= 5'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 6/9", family = "serif", 
+     col="#818792")
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - cond.reclass** evaluates conditions for cells of a class and reclassify them if conditions are true. **(a)** Class vector `cv2` computed by the function [cond.4.nofn](scapesClassification_01_3_ClassFunctions.html#cond-4-nofn). **(b)** cells meeting conditions are reclassified.</span></div>
+
+Note that cv2 has only 2 classes (`0,1`); cv2_rclass has 3 classes (`0,1,2`).
+```{r cond_reclass_cv, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+unique(cv2)
+
+unique(cv2_rclass)
+
+# class = 0,  focal cell
+# class = 1,  cells with values greater than the value of 60% of their neighbors
+# class = 2,  reclassified cells (dummy_var{} >= 3, fn_perc = 1)
+# class = NA, unclassified cells
+```
+
+## Neighbor only functions
+
+**Functions:** `reclass.nbs()` and `classify.all()`.
+
+Neighbor only functions do not present a `cond` argument. Their classifications are exclusively based on the the spatial relationships existing among groups of cells of having different classes. 
+
+### reclass.nbs
+
+The function `reclass.nbs()` evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. 
+
+In the following example we will: (a) compute a class vector of two classes using `cond.4.all()`; (b) reclassify cells of class 2 contiguous to cells of class 1 (`reclass_all=FALSE`); (c) reclassify cells of class 2 showing class continuity with cells of class 1 (`reclass_all=TRUE`) ([Figure 7](#figure7)).
+
+```{r reclass_nbs, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# (a) COMPUTE INITIAL CLASS VECTOR 
+# cv, step1
+cv <- cond.4.all(attTbl = at, cond = "dummy_var == 10", class = 1)
+# cv, step2
+cv <- cond.4.all(attTbl = at, cond = "dummy_var >= 3",  class = 2, classVector = cv)  
+
+# RECLASSIFY NEIGHBORS
+
+# (b) rcl_ngb1, RECLASSIFY NEIGHBORS (reclass_all = FALSE)
+rcl_ngb1 <- reclass.nbs(attTbl = at, ngbList = nbs, classVector = cv,
+                  
+                        class = 2,   # cells of class 2...
+                        nbs_of = 1,  # ...adjacent to cells of class 1...
+                        reclass = 3, # ...will be reclassified as cells of class 3.
+                        reclass_all = FALSE)
+
+# (c) rcl_ngb2, RECLASSIFY NEIGHBORS (reclass_all = TRUE)
+rcl_ngb2 <- reclass.nbs(attTbl = at, ngbList = nbs, classVector = cv,
+                        class = 2, nbs_of = 1, reclass = 3,
+                        
+                        # All cells of class 2 connected to a reclassified cell are reclassified.
+                        reclass_all = TRUE)
+```
+
+<a id="figure7"></a>
+
+```{r reclass_nbs_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv <- cv.2.rast(r, classVector = cv)
+r_rcl_ngb1 <- cv.2.rast(r, classVector = rcl_ngb1)
+r_rcl_ngb2 <- cv.2.rast(r, classVector = rcl_ngb2)
+
+par(mfrow=c(2,2))
+m <- c(1,1,1,2)
+# PLOT 1
+################################################################################
+r_cv[which(is.na(cv))] <- 11
+
+plot(r_cv, type = "classes", ylim=c(0,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#818792"), 
+     plg=list(x=1, y=1, cex=0.9, title = "Class:", title.adj = 0.2,
+              legend=c("1","2","NA")))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(a) cv", family = "serif")
+text(x=1, y=1.11, cex=1, font=1, adj=1, "Step 1: 'dummy_var == 10'", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "Step 2: 'dummy_var > 3'", family = "serif", 
+     col="#818792")
+##########################################################################
+
+# PLOT 2
+##########################################################################
+
+r_rcl_ngb1[which(is.na(rcl_ngb1))] <- 11
+
+plot(r_rcl_ngb1, type = "classes", ylim=c(0,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#cfad8930","#818792"), 
+     plg=list(x=1, y=1, cex=0.9, title = "Class:", title.adj = 0.2,
+              legend=c("1","2","3*","NA")))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(b) rcl_ngb1", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Reclass neighbors*", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "reclass_all = FALSE", family = "serif", 
+     col="#818792")
+##########################################################################
+
+# PLOT 3
+##########################################################################
+
+r_rcl_ngb2[which(is.na(rcl_ngb2))] <- 11
+
+plot(r_rcl_ngb2, type = "classes", ylim=c(0,1.14), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfad89","#cfad8930","#818792"), 
+     plg=list(x=1, y=1, cex=0.9, title = "Class:", title.adj = 0.2, 
+              legend=c("1","2","3*","NA")))
+text(r)
+lines(r)
+text(x=0, y=1.11, cex=1.3, font=2, adj=0, "(c) rcl_ngb2", family = "serif")
+text(x=0, y=1.03, cex=1, font=1, adj=0, "Reclass neighbors*", family = "serif", 
+     col="#818792")
+text(x=1, y=1.03, cex=1, font=1, adj=1, "reclass_all = TRUE", family = "serif", 
+     col="#818792")
+```
+
+<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 - reclass.nbs** evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. **(a)** Identify cells of classes 1 and 2 using the function `cond.4.all()`. **(b)** Cells of `class=2` contiguous to the cell of `class=1` are reclassified. **(c)** Cells of `class=2` connected to a reclassified cell are also reclassified.</span></div>

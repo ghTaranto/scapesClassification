@@ -1,0 +1,415 @@
+---
+title: "Object functions"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Object functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FALSE, out.width = "95%" )
+```
+
+**Functions:** `cond.4.nofn()`, `anchor.seed()`, `pi.sgm()`, `obj.border()` and `obj.nbs()`.
+
+> Object functions are functions used to identify and manipulate raster objects.
+
+## Data and example plots
+
+We will use a single-layer dummy raster to illustrate `scapesClassification` functions. We will start by computing its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table) (where the raster is named `"dummy_var"`) and its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
+
+```{r def, message=FALSE, warning=FALSE, echo=TRUE}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD THE DUMMY RASTER
+r <- list.files(system.file("extdata", package = "scapesClassification"), 
+                 pattern = "dummy_raster\\.tif", full.names = T)
+r <- rast(r)
+```
+
+```{r def_at, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
+
+head(at, 3)
+
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r)
+
+head(nbs, 3)
+```
+
+In the following examples we will show how class vectors are computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
+
+> The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and (ii) use `terra::plot()` or any other software suitable for raster plots. 
+
+## anchor.seed
+
+The function `anchor.seed()` can be considered as an [anchor cell function](scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions) and as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (_seed cells_) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics. 
+
+### Condition arguments
+
+The function `anchor.seed()` take as inputs four sets of conditions:
+
+1. **`cond.filter`**, the conditions to define what cells have to be evaluated by the function. 
+
+2. **`cond.seed`**, the conditions to identify, at each iteration, the _seed cell_. The seed cell is the cell around which growth and isolation conditions are applied.
+
+3. **`cond.growth`**, the conditions to define a buffer around the _seed cell_.
+
+4. **`cond.isol`**, the conditions to isolate one seed cell (and its buffer) from another. 
+
+
+### Condition evaluation
+
+The first set of conditions to be evaluated is the `cond.filter`. The evaluation of the remaining sets of conditions is iterative ([Figure 1](#figure1)):
+
+* A _seed cell_ is identified and receives a classification number (as specified by the argument `class`). If the argument `class=NULL`, then a new ID is assigned to every new seed cell.  
+
+* Cells connected with the seed cell meeting the conditions of `cond.growth` are assigned to the same class of the seed cell (growth buffer). The rule evaluation take into account [class continuity](scapesClassification_01_2_RulesEvalTypes.html#contiguity).
+
+* Cells connected with the seed cell (or with its growth buffer) meeting the conditions of `cond.isol` are assigned to the isolation buffer (class = -999). The rule evaluation take into account [class continuity](scapesClassification_01_2_RulesEvalTypes.html#contiguity).
+
+* Once seed, growth and isolation cells are identified, they are ignored in all successive iterations.
+
+We can compute a new class vector based on the following rules. The two iterations performed by the function are showed in ([Figure 1](#figure1)):  
+```{r evaluation, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# Anchor seed 
+cv <- anchor.seed(at, nbs, class = 1,
+                  
+                  cond.filter = "dummy_var > 2",
+                  cond.seed   = "dummy_var == max(dummy_var)",
+                  cond.growth = NULL,
+                  cond.isol   = "dummy_var < dummy_var[]") # focal cell condition (see ?conditions)
+
+```
+
+<a id="figure1"></a>
+
+```{r evaluation_plot, message=FALSE, warning=FALSE, echo=FALSE, out.width = "95%", fig.height=6.5}
+#CONDITION FILTER
+at$cf  <- cond.4.all(at, cond = "dummy_var > 2", class = 1)
+
+#ITERATION 1
+cs1 <- cond.4.all(at, cond = "dummy_var == 10", class = 1)
+ci1 <- cond.4.nofn(at, nbs, 
+                   classVector = cs1,
+                   nbs_of = c(1, -1),
+                   cond = "dummy_var < dummy_var[] & !is.na(cf)", 
+                   class = -1)
+
+#ITERATION 2
+cs2 <- cond.4.all(at, classVector = ci1, 
+                  cond = "dummy_var == 8 & !is.na(cf)", 
+                  class = 1)
+
+ci2 <- cond.4.nofn(at, nbs, 
+                   classVector = cs2,
+                   nbs_of = c(1, -1),
+                   cond = "dummy_var < dummy_var[] & !is.na(cf)", 
+                   class = -1)
+
+#CLASS VECTORS TO RASTERS
+r_cf <- cv.2.rast(r, classVector = at$cf)
+
+r_cs1 <- cv.2.rast(r, classVector = cs1)
+r_ci1 <- cv.2.rast(r, classVector = ci1)
+
+r_cs2 <- cv.2.rast(r, classVector = cs2)
+r_ci2 <- cv.2.rast(r, classVector = ci2)
+
+rl <- r;rl[]<-NA; rl[1:3]<-1:3
+# PLOTS #####################################################################
+# par(mfrow=c(3,3))
+
+layout(matrix(c(1, 1, 2, 2, 3, 3,
+                1, 1, 2, 2, 3, 3,
+                4, 4, 5, 5, 6, 6,
+                4, 4, 5, 5, 6, 6), nrow=4, byrow=TRUE))
+
+m <- c(0,1,0,1)
+
+# 1. ITERATION 0
+plot(r_cf, type="classes", col="#78b2c4", axes=FALSE, legend=FALSE, 
+      ylim=c(-0.05,1.10), mar=m)
+text(r); lines(r)
+text(x=0, y=1.05, cex=1.7, font=1, adj=0, "Itr 0.0", family = "serif")
+text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.filter", family = "serif")
+
+# 2. ITERATION 1.1
+plot(r_cf, type="classes", col="#78b2c4", axes=FALSE, legend=FALSE, ylim=c(-0.05,1.10), mar=m)
+plot(r_cs1, type="classes", col="#98fb98", axes=FALSE, legend=FALSE, ylim=c(-0.05,1.10), mar=m,
+     add = TRUE)
+text(r); lines(r)
+text(x=0, y=1.05, cex=1.7, font=1, adj=0, "Itr 1.1", family = "serif")
+text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.seed", family = "serif")
+
+# 3. ITERATION 1.2
+plot(r_cf, type="classes", col="#78b2c4", axes=FALSE, legend=FALSE, ylim=c(-0.05,1.10), mar=m)
+plot(r_ci1, type="classes", col=c("#d76968","#98fb98"), axes=FALSE, legend=FALSE, 
+     ylim=c(-0.05,1.10), mar=m, add = TRUE)
+text(r); lines(r)
+text(x=0, y=1.05, cex=1.7, font=1, adj=0, "Itr 1.2", family = "serif")
+text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.isol", family = "serif")
+
+# 4. LEGEND
+plot(rl, type="classes", col="white", legend=FALSE, axes=FALSE)
+
+legend(x=-0.05, y=1, bty="n", cex=1.7, y.intersp=2.6, xjust=0, yjust=0.5,
+       fill = "#78b2c4",legend = "cond.fiter")
+text(x=0.22, y=0.93, cex=1.2, font=1, adj=c(0,1), "'dummy_var>2'", family = "serif",col="#818792")
+
+legend(x=-0.05, y=0.70, bty="n", cex=1.7, y.intersp=2.6, xjust=0, yjust=0.5,
+       fill = "#98fb98",legend = "cond.seed")
+text(x=0.22, y=0.63, cex=1.2, font=1, adj=c(0,1), "'dummy_var==\nmax(dummy_var)'", family = "serif",col="#818792")
+
+legend(x=-0.05, y=0.4, bty="n", cex=1.7, y.intersp=2.6, xjust=0, yjust=0.5,
+       fill = "transparent",legend = "cond.growth")
+text(x=0.22, y=0.33, cex=1.2, font=1, adj=c(0,1), "NULL", family = "serif",col="#818792")
+
+legend(x=-0.05, y=0.1, bty="n", cex=1.7, y.intersp=2.6, xjust=0, yjust=0.5,
+       fill = "#d76968",legend = "cond.isol")
+text(x=0.22, y=0.03, cex=1.2, font=1, adj=c(0,1), "'dummy_var < \ndummy_var[]'", family = "serif",col="#818792")
+
+# 5. ITERATION 2.1
+plot(r_cf, type="classes", col="#78b2c4", axes=FALSE, legend=FALSE, ylim=c(-0.05,1.10), mar=m)
+plot(r_cs2, type="classes", col=c("#d76968","#98fb98"), axes=FALSE, legend=FALSE, 
+     ylim=c(-0.05,1.10), mar=m, add = TRUE)
+text(r); lines(r)
+text(x=0, y=1.05, cex=1.7, font=1, adj=0, "Itr 2.1", family = "serif")
+text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.seed", family = "serif")
+
+# 6. ITERATION 2.2
+plot(r_cf, type="classes", col="#78b2c4", axes=FALSE, legend=FALSE, ylim=c(-0.05,1.10), mar=m)
+plot(r_ci2, type="classes", col=c("#d76968","#98fb98"), axes=FALSE, legend=FALSE, 
+     ylim=c(-0.05,1.10), mar=m, add = TRUE)
+text(r); lines(r)
+text(x=0, y=1.05, cex=1.7, font=1, adj=0, "Itr 2.2", family = "serif")
+text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.isol", family = "serif")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Anchor.seed rule evaluation**. Before the iterations start, `cond.filter` determines what cells have to be evaluated. The other rules are applied in the following order: (i) `cond.seed` identifies a seed cell; (ii) `cond.growth` identifies a growth buffer around the seed cell; (iii) `cond.isol` identifies an isolation buffer around the seed cell and its growth buffer. The function runs for two iterations and identifies two seed cells.</span></div>
+
+---
+
+### Evaluation lag
+
+The function arguments `lag.growth` and `lag.isol` control the evaluation lag of [relative focal cell conditions](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) ([Figure 2](#figure2)).
+
+* When `lag.*` are set to 0, relative focal cell conditions have a standard behavior and compare the values of the [test cells](scapesClassification_01_2_RulesEvalTypes.html#en) against the value of the [focal cell](scapesClassification_01_2_RulesEvalTypes.html#en).
+
+* When `lag.*` are set to `Inf`, relative focal cell conditions compare the value of the [test cells](scapesClassification_01_2_RulesEvalTypes.html#en) against the value of the seed cell identified at the start of the iteration.
+
+```{r lag, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a. lag.growth=0
+cv1 <- anchor.seed(at, nbs, class = NULL, # a new class for every seed and growth buffer
+                   cond.filter = "dummy_var>1",
+                   cond.seed   = "dummy_var == max(dummy_var)",
+                   cond.growth = "dummy_var<dummy_var[]", # focal cell condition (see ?conditions)
+                   lag.growth  = 0,
+                   cond.isol   = NULL) 
+
+# b. lag.growth=Inf
+cv2 <- anchor.seed(at, nbs, class = NULL, # a new class for every seed and growth buffer
+                   cond.filter = "dummy_var>1",
+                   cond.seed   = "dummy_var == max(dummy_var)",
+                   cond.growth = "dummy_var<dummy_var[]", # focal cell condition (see ?conditions)
+                   lag.growth  = Inf,
+                   cond.isol   = NULL) 
+```
+
+<a id="figure2"></a>
+
+```{r lag_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv1 <- cv.2.rast(r, classVector = cv1)
+r_cv2 <- cv.2.rast(r, classVector = cv2)
+
+layout(matrix(c(1, 2,
+                1, 2), nrow=2, byrow=TRUE))
+
+m <- c(1,1,0,3)
+# PLOT 1
+################################################################################
+plot(r_cv1, type = "classes", ylim=c(0,1.10), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#98fb98"), 
+     plg=list(x=1, y=1, cex=0.9, title = "Obj.:", title.adj = 0.2,
+              legend=c("1","2")))
+text(r)
+lines(r)
+text(x=0, y=1.03, cex=1.3, font=2, adj=0, "(a) cv1", family = "serif")
+text(x=1, y=1.03, cex=1.3, font=1, adj=1, "lag.growth = 0", family = "serif", 
+     col="#818792")
+text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,c("SEED 1", "SEED 2"),col="red",cex=0.85)
+
+# PLOT 2
+################################################################################
+plot(r_cv2, type = "classes", ylim=c(0,1.10), mar = m, axes=FALSE, 
+     col=c("#78b2c4"), 
+     plg=list(x=1, y=1, cex=0.9, title = "Obj.:", title.adj = 0.2,
+              legend=c("1")))
+text(r)
+lines(r)
+text(x=0, y=1.03, cex=1.3, font=2, adj=0, "(b) cv2", family = "serif")
+text(x=1, y=1.03, cex=1.3, font=1, adj=1, "lag.growth = Inf", family = "serif", 
+     col="#818792")
+text(xFromCell(r,20),yFromCell(r,20)-0.05,"SEED 1",col="red",cex=0.85)
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.seed evaluation lag**. The function arguments `lag.*` control the evaluation lag of relative focal cell conditions. **(a)** `lag.growth = 0`, growth conditions test the values of test cells against the value of the focal cell; two objects identified. **(b)** `lag.growth = Inf`, growth conditions test the values of test cells against the value of the seed cell; one objects identified.</span></div>
+
+## cond.4.nofn (hgrowth) {#hgrowth}
+
+The function `cond.4.nofn()` can be used to reshape raster objects setting the argument `hgrowth = TRUE` (homogeneous growth).
+
+In the following example we will: (i) identify peak cells ([peak.cell](scapesClassification_01_3_ClassFunctions.html#peak-cell)), (ii) assign a unique ID to each peak ([anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed)) and (iii) use the function `cond.4.nofn()` to expand the borders of the two peak objects. The borders are expanded based on the [focal cell rule](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) `dummy_var <= dummy_var[]` and on the [test cell rule](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) `dummy_var > 1` ([Figure 3](#figure3)).
+
+Note that the computed class vectors are added as columns of the attribute table, in this way classification rules can take them into account. 
+
+```{r hgrowth, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# IDENTIFY RASTER OBJECTS (a,b) AND RESHAPE THEIR BORDERS (c)
+
+# a. cv0, identify peak cells
+at$cv0 <- peak.cell(attTbl = at, ngbList = nbs, p_edge = TRUE,
+                    p_col = "dummy_var", p_fun = "max")
+
+# b. cv1, assign unique IDs
+at$cv1 <- anchor.seed(at, nbs, silent = TRUE, class = NULL, # a new class for every seed and growth buffer
+                      cond.filter = "!is.na(cv0)",
+                      cond.seed   = "TRUE")
+
+# 3. cv2, homogeneous growth of raster objects                   
+at$cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv1,
+                      nbs_of = c(1, 2), class = NULL,
+                      cond = "dummy_var <= dummy_var[] & dummy_var > 1",
+                      hgrowth = TRUE) # HOMOGENEOUS GROWTH 
+```
+
+<a id="figure3"></a>
+
+```{r hgrowth_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.5}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv0 <- cv.2.rast(r, classVector = at$cv0)
+r_cv1 <- cv.2.rast(r, classVector = at$cv1)
+r_cv2 <- cv.2.rast(r, classVector = at$cv2)
+
+layout(matrix(c(1, 2,
+                1, 2,
+                3, 4, 
+                3, 4), nrow=4, byrow=TRUE))
+
+m <- c(1,0.5,0,0.5)
+# PLOT 1
+################################################################################
+plot(r_cv0, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+     col=c("#98fb98"), 
+     plg=list(x=.99, y=1, cex=1.0, title = "Class:", title.adj = 0.2,
+              legend=c("peak\ncell")))
+text(r);lines(r)
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "(a) cv0", family = "serif")
+
+# PLOT 2
+################################################################################
+plot(r_cv1, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2")))
+text(r);lines(r)
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "(b) cv1", family = "serif")
+
+# PLOT 3
+################################################################################
+plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+     col=c("#78b2c4","#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2")))
+text(r);lines(r)
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "(c) cv2", family = "serif")
+
+# PLOT 4 -LEGEND
+################################################################################
+plot(r, type="classes", col="white", legend=FALSE, mar=m, axes=FALSE, ylim=c(-0.10,1.08))
+
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "Classification steps:", family = "serif")
+
+# step 1
+text(x=0.04, y=0.94, cex=1.7, font=2, adj=0, "cv0", family = "serif")
+text(x=0.04, y=0.87, cex=1.5, font=1, adj=c(0,1), "fun:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.87, cex=1.5, font=1, adj=c(0,1), "peak.cell", family = "serif", 
+     col="#818792")
+text(x=0.04, y=0.77, cex=1.5, font=1, adj=c(0,1), "rule:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.77, cex=1.5, font=1, adj=c(0,1), "local maxima", family = "serif", 
+     col="#818792")
+
+# step 2
+text(x=0.04, y=0.63, cex=1.7, font=2, adj=0, "cv1", family = "serif")
+text(x=0.04, y=0.56, cex=1.5, font=1, adj=c(0,1), "fun:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.56, cex=1.5, font=1, adj=c(0,1), "anchor.seed", family = "serif", 
+     col="#818792")
+text(x=0.04, y=0.46, cex=1.5, font=1, adj=c(0,1), "rule:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.46, cex=1.5, font=1, adj=c(0,1), 
+     "cond.filter = !is.na(cv0)", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.38, cex=1.5, font=1, adj=c(0,1), 
+     "cond.seed = TRUE", family = "serif", 
+     col="#818792")
+
+# step 3
+text(x=0.04, y=0.25, cex=1.7, font=2, adj=0, "cv2", family = "serif")
+text(x=0.04, y=0.18, cex=1.5, font=1, adj=c(0,1), "fun:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.18, cex=1.5, font=1, adj=c(0,1), "cond.4.nofn (hgrowth=TRUE)", family = "serif", 
+     col="#818792")
+text(x=0.04, y=0.08, cex=1.5, font=1, adj=c(0,1), "rule:", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.08, cex=1.5, font=1, adj=c(0,1), "dummy_var <= dummy_var[ ]", family = "serif", 
+     col="#818792")
+text(x=0.24, y=0.00, cex=1.5, font=1, adj=c(0,1), "& dummy_var > 1", family = "serif", 
+     col="#818792")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Identify raster objects and reshape their borders. (a)** Two peak cells are identified. **(b)** A unique ID is assigned to each peak cell; **(c)** Homogeneous growth of raster objects; the borders of each peak object are expanded to include connected raster cells having decreasing `dummy_var` values `AND` `dummy_var` values greater than 1.</span></div>
+
+## obj.border
+
+The function `obj.border()` identifies the borders of raster objects. 
+
+
+ADD NA EXAMPLES
+
+
+```{r bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+RO <- split(1:NROW(at), at$cv2)
+
+RO_bd <- obj.border(RO, nbs, silent = TRUE)
+
+
+RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
+RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
+```
+
+
+```{r bord_plot, message=FALSE, warning=FALSE, echo=FALSE}
+m <- c(1,1,1,1)
+plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+     legend=FALSE, col=c("#78b2c4","#cfc1af"))
+lines(r)
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2", family = "serif")
+points(terra::xyFromCell(r, RO_bd1), pch=20, col="blue")
+points(terra::xyFromCell(r, RO_bd2), pch=20, col="red")
+legend(1, 1, legend=c("1", "2"), bty = "n", title="Object:",
+       fill=c("#78b2c4", "#cfc1af"), cex=1)
+legend(1, 0.75, legend=c("Obj1", "Obj2"), bty = "n", title="Border:",
+       col=c("blue", "red"), pch=20, cex=1)
+
+
+```

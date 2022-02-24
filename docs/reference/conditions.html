@@ -34,42 +34,13 @@ detect the type of conditions being used."><meta property="og:image" content="ht
       <a href="../articles/scapesClassification_01_1_FormatInputs.html">Format inputs</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_2_RuleEvaluation.html">Rule evaluation</a>
+      <a href="../articles/scapesClassification_01_2_RulesEvalTypes.html">Rule evaluation and types</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
+      <a href="../articles/scapesClassification_01_3_ClassFunctions.html">Classification functions</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_4_ClassFunctions.html">Classification functions</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_01_5_FunctionAnchorSeed.html">Function anchor.seed</a>
-    </li>
-  </ul></li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Working example
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
-    <li>
-      <a href="../articles/scapesClassification_02_0_GMU.html">0. Overview</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_1_DATA.html">1. Format input data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_2_ISU.html">2. Island shelf unit (ISU)</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_3_PKS.html">3. Local maxima on gridded data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_4_OBJ.html">4. Independent objects on raster surfaces</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_5_OBJ2.html">5. Raster object manipulation</a>
+      <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
 <li>
@@ -115,31 +86,29 @@ detect the type of conditions being used.</p>
 <dd><p>character vector, the column (i.e. variable) names of the
 attribute table returned by the function <code><a href="attTbl.html">attTbl</a></code>.</p></dd>
 <dt>cond</dt>
-<dd><p>character string, condition string used to classify raster cells
-(see <code><a href="cond.4.nofn.html">cond.4.nofn</a></code>, <code><a href="cond.reclass.html">cond.reclass</a></code>,
-<code><a href="cond.4.all.html">cond.4.all</a></code> and <code><a href="anchor.seed.html">anchor.seed</a></code>).</p></dd>
+<dd><p>character string, the condition string used by the <code>cond.*</code>
+functions to classify raster cells (see <code>conditions</code>).</p></dd>
 <dt>silent</dt>
 <dd><p>logic, when true, the function returns only error messages.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>An error message if the function finds spelling or syntax errors or a
-a string with the types of rules that were detected in the argument
-<code>cond</code>.</p>
+string with the types of rules detected in the condition string.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
     <p><strong>Conditions (or classification rules)</strong></p><ul><li><p>Classification rules evaluate either to true or false and determine what
-raster cells belong to a class.</p></li>
+raster cells have to be classified.</p></li>
 <li><p>Conditions are passed to <code>scapesClassification</code> functions as a
-single character string. They can consist of combination of arithmetic
+single character string. They can consist of combination of variables names
+(as named in the attribute table, see <code><a href="attTbl.html">attTbl</a></code>), arithmetic
 <code>(+|-|*|/|^|%%|%/%)</code>, relational <code>(&gt;|&lt;|&gt;=|&lt;=|==|!=|%/%)</code> and
-logic operators <code>(&amp;||)</code>, base R functions (e.g.,
-<code>abs(variable_name)</code>), variables names (as named in the attribute
-table, see <code><a href="attTbl.html">attTbl</a></code>) and previous classifications (either
-stored as <code>classVector</code> or as rasters).</p></li>
-<li><p>A combination of absolute and relative conditions can be used, but only
-<em><strong>one neighborhood condition per string</strong></em> is allowed.</p></li>
+logic operators <code>(&amp;||)</code> and base R functions (e.g.,
+<code>abs(variable_name)</code>).</p></li>
+<li><p>All variables included in an attribute table (see <code><a href="attTbl.html">attTbl</a></code>)
+can be included in a condition string by name (e.g., var name =
+<code>"dummy_var"</code>; condition = <code>"dummy_var &gt; 1"</code>).</p></li>
 </ul><p><br><strong>Class vectors</strong></p><ul><li><p>Class vectors map raster cells to numeric classes.</p></li>
 <li><p>The n^th^ element of a class vector stores the class of the raster cell
 stored in the n^th^ row of the corresponding attribute table (see
@@ -150,40 +119,34 @@ information about the groups of cells that have already been classified.</p></li
 <em>updated</em> by assigning a numeric class to <em>unclassified cells</em> that meet
 function conditions.</p></li>
 <li><p>Unclassified cells are represented as NA values.</p></li>
-</ul><p><br><strong>Rule evaluation</strong></p><ul><li><p>One of the arguments of the classification functions is the
-<code>classVector</code>, a numeric vector that identifies what raster cells have
-already been classified (non-NA values) and what have yet to be classified
-(NA values). Cells that have already been classified are excluded from the
-rule evaluation unless the argument <code>'overwrite_class = TRUE'</code>.</p></li>
-<li><p><strong>Global evaluation</strong> <br> Classification rules are applied to all raster
-cells (excluding the classified ones). This type of evaluation is common to
-classification functions that do not have the argument <code>nbs_of</code>. Only
-absolute conditions can have a global evaluation. See function
-<code><a href="cond.4.all.html">cond.4.all</a></code>.</p></li>
-<li><p><strong>Focal evaluation</strong> <br> Classification rules are applied only to raster
-cells contiguous to focal cells. This type of evaluation is common to
-classification functions that have the argument <code>nbs_of</code>. The argument
-<code>nbs_of</code> identifies the class(es) of the focal cells. See functions
-<code><a href="anchor.seed.html">anchor.seed</a></code>, <code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and
-<code><a href="cond.reclass.html">cond.reclass</a></code>.</p><ul><li><p>Focal evaluation can take into account both absolute and relative rules;</p></li>
-<li><p>Some classification functions do not have a <code>condition</code> argument.
-Classifications performed by these functions are based on focal evaluations
-and only take into account the spatial relationships existing among
-different groups of cells. See functions <code><a href="reclass.nbs.html">reclass.nbs</a></code> and
-<code><a href="classify.all.html">classify.all</a></code>.</p></li>
-</ul></li>
-</ul><p><br><strong>Focal evaluation, definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8
+</ul><p><br><strong>Rule evaluation: Global evaluation</strong></p><ul><li><p>Classification rules are applied to all unclassified raster
+cells.</p></li>
+<li><p>Function using <em>global evaluation</em>: <code><a href="cond.4.all.html">cond.4.all</a></code>.</p></li>
+</ul><p><strong>Rule evaluation: Focal evaluation</strong></p><ul><li><p>Classification rules are applied only to raster cells at specific
+locations and are based on class (dis)contiguity and class continuity.</p></li>
+<li><p><strong>Class contiguity:</strong> <br> classification rules are applied only to raster
+cells contiguous to focal cells (identified in the <code>cond.*</code> functions
+by the argument <code>nbs_of</code>).</p></li>
+<li><p><strong>Class continuity:</strong> <br> join into the same class cells that respect the
+same rules and that are connected to the same focal cells. This means that,
+at each iteration, newly classified cells become focal cells and conditions
+are tested in their neighborhood.</p></li>
+<li><p>Function using <em>focal evaluation</em>: <code><a href="anchor.seed.html">anchor.seed</a></code>,
+<code><a href="cond.4.nofn.html">cond.4.nofn</a></code>, <code><a href="cond.reclass.html">cond.reclass</a></code>,
+<code><a href="reclass.nbs.html">reclass.nbs</a></code> and <code><a href="classify.all.html">classify.all</a></code>.</p></li>
+</ul><p><br><strong>Focal evaluation: Definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8
 neighbors with coordinates: <code>(x±1, y)</code>,  <code>(x, y±1)</code> and
 <code>(x±1, y±1)</code>. Cells on the edge of a raster have less than 8
 neighbors. See <code><a href="ngbList.html">ngbList</a></code>.</p></li>
-<li><p><strong>Focal cell:</strong> cell identified by one of the classes of the argument
-<code>nbs_of</code>.</p></li>
+<li><p><strong>Focal cell:</strong> cells whose neighbors are evaluated against the
+classification rule(s). In the classification functions <em>focal cells</em> are
+identified by the argument <code>nbs_of</code>.</p></li>
 <li><p><strong>Test cell:</strong> the cell in the neighborhood of the focal cell that is
 being tested. At turns all cells in the neighborhood of a focal cell are
-tested against the classification rule.</p></li>
+tested against the classification rule(s).</p></li>
 <li><p><strong>Directional neighborhood:</strong> it consists of the intersection between the
 focal and the test cell neighborhoods.</p></li>
-</ul><p><br><strong>Absolute conditions</strong></p>
+</ul><p><br><strong>Condition type: Absolute conditions</strong></p>
 <p><strong>1) Absolute test cell condition:</strong> compares cell values against a
 threshold value.</p><ul><li><p>This type of condition applies to all functions with a <code>conditions</code>
 argument.</p></li>
@@ -195,18 +158,16 @@ absolute conditions receive a classification number.</p></li>
 <br><em>Functions:</em> <code><a href="anchor.seed.html">anchor.seed</a></code>, <code><a href="cond.4.all.html">cond.4.all</a></code>,
 <code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and <code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
 </ul><p><br><strong>2) Absolute neighborhood condition:</strong> compares the values of the
-<code>test cell</code> and of its <code>neighborhood</code> against a threshold value.</p><ul><li><p>This type of condition applies to the functions <code>cond.4.nofn</code> and
-<code>cond.reclass</code>.</p></li>
-<li><p>An absolute neighborhood condition is identified by a variable name
+<code>test cell</code> and of its <code>neighborhood</code> against a threshold value.</p><ul><li><p>An absolute neighborhood condition is identified by a variable name
 followed by curly brackets (e.g., <code>"variable_name{}"</code>).</p></li>
 <li><p>A maximum of 9 evaluations are performed for each test cell (the test
 cell itself and the cells of its neighborhood are compared against a
 threshold value).</p></li>
 <li><p>Test cells receive a classification number if the rule is true for at
 least as many evaluations as the ones specified by the argument
-<code>fn_perc</code>. The argument <code>fn_perc</code> ranges from 0 to 1. When 9
-evaluations are performed, <code>fn_perc = 1</code> means that all <code>9</code>
-evaluations have to be true; <code>fn_perc = 0.5</code> means that at least
+<code>peval</code>. The argument <code>peval</code> ranges from 0 to 1. When 9
+evaluations are performed, <code>peval = 1</code> means that all <code>9</code>
+evaluations have to be true; <code>peval = 0.5</code> means that at least
 <code>4.5</code> (rounded to <code>5</code>) evaluations have to be true.</p></li>
 <li><p>Only one neighborhood rule is allowed for each condition string (e.g., it
 is not possible to have a condition string like <code>"variable_A{} &gt; 0 &amp;
@@ -217,12 +178,10 @@ is not possible to have a condition string like <code>"variable_A{} &gt; 0 &amp;
 <li><p><em>Example of valid conditions:</em> <code>"variable_A{} &gt; 1 &amp; abs(variable_B)
   != 0"</code>. <br><em>Functions:</em> <code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and
 <code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
-</ul><p><br><strong>Relative conditions</strong></p>
+</ul><p><br><strong>Condition type: Relative conditions</strong></p>
 <p><strong>1) Relative focal cell condition:</strong> compares the <code>test cell</code> value
-against the <code>focal cell</code> value.</p><ul><li><p>This type of condition applies only to functions performing focal
-evaluation (i.e. function with a <code>nbs_of</code> argument).</p></li>
-<li><p>It is identified by a variable name followed by square brackets (e.g.,
-<code>"variable_name[]"</code>).</p></li>
+against the <code>focal cell</code> value.</p><ul><li><p>A relative focal cell condition is identified by a variable name followed
+by square brackets (e.g., <code>"variable_name[]"</code>).</p></li>
 <li><p>Rules are defined repeating twice the same variable name, once with
 square brackets and once without. Square brackets indicate the focal cell
 value. As an example, the rule <code>"dummy_var &lt; dummy_var[]"</code> compares
@@ -234,11 +193,9 @@ the focal cell (<code>"dummy_var[]"</code>).</p></li>
 Note that the last example is a combination of absolute and focal cell
 conditions. <br><em>Functions:</em> <code><a href="anchor.seed.html">anchor.seed</a></code> and
 <code><a href="cond.4.nofn.html">cond.4.nofn</a></code>.</p></li>
-</ul><p><strong>2) Relative neighborhood rule:</strong> compares the values of the <code>test
-  cell</code> against the values of the <code>test cell neighborhood</code>.</p><ul><li><p>This type of condition applies only to the functions
-<code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and <code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
-<li><p>It is identified by a variable name followed by curly brackets (e.g.,
-<code>"variable_name{}"</code>).</p></li>
+</ul><p><strong>2) Relative neighborhood condition:</strong> compares the values of the <code>test
+  cell</code> against the values of the <code>test cell neighborhood</code>.</p><ul><li><p>A relative neighborhood condition is identified by a variable name
+followed by curly brackets (e.g., <code>"variable_name{}"</code>).</p></li>
 <li><p>Rules are defined repeating twice the same variable name, once with curly
 brackets and once without. Curly brackets indicate the test cell
 neighborhood. As an example, the rule <code>'dummy_var &lt; dummy_var{}'</code>
@@ -249,10 +206,10 @@ values of cells included in the test cell neighborhood
 cell is compared against each cell included in its neighborhood).</p></li>
 <li><p>Test cells receive a classification number if the rule is true for at
 least as many evaluations as the ones specified by the argument
-<code>fn_perc</code>. The argument <code>fn_perc</code> ranges from 0 to 1. When 8
-evaluations are performed, <code>fn_perc = 1</code> means that all <code>8</code>
-evaluations have to be true; <code>fn_perc = 0.5</code> means that at least
-<code>5</code> evaluations have to be true.</p></li>
+<code>peval</code>. The argument <code>peval</code> ranges from 0 to 1. When 8
+evaluations are performed, <code>peval = 1</code> means that all <code>8</code>
+evaluations have to be true; <code>peval = 0.5</code> means that at least
+<code>4</code> evaluations have to be true.</p></li>
 <li><p>Only one neighborhood rule is allowed for each condition string (e.g., it
 is not possible to have a condition string like <code>"variable_A{} &gt; 0 &amp;
   variable_B{} &gt; variable_B"</code>).</p></li>
@@ -267,30 +224,29 @@ and relative conditions. <br><em>Functions:</em> <code><a href="cond.4.nofn.html
 </ul></div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="anchor.seed.html">anchor.seed()</a></code>, <code><a href="attTbl.html">attTbl()</a></code>, <code><a href="cond.4.all.html">cond.4.all()</a></code>, <code><a href="cond.4.nofn.html">cond.4.nofn()</a></code>,
+    <div class="dont-index"><p><code><a href="cond.4.all.html">cond.4.all()</a></code>, <code><a href="cond.4.nofn.html">cond.4.nofn()</a></code>, <code><a href="anchor.seed.html">anchor.seed()</a></code>, <code><a href="cond.reclass.html">cond.reclass()</a></code>,
+<code>conditions()</code></p>
+<p><code><a href="anchor.seed.html">anchor.seed()</a></code>, <code><a href="attTbl.html">attTbl()</a></code>, <code><a href="cond.4.all.html">cond.4.all()</a></code>, <code><a href="cond.4.nofn.html">cond.4.nofn()</a></code>,
 <code><a href="cond.reclass.html">cond.reclass()</a></code>, <code><a href="classify.all.html">classify.all()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># LOAD LIBRARIES</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># LOAD LIBRARIES</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/terra/" class="external-link">terra</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"><span class="co"># TYPES OF CONDITIONS</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># As an example consider an attribute with the following columns</span></span>
-<span class="r-in"><span class="va">names_attTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bathymetry"</span>, <span class="st">"slope"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">names_attTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bathymetry"</span>, <span class="st">"slope"</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># And the following conditions</span></span>
 <span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"bathymetry&gt;10"</span></span>
 <span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "'Absolute test cell' condition type(s) detected."</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"classVector != 1"</span></span>
-<span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "'Class vector' condition type(s) detected."</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"bathymetry[]&gt;bathymetry | abs(slope{}) &lt; 5"</span></span>
 <span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
@@ -308,71 +264,50 @@ and relative conditions. <br><em>Functions:</em> <code><a href="cond.4.nofn.html
 <span class="r-in"></span>
 <span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"baxxxthymetryxxx[]&gt;10 &amp;  abs(slope{}) &lt; 5"</span></span>
 <span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># 'seedVector' and 'classVector' are not valid names</span></span>
+<span class="r-in"><span class="va">names_attTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="st">"classVector"</span>, <span class="st">"seedVector"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span class="r-in"><span class="fu">conditions1</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># PREPARE PLOT</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape" class="external-link">reshape2</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">ggpubr</a></span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: 'ggpubr'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from 'package:raster':</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     rotate</span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="co"># FOCAL EVALUATION DEFINITIONS</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">m</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">49</span>, nrow <span class="op">=</span> <span class="fl">7</span>, ncol <span class="op">=</span> <span class="fl">7</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">r</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
+<span class="r-in"><span class="co"># CELL NUMBERS OF A DUMMY RASTER (7X7)</span></span>
+<span class="r-in"><span class="va">r</span>   <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">49</span>, nrow <span class="op">=</span> <span class="fl">7</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">nbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/transpose.html" class="external-link">t</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">m_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
+<span class="r-in"><span class="co"># CLASS VECTOR WITH ONE TEST AND ONE FOCAL CELL</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/catalyze.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">49</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">cv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">25</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="co"># tc (class 1), fc (class 2)</span></span>
+<span class="r-in"><span class="va">r_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">m_long</span><span class="op">$</span><span class="va">tags</span><span class="op">[</span><span class="va">m_long</span><span class="op">$</span><span class="va">value</span> <span class="op">==</span> <span class="fl">32</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"FC"</span></span>
-<span class="r-in"><span class="va">m_long</span><span class="op">$</span><span class="va">tags</span><span class="op">[</span><span class="va">m_long</span><span class="op">$</span><span class="va">value</span> <span class="op">==</span> <span class="fl">25</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"TC"</span></span>
+<span class="r-in"><span class="co"># POLYGONS REPRESENTING NEIGHBORHOODS</span></span>
+<span class="r-in"><span class="va">tcn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">tcn</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/vect.html" class="external-link">vect</a></span><span class="op">(</span><span class="va">tcn</span>, type<span class="op">=</span><span class="st">"polygons"</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">npool</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">nbs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"32"</span>, <span class="st">"25"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">m_long</span><span class="op">$</span><span class="va">whites</span><span class="op">[</span><span class="va">m_long</span><span class="op">$</span><span class="va">value</span> <span class="op"><a href="https://rdrr.io/pkg/raster/man/match.html" class="external-link">%in%</a></span> <span class="va">npool</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">m_long</span><span class="op">$</span><span class="va">value</span><span class="op">[</span><span class="va">m_long</span><span class="op">$</span><span class="va">value</span> <span class="op"><a href="https://rdrr.io/pkg/raster/man/match.html" class="external-link">%in%</a></span> <span class="va">npool</span><span class="op">]</span></span>
+<span class="r-in"><span class="va">fcn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">7</span><span class="op">*</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fcn</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/vect.html" class="external-link">vect</a></span><span class="op">(</span><span class="va">fcn</span>, type<span class="op">=</span><span class="st">"polygons"</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">m_long</span><span class="op">$</span><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">m_long</span><span class="op">$</span><span class="va">tags</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">m_long</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">Var1</span>, y<span class="op">=</span><span class="va">Var2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill<span class="op">=</span><span class="va">tags</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"gray90"</span>, lwd<span class="op">=</span><span class="fl">1.5</span>, show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span>ratio<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label<span class="op">=</span><span class="va">value</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"grey50"</span>, family<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"serif"</span><span class="op">)</span>, size<span class="op">=</span><span class="fl">8</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label<span class="op">=</span><span class="va">whites</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"white"</span>, family<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"serif"</span><span class="op">)</span>, size<span class="op">=</span><span class="fl">8</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"goldenrod3"</span><span class="op">)</span>, na.value <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">2.5</span>, xmax <span class="op">=</span> <span class="fl">5.5</span>, ymin <span class="op">=</span> <span class="fl">1.5</span>, ymax <span class="op">=</span> <span class="fl">4.5</span><span class="op">)</span>,</span>
-<span class="r-in"> fill <span class="op">=</span> <span class="st">"transparent"</span>, color<span class="op">=</span><span class="st">"#1088a0"</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">2.5</span>, xmax <span class="op">=</span> <span class="fl">5.5</span>, ymin <span class="op">=</span> <span class="fl">2.5</span>, ymax <span class="op">=</span> <span class="fl">5.5</span><span class="op">)</span>,</span>
-<span class="r-in"> fill <span class="op">=</span> <span class="st">"transparent"</span>, color<span class="op">=</span><span class="st">"goldenrod3"</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">2.6</span>, xmax <span class="op">=</span> <span class="fl">5.4</span>, ymin <span class="op">=</span> <span class="fl">2.6</span>, ymax <span class="op">=</span> <span class="fl">4.4</span><span class="op">)</span>,</span>
-<span class="r-in"> fill <span class="op">=</span> <span class="st">"transparent"</span>, color<span class="op">=</span><span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_void</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete</a></span><span class="op">(</span>expand<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_y_discrete</a></span><span class="op">(</span>expand<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Cell numbers"</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">16</span>, face <span class="op">=</span> <span class="st">"bold"</span>, color <span class="op">=</span> <span class="st">"black"</span>, family <span class="op">=</span> <span class="st">"serif"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># FOCAL EVALUATION DEFINITIONS</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">p1</span></span>
+<span class="r-in"><span class="co"># PLOT - FOCAL EVALUATION DEFINITIONS</span></span>
+<span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="fl">8</span>, <span class="fl">1.2</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, type <span class="op">=</span> <span class="st">"class"</span>, asp <span class="op">=</span> <span class="cn">NA</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, mar <span class="op">=</span> <span class="va">m</span>,</span>
+<span class="r-in">     col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"goldenrod3"</span>,<span class="st">"#1088a0"</span><span class="op">)</span>, colNA<span class="op">=</span> <span class="st">"grey90"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"FOCAL EVALUATION"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">1</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>,</span>
+<span class="r-in">      <span class="st">"Focal cell neighborhood: 17, 18, 19, 24, 26, 31, 32, 33"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">1</span>, line<span class="op">=</span><span class="fl">1</span>, cex<span class="op">=</span><span class="fl">0.9</span>, adj<span class="op">=</span><span class="fl">0</span>,</span>
+<span class="r-in">      <span class="st">"Test cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">1</span>, line<span class="op">=</span><span class="fl">2</span>, cex<span class="op">=</span><span class="fl">0.9</span>, adj<span class="op">=</span><span class="fl">0</span>,</span>
+<span class="r-in">     <span class="st">"Directional neighborhood: 24, 25, 26, 31, 32, 33"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tcn</span>, col<span class="op">=</span><span class="st">"#1088a0"</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">fcn</span>, col<span class="op">=</span><span class="st">"#cfad8999"</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomleft"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, y.intersp<span class="op">=</span> <span class="fl">1.3</span>,</span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Focal cell"</span>, <span class="st">"Test cell"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"goldenrod3"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="conditions-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="co"># FOCAL CELL</span></span>
-<span class="r-in"><span class="co"># Cell 32</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># TEST CELL</span></span>
-<span class="r-in"><span class="co"># Cell 25</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># FOCAL CELL NEIGHBORHOOD</span></span>
-<span class="r-in"><span class="co"># Cells 24, 25, 26, 31, 33, 38, 39, 40</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># TEST CELL NEIGHBORHOOD</span></span>
-<span class="r-in"><span class="co"># Cells 17, 18, 19, 24, 26, 31, 32, 33</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># DIRECTIONAL NEIGHBORHOOD</span></span>
-<span class="r-in"><span class="co"># Cells 24, 25, 26, 31, 32, 33</span></span>
 </code></pre></div>
     </div>
   </div>

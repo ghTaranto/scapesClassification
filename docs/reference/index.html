@@ -33,42 +33,13 @@
       <a href="../articles/scapesClassification_01_1_FormatInputs.html">Format inputs</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_2_RuleEvaluation.html">Rule evaluation</a>
+      <a href="../articles/scapesClassification_01_2_RulesEvalTypes.html">Rule evaluation and types</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
+      <a href="../articles/scapesClassification_01_3_ClassFunctions.html">Classification functions</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_4_ClassFunctions.html">Classification functions</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_01_5_FunctionAnchorSeed.html">Function anchor.seed</a>
-    </li>
-  </ul></li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Working example
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
-    <li>
-      <a href="../articles/scapesClassification_02_0_GMU.html">0. Overview</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_1_DATA.html">1. Format input data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_2_ISU.html">2. Island shelf unit (ISU)</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_3_PKS.html">3. Local maxima on gridded data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_4_OBJ.html">4. Independent objects on raster surfaces</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_5_OBJ2.html">5. Raster object manipulation</a>
+      <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
 <li>
@@ -110,7 +81,7 @@
         </td>
         <td><p>List of neighborhoods</p></td>
       </tr><tr><td>
-          <p><code><a href="nbg8.html">nbg8()</a></code> </p>
+          <p><code><a href="ngb8.html">ngb8()</a></code> </p>
         </td>
         <td><p>Eight neighbors</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
@@ -122,21 +93,13 @@
         </td>
         <td><p>scapesClassification conditions</p></td>
       </tr><tr><td>
+          <p><code><a href="cond.parse.html">cond.parse()</a></code> </p>
+        </td>
+        <td><p>Parse conditions</p></td>
+      </tr><tr><td>
           <p><code><a href="cv.2.rast.html">cv.2.rast()</a></code> </p>
         </td>
         <td><p>Class vector to raster</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="raster-object-functions">Raster object functions <a href="#raster-object-functions" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="obj.border.html">obj.border()</a></code> </p>
-        </td>
-        <td><p>Geomorphic Units' Borders</p></td>
-      </tr><tr><td>
-          <p><code><a href="obj.nbs.html">obj.nbs()</a></code> </p>
-        </td>
-        <td><p>Geomorphic Units' Neighbors</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="classification-functions">Classification functions <a href="#classification-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -168,7 +131,7 @@
       </tr></tbody><tbody><tr><td>
           <p><code><a href="anchor.seed.html">anchor.seed()</a></code> </p>
         </td>
-        <td><p>Set Anchor Cells from Local Minima or Local Maxima</p></td>
+        <td><p>Identify seed cells</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h3 id="user-condition-functions">User condition functions <a href="#user-condition-functions" class="anchor" aria-hidden="true"></a></h3>
           <p class="section-desc"></p>
@@ -197,6 +160,26 @@
           <p><code><a href="classify.all.html">classify.all()</a></code> </p>
         </td>
         <td><p>Classify All Unclassified Cells</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="raster-object-functions">Raster object functions <a href="#raster-object-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="cond.4.nofn.html">cond.4.nofn()</a></code> </p>
+        </td>
+        <td><p>Test conditions for neighbors and neighbors of neighbors</p></td>
+      </tr><tr><td>
+          <p><code><a href="anchor.seed.html">anchor.seed()</a></code> </p>
+        </td>
+        <td><p>Identify seed cells</p></td>
+      </tr><tr><td>
+          <p><code><a href="obj.border.html">obj.border()</a></code> </p>
+        </td>
+        <td><p>Raster object borders</p></td>
+      </tr><tr><td>
+          <p><code><a href="obj.nbs.html">obj.nbs()</a></code> </p>
+        </td>
+        <td><p>Raster objects' neighbors</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

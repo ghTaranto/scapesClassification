@@ -34,42 +34,13 @@ them is reclassified."><meta property="og:image" content="https://ghtaranto.gith
       <a href="../articles/scapesClassification_01_1_FormatInputs.html">Format inputs</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_2_RuleEvaluation.html">Rule evaluation</a>
+      <a href="../articles/scapesClassification_01_2_RulesEvalTypes.html">Rule evaluation and types</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_3_ClassRules.html">Classification rules</a>
+      <a href="../articles/scapesClassification_01_3_ClassFunctions.html">Classification functions</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_01_4_ClassFunctions.html">Classification functions</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_01_5_FunctionAnchorSeed.html">Function anchor.seed</a>
-    </li>
-  </ul></li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Working example
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
-    <li>
-      <a href="../articles/scapesClassification_02_0_GMU.html">0. Overview</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_1_DATA.html">1. Format input data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_2_ISU.html">2. Island shelf unit (ISU)</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_3_PKS.html">3. Local maxima on gridded data</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_4_OBJ.html">4. Independent objects on raster surfaces</a>
-    </li>
-    <li>
-      <a href="../articles/scapesClassification_02_5_OBJ2.html">5. Raster object manipulation</a>
+      <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
 <li>
@@ -96,7 +67,7 @@ them is reclassified."><meta property="og:image" content="https://ghtaranto.gith
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Reclassify neighbors</h1>
-    <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/R/classContiguity.R" class="external-link"><code>R/classContiguity.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/R/reclass_nbs.R" class="external-link"><code>R/reclass_nbs.R</code></a></small>
     <div class="hidden name"><code>reclass.nbs.Rd</code></div>
     </div>
 
@@ -133,7 +104,8 @@ identified by cell numbers (<code>rNumb=FALSE</code>) or by row numbers
 numbers for large rasters.</p></dd>
 <dt>classVector</dt>
 <dd><p>numeric vector, defines the cells in the attribute table
-that have already been classified.</p></dd>
+that have already been classified. See <code><a href="conditions.html">conditions</a></code> for more
+information about class vectors.</p></dd>
 <dt>nbs_of</dt>
 <dd><p>numeric or numeric vector, indicates the class(es) of focal and
 anchor cells.</p></dd>
@@ -151,7 +123,8 @@ reclassified if they are connected to a reclassified cell.</p></dd>
     <div id="value">
     <h2>Value</h2>
     <p>Update <code>classVector</code> with the new cells that were classified by
-the function.</p>
+the function. See <code><a href="conditions.html">conditions</a></code> for more information about class
+vectors.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -170,14 +143,13 @@ cell.</p></li>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster" class="external-link">raster</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ghTaranto/scapesClassification" class="external-link">scapesClassification</a></span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/terra/" class="external-link">terra</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># LOAD THE DUMMY RASTER</span></span>
 <span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"scapesClassification"</span><span class="op">)</span>,</span>
 <span class="r-in">                pattern <span class="op">=</span> <span class="st">"dummy_raster\\.tif"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># COMPUTE THE ATTRIBUTE TABLE</span></span>
 <span class="r-in"><span class="va">at</span> <span class="op">&lt;-</span> <span class="fu"><a href="attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dummy_var"</span><span class="op">)</span></span>
@@ -185,35 +157,24 @@ cell.</p></li>
 <span class="r-in"><span class="co"># COMPUTE THE LIST OF NEIGBORHOODS</span></span>
 <span class="r-in"><span class="va">nbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># COMPUTE A CLASS VECTOR</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
-<span class="r-in"><span class="co"># conditions: "dummy_var &gt; 5"</span></span>
-<span class="r-in"><span class="co"># class: 1</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var &gt; 5"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># UPDATE THE CLASS VECTOR</span></span>
+<span class="r-in"><span class="co"># RECLASS.NBS</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
-<span class="r-in"><span class="co"># conditions: "dummy_var &gt; 3"</span></span>
-<span class="r-in"><span class="co"># class: 2</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, conditions <span class="op">=</span> <span class="st">"dummy_var &gt;= 2"</span>, class <span class="op">=</span> <span class="fl">2</span>,</span>
+<span class="r-in"><span class="co"># Compute an inital class vector with `cond.4.all`</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, cond <span class="op">=</span> <span class="st">"dummy_var &gt; 5"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in"></span>
+<span class="r-in"><span class="co"># Update the class vector with a second class</span></span>
+<span class="r-in"><span class="va">cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="cond.4.all.html">cond.4.all</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, cond <span class="op">=</span> <span class="st">"dummy_var &gt;= 2"</span>, class <span class="op">=</span> <span class="fl">2</span>,</span>
 <span class="r-in">                 classVector <span class="op">=</span> <span class="va">cv</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># RECLASSIFY CELL OF CLASS 2 ADJACENT TO CELL OF CLASS 1</span></span>
-<span class="r-in"><span class="co">################################################################################</span></span>
-<span class="r-in"><span class="co"># class: 2</span></span>
-<span class="r-in"><span class="co"># adjacent to class: 1</span></span>
-<span class="r-in"><span class="co"># new class: 3</span></span>
+<span class="r-in"><span class="co"># Reclassify cells of class 2 adjacent to cells of class 1</span></span>
+<span class="r-in"></span>
 <span class="r-in"><span class="co"># reclass_all = FALSE</span></span>
+<span class="r-in"><span class="va">rc1</span> <span class="op">&lt;-</span> <span class="fu">reclass.nbs</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>,</span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># RECLASSIFY NEIGHBORS</span></span>
-<span class="r-in"><span class="va">rc1</span> <span class="op">&lt;-</span> <span class="fu">reclass.nbs</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>,</span>
-<span class="r-in">                   ngbList <span class="op">=</span> <span class="va">nbs</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">                   <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span></span>
+<span class="r-in">                   <span class="co"># CLASS VECTOR `cv`</span></span>
 <span class="r-in">                   classVector <span class="op">=</span> <span class="va">cv</span>,</span>
 <span class="r-in"></span>
 <span class="r-in">                   <span class="co"># CELLS OF CLASS...</span></span>
@@ -229,12 +190,9 @@ cell.</p></li>
 <span class="r-in">                   reclass_all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># reclass_all = TRUE</span></span>
+<span class="r-in"><span class="va">rc2</span> <span class="op">&lt;-</span> <span class="fu">reclass.nbs</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, ngbList <span class="op">=</span> <span class="va">nbs</span>,</span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># RECLASSIFY ALL NEIGHBORS</span></span>
-<span class="r-in"><span class="va">rc2</span> <span class="op">&lt;-</span> <span class="fu">reclass.nbs</span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>,</span>
-<span class="r-in">                   ngbList <span class="op">=</span> <span class="va">nbs</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">                   <span class="co"># CLASS VECTOR COMPUTED WITH THE RULE "dummy_var &gt; dummy_var{}"</span></span>
+<span class="r-in">                   <span class="co"># CLASS VECTOR `cv`</span></span>
 <span class="r-in">                   classVector <span class="op">=</span> <span class="va">cv</span>,</span>
 <span class="r-in"></span>
 <span class="r-in">                   <span class="co"># CELLS OF CLASS...</span></span>
@@ -248,57 +206,49 @@ cell.</p></li>
 <span class="r-in"></span>
 <span class="r-in">                   <span class="co"># ...AND SO ALL CELLS OF CLASS 1 CONNECTED TO A RECLASSIFIED CELL</span></span>
 <span class="r-in">                   reclass_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># CONVERT CLASS VECTORs INTO RASTERS</span></span>
+<span class="r-in"><span class="co"># Convert class vectors to rasters</span></span>
 <span class="r-in"><span class="va">r_cv</span>  <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">cv</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">r_rc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">rc1</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">r_rc2</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.2.rast.html">cv.2.rast</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">at</span><span class="op">$</span><span class="va">Cell</span>,classVector <span class="op">=</span> <span class="va">rc2</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># SET PLOT LAYOUT</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="co"># PLOTS</span></span>
+<span class="r-in"><span class="co">################################################################################</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">m</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">3.5</span>, <span class="fl">3.2</span>, <span class="fl">3.5</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># PLOT RESULTS</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># 1.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="co"># 1)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_cv</span>, type<span class="op">=</span><span class="st">"classes"</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>, mar<span class="op">=</span><span class="va">m</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">2</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"COND.4.ALL"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">1</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"Step1: 'dummy_var &gt; 5', class: 1"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"Step2: 'dummy_var &gt; 3', class: 2"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, y.intersp<span class="op">=</span> <span class="fl">1.2</span>,</span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Class 1"</span>, <span class="st">"Class 2"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
+<span class="r-in">      fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="co"># REFERENCE PLOT 1</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"STEPS 1&amp;2. COND.4.ALL"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>,</span>
-<span class="r-in">sub<span class="op">=</span><span class="st">"Step1. Rule: 'dummy_var &gt; 5'; class: 1\nStep2. Rule: 'dummy_var &gt; 3'; class: 2"</span><span class="op">)</span></span>
+<span class="r-in"><span class="co"># 2)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_rc1</span>, type<span class="op">=</span><span class="st">"classes"</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>, mar<span class="op">=</span><span class="va">m</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">2</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"RECLASS.NBS"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">1</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"Reclass: class 2 adjacent to class 1"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"reclass_all = FALSE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, y.intersp<span class="op">=</span> <span class="fl">1.2</span>,</span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Reclassified cells"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Class 1"</span>, <span class="st">"Class 2"</span>, <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># 2.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_rc1</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># REFERENCE PLOT 2</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"STEP 3a. RECLASS.NBS"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>,</span>
-<span class="r-in">sub<span class="op">=</span><span class="st">"reclass_all = FALSE -&gt;\nreclass based on 'cell contiguity'"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Class 1"</span>, <span class="st">"Class 2"</span>, <span class="st">"Reclassified cells"</span>,</span>
-<span class="r-in">                  <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># 3.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_rc2</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, box<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># REFERENCE PLOT 3</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"STEP 3b. RECLASS.NBS"</span>, adj <span class="op">=</span> <span class="fl">0.0</span>, line <span class="op">=</span> <span class="fl">1</span>,</span>
-<span class="r-in">sub<span class="op">=</span><span class="st">"reclass_all = TRUE -&gt;\nreclass based on 'cell contiguity' and 'cell continuity'"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
-<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Class 1"</span>, <span class="st">"Reclassified cells"</span>,</span>
-<span class="r-in">                  <span class="st">"Unclassified cells"</span><span class="op">)</span>,</span>
-<span class="r-in">       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#cfad89"</span>, <span class="st">"#818792"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="co"># 3)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r_rc2</span>, type<span class="op">=</span><span class="st">"classes"</span>, axes<span class="op">=</span><span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, asp <span class="op">=</span> <span class="cn">NA</span>, mar<span class="op">=</span><span class="va">m</span>,</span>
+<span class="r-in">     colNA<span class="op">=</span><span class="st">"#818792"</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1088a0"</span>, <span class="st">"#78b2c4"</span>, <span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">2</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">1</span>, font<span class="op">=</span><span class="fl">2</span>, <span class="st">"RECLASS.NBS"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">1</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"Reclass: class 2 adjacent to class 1"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"reclass_all = TRUE"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, y.intersp<span class="op">=</span> <span class="fl">1.2</span>,</span>
+<span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Reclassified cells"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="reclass.nbs-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

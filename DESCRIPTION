@@ -33,11 +33,8 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    terra,
     methods,
-    raster,
-    rgdal (>= 1.2),
-    sp,
-    stringr
 VignetteBuilder: knitr
 URL: https://github.com/ghTaranto/scapesClassification, https://ghtaranto.github.io/scapesClassification
 BugReports: https://github.com/ghTaranto/scapesClassification/issues
