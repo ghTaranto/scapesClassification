@@ -83,13 +83,15 @@
 #'   classification number as specified by the argument \code{class}. If
 #'   \code{class=NULL}, then a new class is assigned to every new seed cell.
 #'
-#'   2. Cells contiguous and continuous to the seed cell meeting the conditions
-#'   specified by \code{cond.growth} are assigned to the same class of the seed
-#'   cell (growth buffer).
+#'   2. Cells connected with the seed cell meeting the conditions of
+#'   \code{cond.growth} are assigned to the same class of the seed cell (growth
+#'   buffer). The rule evaluation take into account class continuity (see
+#'   \code{\link{conditions}}).
 #'
-#'   3. Cells contiguous and continuous to the seed cell (and to its growth
-#'   buffer) meeting the conditions specified by \code{cond.isol} are assigned
-#'   to the isolation buffer (\code{class = -999}).
+#'   3. Cells connected with the seed cell (or with its growth buffer) meeting
+#'   the conditions of \code{cond.isol} are assigned to the isolation buffer
+#'   (\code{class = -999}). The rule evaluation take into account class
+#'   continuity (see \code{\link{conditions}}).
 #'
 #'   4. A new seed cell is identified based on \code{cond.seed} which is now
 #'   only evaluated for cells that were not identified as seed, growth or
@@ -589,7 +591,7 @@ anchor.seed <- function(attTbl,
     if(!silent){
       n      <- length(flt_ok)
       dtime  <- round(difftime(Sys.time(), timeStart, units = "mins"), 2)
-      cat("\r", paste0("Evaluated cells: ", n, "/", N, "; Elapsed time: ", dtime, " mins"))
+      cat("\r", paste0("Evaluated cells: ", N-n, "/", N, "; Elapsed time: ", dtime, " mins"))
     }
 
   }#while (seed.cond)

@@ -122,12 +122,14 @@ by the function.
 \item A seed cell is identified based on \code{cond.seed} and receives a
 classification number as specified by the argument \code{class}. If
 \code{class=NULL}, then a new class is assigned to every new seed cell.
-\item Cells contiguous and continuous to the seed cell meeting the conditions
-specified by \code{cond.growth} are assigned to the same class of the seed
-cell (growth buffer).
-\item Cells contiguous and continuous to the seed cell (and to its growth
-buffer) meeting the conditions specified by \code{cond.isol} are assigned
-to the isolation buffer (\code{class = -999}).
+\item Cells connected with the seed cell meeting the conditions of
+\code{cond.growth} are assigned to the same class of the seed cell (growth
+buffer). The rule evaluation take into account class continuity (see
+\code{\link{conditions}}).
+\item Cells connected with the seed cell (or with its growth buffer) meeting
+the conditions of \code{cond.isol} are assigned to the isolation buffer
+(\code{class = -999}). The rule evaluation take into account class
+continuity (see \code{\link{conditions}}).
 \item A new seed cell is identified based on \code{cond.seed} which is now
 only evaluated for cells that were not identified as seed, growth or
 isolation cells in previous iterations.

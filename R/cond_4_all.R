@@ -59,7 +59,7 @@
 #' ################################################################################
 #' # compute new class vector
 #' # conditions: "dummy_var == 1"
-#' cv1 <- cond.4.all(attTbl = at, cond = "dummy_var == 1", class = 1)
+#' cv1 <- cond.4.all(attTbl = at, cond = "dummy_var <= 1", class = 1)
 #'
 #' unique(cv1) # one class (class 1)
 #'
@@ -87,7 +87,7 @@
 #' text(r); lines(r)
 #' mtext(side=3, line=1, adj=0, cex=1, font=2, "1. COND.4.ALL")
 #' mtext(side=3, line=0, adj=0, cex=0.9, "New class vector")
-#' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var == 1'")
+#' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var <= 1'")
 #' mtext(side=1, line=1, cex=0.9, adj=0, "Class: 1")
 #'
 #' # 2.
