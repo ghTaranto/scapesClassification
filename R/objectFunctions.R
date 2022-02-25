@@ -1,4 +1,4 @@
-#' Raster object borders
+#' Borders of raster objects
 #'
 #' Identify the borders of raster objects.
 #'
@@ -18,12 +18,12 @@
 #'
 #'   \item If there are NA values on the raster surface, raster cells must be
 #'   identified by attribute table row indices (each corresponding to a raster
-#'   cell). Row indices can be converted into raster cells using the cell column
-#'   of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+#'   cell). Row indices can be converted into raster cells using the \code{Cell}
+#'   column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
 #'   \code{\link{attTbl}})}.
 #'
 #' @return The function returns a named list of object borders. List names
-#'   identify the objects; list element values identify the raster cell
+#'   identify the objects; list element values identify the raster cells
 #'   comprising the borders.
 #'
 #' @export
@@ -39,7 +39,7 @@
 #'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
 #' r <- terra::rast(r)
 #'
-#' # ADD ONE NA VALUE
+#' # ADD NA-VALUE
 #' r[11] <- NA
 #'
 #' # COMPUTE THE ATTRIBUTE TABLE
@@ -57,6 +57,7 @@
 #'                      cond.growth = "dummy_var<dummy_var[]",
 #'                      lag.growth  = 0)
 #'
+#' # Raster objects
 #' RO <- split(1:NROW(at), at$cv)
 #'
 #' print(RO) # values are attribute table row indices
@@ -66,13 +67,12 @@
 #' ################################################################################
 #' RO_bd <- obj.border(RO, nbs, silent = TRUE)
 #'
-#' print(RO_bd)
-#'
 #' RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
 #' RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
 #'
-#' print(RO_bd1)
-#' print(RO_bd2)
+#' print(RO_bd)  # attribute table row indices
+#' print(RO_bd1) # cell numbers
+#' print(RO_bd2) # cell numbers
 #'
 #' ################################################################################
 #' # PLOT BORDERS
@@ -120,9 +120,9 @@ obj.border <- function(group, ngbList, silent = FALSE){
 }
 
 
-#' Raster objects' neighbors
+#' Shared borders of raster objects
 #'
-#' Identify the IDs of neighboring raster objects and their shared borders.
+#' Identify the shared borders of neighboring raster objects.
 #'
 #' @param grp.bord named list, the list of borders returned by the function
 #'   \code{\link{obj.border}}.
@@ -130,22 +130,22 @@ obj.border <- function(group, ngbList, silent = FALSE){
 #'   \code{\link{ngbList}}. The list of neighborhoods has to be computed setting
 #'   the argument \code{rNumb=TRUE}.
 #' @param only_grp character vector. If \code{NULL}, all IDs in \code{grp.bord}
-#'   are considered. If IDs are provided as a character vector, then these IDs
-#'   are the only one considered.
+#'   are considered. If IDs are provided, then they are the only ones
+#'   considered.
 #' @param silent logic, progress bar is not printed on the console.
 #'
 #' @seealso [attTbl()], [ngbList()], [obj.border()]
 #'
 #' @note If there are NA values on the raster surface, raster cells are
 #'   identified by attribute table row indices (each corresponding to a raster
-#'   cell). Row indices can be converted into raster cells using the cell column
-#'   of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+#'   cell). Row indices can be converted into raster cells using the \code{Cell}
+#'   column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
 #'   \code{\link{attTbl}}).
 #'
-#' @return The function returns a named list. Each element of the list represent
-#'   a raster object as identified by the list's names. Each element is
-#'   constituted by a nested named list. The names of the nested lists are the
-#'   IDs of neighboring raster objects.
+#' @return The function returns a named list. Each element represents a raster
+#'   object as identified by the list names and contains a nested named list.
+#'   The names of the nested lists are the IDs of neighboring raster objects and
+#'   their values identify the raster cells comprising the shared borders.
 #'
 #' @export
 #' @examples

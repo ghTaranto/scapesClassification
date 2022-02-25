@@ -2,7 +2,7 @@
 % Please edit documentation in R/objectFunctions.R
 \name{obj.nbs}
 \alias{obj.nbs}
-\title{Raster objects' neighbors}
+\title{Shared borders of raster objects}
 \usage{
 obj.nbs(grp.bord, ngbList, only_grp = NULL, silent = FALSE)
 }
@@ -15,25 +15,25 @@ obj.nbs(grp.bord, ngbList, only_grp = NULL, silent = FALSE)
 the argument \code{rNumb=TRUE}.}
 
 \item{only_grp}{character vector. If \code{NULL}, all IDs in \code{grp.bord}
-are considered. If IDs are provided as a character vector, then these IDs
-are the only one considered.}
+are considered. If IDs are provided, then they are the only ones
+considered.}
 
 \item{silent}{logic, progress bar is not printed on the console.}
 }
 \value{
-The function returns a named list. Each element of the list represent
-a raster object as identified by the list's names. Each element is
-constituted by a nested named list. The names of the nested lists are the
-IDs of neighboring raster objects.
+The function returns a named list. Each element represents a raster
+object as identified by the list names and contains a nested named list.
+The names of the nested lists are the IDs of neighboring raster objects and
+their values identify the raster cells comprising the shared borders.
 }
 \description{
-Identify the IDs of neighboring raster objects and their shared borders.
+Identify the shared borders of neighboring raster objects.
 }
 \note{
 If there are NA values on the raster surface, raster cells are
 identified by attribute table row indices (each corresponding to a raster
-cell). Row indices can be converted into raster cells using the cell column
-of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+cell). Row indices can be converted into raster cells using the \code{Cell}
+column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
 \code{\link{attTbl}}).
 }
 \examples{

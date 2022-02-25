@@ -2,7 +2,7 @@
 % Please edit documentation in R/objectFunctions.R
 \name{obj.border}
 \alias{obj.border}
-\title{Raster object borders}
+\title{Borders of raster objects}
 \usage{
 obj.border(group, ngbList, silent = FALSE)
 }
@@ -20,7 +20,7 @@ the argument \code{rNumb=TRUE}.}
 }
 \value{
 The function returns a named list of object borders. List names
-identify the objects; list element values identify the raster cell
+identify the objects; list element values identify the raster cells
 comprising the borders.
 }
 \description{
@@ -32,8 +32,8 @@ names correspond to raster object IDs.
 
 \item If there are NA values on the raster surface, raster cells must be
 identified by attribute table row indices (each corresponding to a raster
-cell). Row indices can be converted into raster cells using the cell column
-of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
+cell). Row indices can be converted into raster cells using the \code{Cell}
+column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
 \code{\link{attTbl}})}.
 }
 \examples{
@@ -48,7 +48,7 @@ r <- list.files(system.file("extdata", package = "scapesClassification"),
                 pattern = "dummy_raster\\\\.tif", full.names = TRUE)
 r <- terra::rast(r)
 
-# ADD ONE NA VALUE
+# ADD NA-VALUE
 r[11] <- NA
 
 # COMPUTE THE ATTRIBUTE TABLE
@@ -66,6 +66,7 @@ at$cv <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
                      cond.growth = "dummy_var<dummy_var[]",
                      lag.growth  = 0)
 
+# Raster objects
 RO <- split(1:NROW(at), at$cv)
 
 print(RO) # values are attribute table row indices
@@ -75,13 +76,12 @@ print(RO) # values are attribute table row indices
 ################################################################################
 RO_bd <- obj.border(RO, nbs, silent = TRUE)
 
-print(RO_bd)
-
 RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
 RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
 
-print(RO_bd1)
-print(RO_bd2)
+print(RO_bd)  # attribute table row indices
+print(RO_bd1) # cell numbers
+print(RO_bd2) # cell numbers
 
 ################################################################################
 # PLOT BORDERS
