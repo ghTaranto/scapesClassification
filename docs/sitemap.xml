@@ -4,6 +4,18 @@
     <loc>https://ghtaranto.github.io/scapesClassification/404.html</loc>
   </url>
   <url>
+    <loc>https://ghtaranto.github.io/scapesClassification/articles/articles/scapesClassification_01_1_FormatInputs.html</loc>
+  </url>
+  <url>
+    <loc>https://ghtaranto.github.io/scapesClassification/articles/articles/scapesClassification_01_2_RulesEvalTypes.html</loc>
+  </url>
+  <url>
+    <loc>https://ghtaranto.github.io/scapesClassification/articles/articles/scapesClassification_01_3_ClassFunctions.html</loc>
+  </url>
+  <url>
+    <loc>https://ghtaranto.github.io/scapesClassification/articles/articles/scapesClassification_01_4_ObjFunctions.html</loc>
+  </url>
+  <url>
     <loc>https://ghtaranto.github.io/scapesClassification/articles/index.html</loc>
   </url>
   <url>
@@ -80,5 +92,8 @@
   </url>
   <url>
     <loc>https://ghtaranto.github.io/scapesClassification/reference/reclass.nbs.html</loc>
+  </url>
+  <url>
+    <loc>https://ghtaranto.github.io/scapesClassification/reference/rel.pi.html</loc>
   </url>
 </urlset>

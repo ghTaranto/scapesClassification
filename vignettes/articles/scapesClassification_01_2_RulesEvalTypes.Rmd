@@ -68,7 +68,7 @@ text(x=-0.11, y=-0.08, adj=0, cex=0.9, "Test cell neighborhood: 24,25,26,31,33,3
 text(x=-0.11, y=-0.13, adj=0, cex=0.9, "Directional neighborhood: 24,25,26,31,32,33", family="mono")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Evaluation neighborhood**. Focal cell, test cell and neighborhoods.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Evaluation neighborhood**. Focal cell, test cell and neighborhoods.</span></div>
 
 ### Global evaluation
 ___Global evaluation functions:___ `cond.4.all()`. 
@@ -108,7 +108,7 @@ text(r, col="white", cex=1.0, family = "sans")
 text(x=0, y=1.03, cex=1.1, font=2, adj=0, "b. Rule: 'cell_value > 1'", family = "mono", col="#818792")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Global evaluation**. All raster cells are evaluated against the classification rule. **(a)** Before applying the classification rule; **(b)** after applying the classification rule.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Global evaluation**. All raster cells are evaluated against the classification rule. **(a)** Before applying the classification rule; **(b)** after applying the classification rule.</span></div>
 
 ### Focal evaluation
 ___Focal evaluation functions:___ `anchor.seed()`, `cond.4.nofn()`, `cond.reclass()`, `reclass.nbs()` and `classify.all()`. 
@@ -224,7 +224,7 @@ gifski::save_gif(fc_tc(r), "fc_tc.gif", delay = 0.8, width = 700,
 knitr::include_graphics("fc_tc.gif")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Class contiguity**. Classification rule applied only to test cells in the neighborhoods of focal cells. Positive evaluations are showed in dark green; negative evaluations in dark red.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Class contiguity**. Classification rule applied only to test cells in the neighborhoods of focal cells. Positive evaluations are showed in dark green; negative evaluations in dark red.</span></div>
 
 
 #### Class continuity {#continuity}
@@ -304,7 +304,7 @@ gifski::save_gif(ccont(r), "ccont.gif", delay = 1.5, width = 700,
 knitr::include_graphics("ccont.gif")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - Class continuity.** Classification rule applied only to test cells in the neighborhoods of focal cells. Test cells classified in one iteration become focal cells in the next iteration. Positive evaluations are showed in dark green; negative evaluations in dark red.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - Class continuity.** Classification rule applied only to test cells in the neighborhoods of focal cells. Test cells classified in one iteration become focal cells in the next iteration. Positive evaluations are showed in dark green; negative evaluations in dark red.</span></div>
 
 ## Classification rules {#cr}
 
@@ -427,7 +427,7 @@ points(x=xFromCell(r, p2_nbs),y=yFromCell(r, p2_nbs)-0.045, pch=20, col=col_eval
 ##########################################################################
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 - Absolute condition.** (a) Test cells are classified if their value `>=3`. (b) Test cells are classified if among the values of the test cell and of the test cell neighborhood at least 8/9 (`peval = 8/9`) are `>=3`. Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 - Absolute condition.** (a) Test cells are classified if their value `>=3`. (b) Test cells are classified if among the values of the test cell and of the test cell neighborhood at least 8/9 (`peval = 8/9`) are `>=3`. Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red.</span></div>
 
 ### Relative conditions
 
@@ -515,4 +515,4 @@ points(x=xFromCell(r, p2_nbs),y=yFromCell(r, p2_nbs)-0.045, pch=20, col=col_eval
 ##########################################################################
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - Relative condition.** (a) Test cells are classified if the absolute difference between test and focal cells is `<2`. (b) Test cells are classified if at least 7 absolute differences between a test cell and the cells in its neighborhood are `<2` (`peval = 7/8`). Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red. In (b) are showed only the evaluation of the classified test cell.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - Relative condition.** (a) Test cells are classified if the absolute difference between test and focal cells is `<2`. (b) Test cells are classified if at least 7 absolute differences between a test cell and the cells in its neighborhood are `<2` (`peval = 7/8`). Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red. In (b) are showed only the evaluation of the classified test cell.</span></div>

@@ -58,7 +58,7 @@ lines(rcell, col="white", lwd=2)
 text(r, col="white", cex=1.2)
 mtext(side=3, line=0, cex=1.5, font=2, adj=0, "Dummy variable")
 ```
-<div style="line-height: 0.8em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 1 -** Example of a raster object. On the left, raster cell numbers; on the right raster data.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 1 -** Example of a raster object. On the left, raster cell numbers; on the right raster data.</span></div>
 
 We can compute the attribute table with the following code chunk. 
 

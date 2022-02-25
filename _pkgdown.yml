@@ -64,6 +64,7 @@ reference:
       - "`anchor.seed`"
       - "`obj.border`"
       - "`obj.nbs`"
+      - "`rel.pi`"
 
 navbar:
   type: light

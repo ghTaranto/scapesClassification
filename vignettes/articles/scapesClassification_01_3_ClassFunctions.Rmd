@@ -191,7 +191,7 @@ legend(x=1,y=0, ncol = 1, bg = "white", fill = c("#78b2c4", "red"), xjust=1, yju
        legend = c("Anchor cell", "Polygon"))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Anchor.svo** extracts cell numbers at the locations of a spatial polygon. Raster values are cell numbers. Raster cells not showing any number are NA-cells (cells `c(9, 10, 11, 17, 18)`).</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Anchor.svo** extracts cell numbers at the locations of a spatial polygon. Raster values are cell numbers. Raster cells not showing any number are NA-cells (cells `c(9, 10, 11, 17, 18)`).</span></div>
 
 ---
 
@@ -296,7 +296,7 @@ legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0,
        legend = c("Classified cells","Unclassified cells"))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.cell** converts a vector of cell numbers (`anchor`) into a class vector. The input vector was `1:7`. Raster values are cell numbers.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.cell** converts a vector of cell numbers (`anchor`) into a class vector. The input vector was `1:7`. Raster values are cell numbers.</span></div>
 
 Note that as the argument `class = 10`, classified cells have class 10.
 
@@ -376,7 +376,7 @@ legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
        legend = c("1","2","NA"))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - cond.4.all** classifies unclassified raster cells that meet function conditions. **(a)** A new class vector is computed (`cv1`). **(b)** The class vector `cv1` is updated and stored as `cv2`.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - cond.4.all** classifies unclassified raster cells that meet function conditions. **(a)** A new class vector is computed (`cv1`). **(b)** The class vector `cv1` is updated and stored as `cv2`.</span></div>
 
 Note that `cv1` has only one class (`1`); `cv2` has two classes (`1,2`).
 
@@ -458,7 +458,7 @@ legend(x=1,y=0, ncol = 1, bg = "white", xjust=1, yjust=0, title="Class:",
        legend = c("L.maxima","L.minima","NA"))
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - peak.cell** identifies local maxima and minima on a raster. **(a)** Argument `p_edge=FALSE`. (`cv1`). **(b)** Argument `p_edge=TRUE`.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - peak.cell** identifies local maxima and minima on a raster. **(a)** Argument `p_edge=FALSE`. (`cv1`). **(b)** Argument `p_edge=TRUE`.</span></div>
 
 ## User condition functions
 
@@ -547,7 +547,7 @@ text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 9/9", family = "serif",
      col="#818792")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 - cond.4.nofn** evaluates conditions for cells neighboring focal cells and classify them if conditions are true. An absolute neighborhood condition is evaluated with `peval = 9/9` (test cells are classified only if their value and the value of all their neighbors are `>=3`; 9 out of 9 positive evaluations). **(a)** The function do not consider class continuity. **(b)** The function consider class continuity.</span></div> 
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 5 - cond.4.nofn** evaluates conditions for cells neighboring focal cells and classify them if conditions are true. An absolute neighborhood condition is evaluated with `peval = 9/9` (test cells are classified only if their value and the value of all their neighbors are `>=3`; 9 out of 9 positive evaluations). **(a)** The function do not consider class continuity. **(b)** The function consider class continuity.</span></div> 
 
 ---
 
@@ -617,7 +617,7 @@ text(x=1, y=1.03, cex=1, font=1, adj=1, "peval = 6/9", family = "serif",
      col="#818792")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - cond.reclass** evaluates conditions for cells of a class and reclassify them if conditions are true. **(a)** Class vector `cv2` computed by the function [cond.4.nofn](scapesClassification_01_3_ClassFunctions.html#cond-4-nofn). **(b)** cells meeting conditions are reclassified.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - cond.reclass** evaluates conditions for cells of a class and reclassify them if conditions are true. **(a)** Class vector `cv2` computed by the function [cond.4.nofn](scapesClassification_01_3_ClassFunctions.html#cond-4-nofn). **(b)** cells meeting conditions are reclassified.</span></div>
 
 Note that cv2 has only 2 classes (`0,1`); cv2_rclass has 3 classes (`0,1,2`).
 ```{r cond_reclass_cv, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
@@ -731,4 +731,4 @@ text(x=1, y=1.03, cex=1, font=1, adj=1, "reclass_all = TRUE", family = "serif",
      col="#818792")
 ```
 
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 - reclass.nbs** evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. **(a)** Identify cells of classes 1 and 2 using the function `cond.4.all()`. **(b)** Cells of `class=2` contiguous to the cell of `class=1` are reclassified. **(c)** Cells of `class=2` connected to a reclassified cell are also reclassified.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 - reclass.nbs** evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. **(a)** Identify cells of classes 1 and 2 using the function `cond.4.all()`. **(b)** Cells of `class=2` contiguous to the cell of `class=1` are reclassified. **(c)** Cells of `class=2` connected to a reclassified cell are also reclassified.</span></div>

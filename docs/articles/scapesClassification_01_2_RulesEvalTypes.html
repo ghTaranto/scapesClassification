@@ -130,7 +130,7 @@
 </ul>
 <p><a id="figure1"></a></p>
 <p><img src="scapesClassification_01_2_RulesEvalTypes_files/figure-html/eval_ngb-1.png" width="90%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 1 - Evaluation neighborhood</strong>. Focal cell, test cell and neighborhoods.</span>
 </div>
 </div>
@@ -141,7 +141,7 @@
 <p>Classification rules are applied to all raster cells regardless of their position on the raster (<a href="#figure2">Figure 2</a>). Global evaluations are not very common in <code>scapesClassification</code>.</p>
 <p><a id="figure2"></a></p>
 <p><img src="scapesClassification_01_2_RulesEvalTypes_files/figure-html/g_eval-1.png" width="90%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 2 - Global evaluation</strong>. All raster cells are evaluated against the classification rule. <strong>(a)</strong> Before applying the classification rule; <strong>(b)</strong> after applying the classification rule.</span>
 </div>
 </div>
@@ -156,7 +156,7 @@
 <p>Classification rules are applied only to raster cells in the <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">neighborhood</a> of focal cells (<a href="#figure3">Figure 3</a>).</p>
 <p><a id="figure3"></a></p>
 <p><img src="fc_tc.gif" width="80%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 3 - Class contiguity</strong>. Classification rule applied only to test cells in the neighborhoods of focal cells. Positive evaluations are showed in dark green; negative evaluations in dark red.</span>
 </div>
 </div>
@@ -166,7 +166,7 @@
 <p>Classification rules are applied to raster cells in the <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">neighborhood</a> of focal cells. Focal cells are updated at each iteration; test cells classified in one iteration become the focal cells of the next iteration. In this way, cells that respect the same rule(s) and that are connected the same focal cells are joined into the same class (<a href="#figure4">Figure 4</a>).</p>
 <p><a id="figure4"></a></p>
 <p><img src="ccont.gif" width="80%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 4 - Class continuity.</strong> Classification rule applied only to test cells in the neighborhoods of focal cells. Test cells classified in one iteration become focal cells in the next iteration. Positive evaluations are showed in dark green; negative evaluations in dark red.</span>
 </div>
 </div>
@@ -205,7 +205,7 @@
 </ol>
 <p><a id="figure5"></a></p>
 <p><img src="scapesClassification_01_2_RulesEvalTypes_files/figure-html/abs_cond-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 5 - Absolute condition.</strong> (a) Test cells are classified if their value <code>&gt;=3</code>. (b) Test cells are classified if among the values of the test cell and of the test cell neighborhood at least 8/9 (<code>peval = 8/9</code>) are <code>&gt;=3</code>. Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red.</span>
 </div>
 </div>
@@ -233,7 +233,7 @@
 </ol>
 <p><a id="figure6"></a></p>
 <p><img src="scapesClassification_01_2_RulesEvalTypes_files/figure-html/rel_cond-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 6 - Relative condition.</strong> (a) Test cells are classified if the absolute difference between test and focal cells is <code>&lt;2</code>. (b) Test cells are classified if at least 7 absolute differences between a test cell and the cells in its neighborhood are <code>&lt;2</code> (<code>peval = 7/8</code>). Test cells are cells in the focal cell neighborhood (blue line). Positive evaluations are showed in dark green, negative evaluations in dark red. In (b) are showed only the evaluation of the classified test cell.</span>
 </div>
 </div>

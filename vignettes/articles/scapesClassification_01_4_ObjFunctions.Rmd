@@ -265,11 +265,11 @@ text(xFromCell(r,20),yFromCell(r,20)-0.05,"SEED 1",col="red",cex=0.85)
 
 ## cond.4.nofn (hgrowth) {#hgrowth}
 
-The function `cond.4.nofn()` can be used to reshape raster objects setting the argument `hgrowth = TRUE` (homogeneous growth).
+The function `cond.4.nofn()` can be used to expand the borders of raster objects. This functionality is activated with the argument `hgrowth = TRUE` (__homogeneous growth__, see `?cond.4.nofn` for additional details).
 
-In the following example we will: (i) identify peak cells ([peak.cell](scapesClassification_01_3_ClassFunctions.html#peak-cell)), (ii) assign a unique ID to each peak ([anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed)) and (iii) use the function `cond.4.nofn()` to expand the borders of the two peak objects. The borders are expanded based on the [focal cell rule](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) `dummy_var <= dummy_var[]` and on the [test cell rule](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) `dummy_var > 1` ([Figure 3](#figure3)).
+In the following example we will: (i) identify peak cells ([peak.cell](scapesClassification_01_3_ClassFunctions.html#peak-cell)), (ii) assign a unique ID to each peak ([anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed)) and (iii) use the function `cond.4.nofn()` to expand the borders of the two peak objects. The borders are expanded based on the [focal cell rule](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) `dummy_var <= dummy_var[]` and on the [test cell rule](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) `dummy_var > 1` ([Figure 3c](#figure3)).
 
-Note that the computed class vectors are added as columns of the attribute table, in this way classification rules can take them into account. 
+Note that the computed class vectors are added to the attribute table, in this way classification rules can take them into account. 
 
 ```{r hgrowth, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # IDENTIFY RASTER OBJECTS (a,b) AND RESHAPE THEIR BORDERS (c)
@@ -283,7 +283,7 @@ at$cv1 <- anchor.seed(at, nbs, silent = TRUE, class = NULL, # a new class for ev
                       cond.filter = "!is.na(cv0)",
                       cond.seed   = "TRUE")
 
-# 3. cv2, homogeneous growth of raster objects                   
+# c. cv2, homogeneous growth of raster objects                   
 at$cv2 <- cond.4.nofn(attTbl = at, ngbList = nbs, classVector = at$cv1,
                       nbs_of = c(1, 2), class = NULL,
                       cond = "dummy_var <= dummy_var[] & dummy_var > 1",
@@ -381,25 +381,68 @@ text(x=0.24, y=0.00, cex=1.5, font=1, adj=c(0,1), "& dummy_var > 1", family = "s
 
 ## obj.border
 
-The function `obj.border()` identifies the borders of raster objects. 
+The function `obj.border()` identifies the borders of raster objects. To handle missing values on raster surfaces, the function was designed to work with raster cells identified by attribute table row indices rather then with cell numbers (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n^th^ row correspond to the n^th^ cell). With missing values it ceases to be true. 
 
+As an example we will re-compute the class vector `cv2` of the previous example, but before we will add an NA-value in the initial raster and compute the neighborhood list with neighborhoods identified by row numbers (see `?ngbList`).
 
-ADD NA EXAMPLES
+```{r bordNA, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# ADD NA-VALUE
+r[11] <- NA
 
+# COMPUTE THE ATTRIBUTE TABLE
+at <- attTbl(r, "dummy_var")
 
-```{r bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
-RO <- split(1:NROW(at), at$cv2)
-
-RO_bd <- obj.border(RO, nbs, silent = TRUE)
-
-
-RO_bd1 <- at$Cell[RO_bd[["1"]]] # Convert row numbers to cell numbers
-RO_bd2 <- at$Cell[RO_bd[["2"]]] # Convert row numbers to cell numbers
+# COMPUTE THE LIST OF NEIGBORHOODS
+nbs <- ngbList(r, rNumb=TRUE, attTbl=at) # rnumb MUST be true to use obj.border
 ```
 
+We can re-compute the [raster objects](scapesClassification_01_4_ObjFunctions.html#hgrowth).
+
+```{r obj_2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a. cv0, identify peak cells
+at$cv0 <- peak.cell(at, nbs, rNumb=TRUE, p_edge=TRUE, p_col="dummy_var", p_fun="max")
+
+# b. cv1, assign unique IDs
+at$cv1 <- anchor.seed(at, nbs, rNumb=TRUE, silent=TRUE, cond.filter="!is.na(cv0)", cond.seed="TRUE")
+
+# c. cv2, homogeneous growth of raster objects                   
+at$cv2 <- cond.4.nofn(at, nbs, rNumb=TRUE, classVector=at$cv1, nbs_of=c(1, 2), hgrowth=TRUE,
+                      cond="dummy_var <= dummy_var[] & dummy_var > 1")
+```
+
+And identify their borders ([Figure 4](#figure4)).
+
+```{r bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# RASTER OBJECTS
+RO <- split(1:NROW(at), at$cv2)
+print(RO) # values are attribute table row indices
+
+# COMPUTE BORDERS
+RO_bd <- obj.border(RO, nbs, silent = TRUE)
+
+# CONVERT ROW INDICES TO CELL NUMBERS
+RO_bd1 <- at$Cell[RO_bd[["1"]]]
+RO_bd2 <- at$Cell[RO_bd[["2"]]]
+
+# ROW INDICES AND CELL NUMBERS ARE NOT EQUAL
+print(RO_bd)  # attribute table row indices
+
+print(RO_bd1) # cell numbers
+print(RO_bd2)
+
+# Row indices:  used by scapesClassification functions (increase function speed) 
+#               have to be converted back to cell numbers before plotting
+```
+
+<a id="figure4"></a>
 
 ```{r bord_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_cv2 <- cv.2.rast(r, classVector = at$cv2)
+
+# PLOT
 m <- c(1,1,1,1)
+
 plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
      legend=FALSE, col=c("#78b2c4","#cfc1af"))
 lines(r)
@@ -409,7 +452,64 @@ points(terra::xyFromCell(r, RO_bd2), pch=20, col="red")
 legend(1, 1, legend=c("1", "2"), bty = "n", title="Object:",
        fill=c("#78b2c4", "#cfc1af"), cex=1)
 legend(1, 0.75, legend=c("Obj1", "Obj2"), bty = "n", title="Border:",
-       col=c("blue", "red"), pch=20, cex=1)
-
-
+       col=c("blue", "red"), pch=20, cex=1, pt.cex = 1.2)
+text(xyFromCell(r, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, family = "mono")
 ```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 4 - Obj.border** identifies the borders of raster objects.</span></div>
+
+## obj.nbs
+
+The function `obj.nbs()` identifies the shared borders of raster objects as well as all the neighbors of every raster object. As in the case of the function [obj.border](scapesClassification_01_4_ObjFunctions.html#obj-border), `obj.nbs()` was designed to work with raster cells identified by attribute table row indices (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n^th^ row correspond to the n^th^ cell). With missing values it ceases to be true. 
+
+The function `obj.nbs()` returns a named nested lists:
+
+* Each element of the list corresponds to a raster object;
+
+* Each element contains a named nested list whose names correspond to the IDs of neighboring raster objects;
+
+* The values of the nested lists identify the raster cells comprising the shared borders. 
+
+We can use the class vector `cv2` computed in the previews example ([obj.border](scapesClassification_01_4_ObjFunctions.html#obj-border)) to illustrate how the function works. 
+
+```{r shared_bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# RASTER OBJECTS
+RO <- split(1:NROW(at), at$cv2)
+print(RO) # values are attribute table row indices
+
+RO_bd <- obj.border(RO, nbs, silent = TRUE) # compute borders
+
+# COMPUTE SHARED BORDERS
+RO_shared_bd <- obj.nbs(RO_bd, nbs, silent = TRUE)
+
+# Obj.1 has as neighbor Obj.2 and its border with it are cells in rows 24 and 31
+RO_shared_bd[["1"]]
+
+# Obj.2 has as neighbor Obj.1 and its border with it are cells in rows 30 and 37 
+RO_shared_bd[["2"]]
+
+# CONVERT ROW INDICES TO CELL NUMBERS
+sharedBD1 <- at$Cell[ RO_shared_bd[["1"]][["2"]] ]
+sharedBD2 <- at$Cell[ RO_shared_bd[["2"]][["1"]] ]
+```
+
+<a id="figure5"></a>
+
+```{r shared_bord_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# PLOT
+m <- c(1,1,1,1)
+
+plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+     legend=FALSE, col=c("#78b2c4","#cfc1af"))
+lines(r)
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2", family = "serif")
+points(terra::xyFromCell(r, sharedBD1), pch=20, col="blue")
+points(terra::xyFromCell(r, sharedBD2), pch=20, col="red")
+legend(1, 1, legend=c("1", "2"), bty = "n", title="Object:",
+       fill=c("#78b2c4", "#cfc1af"), cex=1)
+legend(1, 0.70, legend=c("Obj1", "Obj2"), bty = "n", title="Shared\nborder:",
+       col=c("blue", "red"), pch=20, cex=1, pt.cex = 1.2)
+text(xyFromCell(r, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, ac, family = "mono")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 5 - obj.nbs** identifies the shared borders of raster objects.</span></div>

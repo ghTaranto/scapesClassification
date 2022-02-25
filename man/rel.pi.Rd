@@ -71,9 +71,9 @@ relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
 
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
-       pch=20, col="red")
+       pch=20, col="yellow")
 points(terra::xFromCell(r, at$Cell[which(at$RO==2)]),
        terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
-       pch=20, col="blue")
+       pch=20, col="darkgreen")
 text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
 }

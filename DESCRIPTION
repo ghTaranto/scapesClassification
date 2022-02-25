@@ -18,7 +18,6 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
-    data.table,
     ggplot2,
     ggpubr,
     gifski,
@@ -34,7 +33,7 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     terra,
-    methods,
+    methods
 VignetteBuilder: knitr
 URL: https://github.com/ghTaranto/scapesClassification, https://ghtaranto.github.io/scapesClassification
 BugReports: https://github.com/ghTaranto/scapesClassification/issues

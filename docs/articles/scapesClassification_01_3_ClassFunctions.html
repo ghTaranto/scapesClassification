@@ -200,7 +200,7 @@
 <span class="va">ac4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/anchor.svo.html">anchor.svo</a></span><span class="op">(</span><span class="va">r_cn</span>, <span class="va">pol</span>, only_NAs <span class="op">=</span> <span class="cn">TRUE</span>, fill_NAs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><a id="figure1"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/anchor_svo_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 1 - Anchor.svo</strong> extracts cell numbers at the locations of a spatial polygon. Raster values are cell numbers. Raster cells not showing any number are NA-cells (cells <code>c(9, 10, 11, 17, 18)</code>).</span>
 </div>
 <hr>
@@ -230,7 +230,7 @@
                    class2nbs  <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><a id="figure2"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/anchor_cell_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 2 - Anchor.cell</strong> converts a vector of cell numbers (<code>anchor</code>) into a class vector. The input vector was <code>1:7</code>. Raster values are cell numbers.</span>
 </div>
 <p>Note that as the argument <code>class = 10</code>, classified cells have class 10.</p>
@@ -260,7 +260,7 @@
                    classVector <span class="op">=</span> <span class="va">cv1</span><span class="op">)</span> <span class="co"># Update cv1</span></code></pre></div>
 <p><a id="figure3"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/cond_4_all_plotS-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 3 - cond.4.all</strong> classifies unclassified raster cells that meet function conditions. <strong>(a)</strong> A new class vector is computed (<code>cv1</code>). <strong>(b)</strong> The class vector <code>cv1</code> is updated and stored as <code>cv2</code>.</span>
 </div>
 <p>Note that <code>cv1</code> has only one class (<code>1</code>); <code>cv2</code> has two classes (<code>1,2</code>).</p>
@@ -295,7 +295,7 @@
 <span class="va">lm2</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lmin</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></code></pre></div>
 <p><a id="figure4"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/peak_cell_plots-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 4 - peak.cell</strong> identifies local maxima and minima on a raster. <strong>(a)</strong> Argument <code>p_edge=FALSE</code>. (<code>cv1</code>). <strong>(b)</strong> Argument <code>p_edge=TRUE</code>.</span>
 </div>
 </div>
@@ -336,7 +336,7 @@
                    cond <span class="op">=</span> <span class="st">"dummy_var{} &gt;= 3"</span>, peval <span class="op">=</span> <span class="fl">9</span><span class="op">/</span><span class="fl">9</span><span class="op">)</span></code></pre></div>
 <p><a id="figure5"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/cond_4_nofn12_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 5 - cond.4.nofn</strong> evaluates conditions for cells neighboring focal cells and classify them if conditions are true. An absolute neighborhood condition is evaluated with <code>peval = 9/9</code> (test cells are classified only if their value and the value of all their neighbors are <code>&gt;=3</code>; 9 out of 9 positive evaluations). <strong>(a)</strong> The function do not consider class continuity. <strong>(b)</strong> The function consider class continuity.</span>
 </div>
 <hr>
@@ -363,7 +363,7 @@
                    peval <span class="op">=</span> <span class="fl">6</span><span class="op">/</span><span class="fl">9</span><span class="op">)</span></code></pre></div>
 <p><a id="figure6"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/cond_reclass_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 6 - cond.reclass</strong> evaluates conditions for cells of a class and reclassify them if conditions are true. <strong>(a)</strong> Class vector <code>cv2</code> computed by the function <a href="scapesClassification_01_3_ClassFunctions.html#cond-4-nofn">cond.4.nofn</a>. <strong>(b)</strong> cells meeting conditions are reclassified.</span>
 </div>
 <p>Note that cv2 has only 2 classes (<code>0,1</code>); cv2_rclass has 3 classes (<code>0,1,2</code>).</p>
@@ -415,7 +415,7 @@
                         reclass_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><a id="figure7"></a></p>
 <p><img src="scapesClassification_01_3_ClassFunctions_files/figure-html/reclass_nbs_plot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div style="line-height: 0.8em; margin-bottom: 1.5em;">
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 7 - reclass.nbs</strong> evaluates if members of two classes are contiguous and, if they are, one of them is reclassified. <strong>(a)</strong> Identify cells of classes 1 and 2 using the function <code><a href="../reference/cond.4.all.html">cond.4.all()</a></code>. <strong>(b)</strong> Cells of <code>class=2</code> contiguous to the cell of <code>class=1</code> are reclassified. <strong>(c)</strong> Cells of <code>class=2</code> connected to a reclassified cell are also reclassified.</span>
 </div>
 </div>
