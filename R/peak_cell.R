@@ -100,13 +100,18 @@ peak.cell <- function(attTbl,
                       p_edge = FALSE){
 
 
-  # TEST CELL VECTOR
-  tc <- attTbl[[p_col]]
+  # TEST ARGUMENT p_col
+  if( !(p_col %in% names(attTbl)) ){
+    stop("'p_col' must be a column of 'attTbl'")
+  }
 
   # TEST ARGUMENT p_fun
   if( !(p_fun %in% c("min", "max")) ){
     stop("'p_fun' can be either 'max' or 'min'")
   }
+
+  # TEST CELL VECTOR
+  tc <- attTbl[[p_col]]
 
   # TEST EDGE (CELLS WITH < 8 NEIGHBORS)
   lnbs <- lengths(ngbList)
