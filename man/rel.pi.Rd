@@ -4,15 +4,15 @@
 \alias{rel.pi}
 \title{Relative position index}
 \usage{
-rel.pi(attTbl, RO_col, el_col, type = "s", plot = FALSE, SpatRaster = NULL)
+rel.pi(attTbl, RO, el, type = "s", plot = FALSE, SpatRaster = NULL)
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{RO_col}{column name, the name of the column with the raster object IDs.}
+\item{RO}{column name, the name of the column with the raster object IDs.}
 
-\item{el_col}{column name, the name of column with the elevation values on
+\item{el}{column name, the name of column with the elevation values on
 which the relative position index is computed.}
 
 \item{type}{character, defines if position index values are \emph{standardized}
@@ -73,7 +73,7 @@ at$RO <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
 ################################################################################
 # STANDARDIZED RELATIVE POSITION INDEX
 ################################################################################
-relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "s",
                 plot = TRUE, SpatRaster = r)
 
@@ -88,7 +88,7 @@ text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
 ################################################################################
 # NORMALIZED RELATIVE POSITION INDEX
 ################################################################################
-relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "n",
                 plot = TRUE, SpatRaster = r)
 

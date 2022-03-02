@@ -4,8 +4,8 @@
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
-#' @param RO_col column name, the name of the column with the raster object IDs.
-#' @param el_col column name, the name of column with the elevation values on
+#' @param RO column name, the name of the column with the raster object IDs.
+#' @param el column name, the name of column with the elevation values on
 #'   which the relative position index is computed.
 #' @param type character, defines if position index values are _standardized_
 #'   (\code{"s"}) or _normalized_ (\code{"n"}).
@@ -60,7 +60,7 @@
 #' ################################################################################
 #' # STANDARDIZED RELATIVE POSITION INDEX
 #' ################################################################################
-#' relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+#' relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
 #'                 type = "s",
 #'                 plot = TRUE, SpatRaster = r)
 #'
@@ -75,7 +75,7 @@
 #' ################################################################################
 #' # NORMALIZED RELATIVE POSITION INDEX
 #' ################################################################################
-#' relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+#' relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
 #'                 type = "n",
 #'                 plot = TRUE, SpatRaster = r)
 #'
@@ -88,8 +88,8 @@
 #' text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
 
 rel.pi <- function(attTbl,
-                   RO_col,
-                   el_col,
+                   RO,
+                   el,
                    type = "s",
                    plot = FALSE,
                    SpatRaster=NULL){
@@ -99,26 +99,26 @@ rel.pi <- function(attTbl,
     stop("attribute table mising 'Cell' column. Check ?attTbl")
   }
 
-  # TEST ARGUMENT RO_col, regPI_col, el_col and locPI_col
-  if( !all(c(RO_col,el_col) %in% names(attTbl)) ){
-    stop("'RO_col', 'el_col' must be columns of 'attTbl'")
+  # TEST ARGUMENT RO, regPI_col, el and locPI_col
+  if( !all(c(RO,el) %in% names(attTbl)) ){
+    stop("'RO', 'el' must be columns of 'attTbl'")
   }
 
-  # TEST ARGUMENT RO_col, regPI_col, el_col and locPI_col
+  # TEST ARGUMENT RO, regPI_col, el and locPI_col
   if( !(type %in% c("s","n")) ){
     stop("type must be s (standardized) or n (normalized)")
   }
 
-  ROcell <- split(attTbl[["Cell"]], attTbl[[RO_col]])
+  ROcell <- split(attTbl[["Cell"]], attTbl[[RO]])
   ROcell <- unlist(ROcell)
 
   if(type == "s"){ # standardized
-    relPI <- unlist( lapply(split(attTbl[[el_col]], attTbl[[RO_col]]),
+    relPI <- unlist( lapply(split(attTbl[[el]], attTbl[[RO]]),
                             function(x) (x-mean(x))/stats::sd(x)) )
   }
 
   if(type == "n"){ # normalized
-    relPI <- unlist( lapply(split(attTbl[[el_col]], attTbl[[RO_col]]),
+    relPI <- unlist( lapply(split(attTbl[[el]], attTbl[[RO]]),
                             function(x) (x-min(x))/(max(x)-min(x)) ))
   }
 
@@ -130,7 +130,7 @@ rel.pi <- function(attTbl,
     graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
     m <- c(1,1,1,3)
 
-    r_RO  <- cv.2.rast(r = SpatRaster, classVector = attTbl[[RO_col]])
+    r_RO  <- cv.2.rast(r = SpatRaster, classVector = attTbl[[RO]])
     terra::plot(r_RO, type="classes", main="Raster objects", mar=m,
                 plg=list(x=1, y=1, cex=0.9))
 
