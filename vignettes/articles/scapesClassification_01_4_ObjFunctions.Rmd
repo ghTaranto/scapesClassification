@@ -236,32 +236,57 @@ layout(matrix(c(1, 2,
 m <- c(1,1,0,3)
 # PLOT 1
 ################################################################################
-plot(r_cv1, type = "classes", ylim=c(0,1.10), mar = m, axes=FALSE, 
+plot(r_cv1, type = "classes", ylim=c(-0.15,1.10), mar = m, axes=FALSE, 
      col=c("#78b2c4","#98fb98"), 
      plg=list(x=1, y=1, cex=0.9, title = "Obj.:", title.adj = 0.2,
               legend=c("1","2")))
 text(r)
 lines(r)
 text(x=0, y=1.03, cex=1.3, font=2, adj=0, "(a) cv1", family = "serif")
-text(x=1, y=1.03, cex=1.3, font=1, adj=1, "lag.growth = 0", family = "serif", 
+text(x=1, y=1.03, cex=1.3, font=2, adj=1, "lag.growth = 0", family = "serif", 
      col="#818792")
-text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,c("SEED 1", "SEED 2"),col="red",cex=0.85)
+text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,c("SEED 1", "SEED 2"),
+     col="red",cex=0.85)
+text(x=0, y=-0.04, cex=1.1, font=1, adj=0, "cond.filter:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.04, cex=1.1, font=1, adj=0, "dummy_var > 1", 
+     family = "serif", col="#818792")
+text(x=0, y=-0.1, cex=1.1, font=1, adj=0, "cond.seed:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.1, cex=1.1, font=1, adj=0, "dummy_var == max(dummy_var)", 
+     family = "serif", col="#818792")
+text(x=0, y=-0.16, cex=1.1, font=1, adj=0, "cond.growth:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.16, cex=1.1, font=1, adj=0, "dummy_var < dummy_var[ ]", 
+     family = "serif", col="#818792")
 
 # PLOT 2
 ################################################################################
-plot(r_cv2, type = "classes", ylim=c(0,1.10), mar = m, axes=FALSE, 
+plot(r_cv2, type = "classes", ylim=c(-0.15,1.10), mar = m, axes=FALSE, 
      col=c("#78b2c4"), 
      plg=list(x=1, y=1, cex=0.9, title = "Obj.:", title.adj = 0.2,
               legend=c("1")))
 text(r)
 lines(r)
 text(x=0, y=1.03, cex=1.3, font=2, adj=0, "(b) cv2", family = "serif")
-text(x=1, y=1.03, cex=1.3, font=1, adj=1, "lag.growth = Inf", family = "serif", 
+text(x=1, y=1.03, cex=1.3, font=2, adj=1, "lag.growth = Inf", family = "serif", 
      col="#818792")
 text(xFromCell(r,20),yFromCell(r,20)-0.05,"SEED 1",col="red",cex=0.85)
+text(x=0, y=-0.04, cex=1.1, font=1, adj=0, "cond.filter:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.04, cex=1.1, font=1, adj=0, "dummy_var > 1", 
+     family = "serif", col="#818792")
+text(x=0, y=-0.1, cex=1.1, font=1, adj=0, "cond.seed:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.1, cex=1.1, font=1, adj=0, "dummy_var == max(dummy_var)", 
+     family = "serif", col="#818792")
+text(x=0, y=-0.16, cex=1.1, font=1, adj=0, "cond.growth:", 
+     family = "serif", col="#818792")
+text(x=0.28, y=-0.16, cex=1.1, font=1, adj=0, "dummy_var < dummy_var[ ]", 
+     family = "serif", col="#818792")
 ```
 
-<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.seed evaluation lag**. The function arguments `lag.*` control the evaluation lag of relative focal cell conditions. **(a)** `lag.growth = 0`, growth conditions test the values of test cells against the value of the focal cell; two objects identified. **(b)** `lag.growth = Inf`, growth conditions test the values of test cells against the value of the seed cell; one objects identified.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.seed evaluation lag**. The function arguments `lag.*` control the evaluation lag of relative focal cell conditions (`[]`). **(a)** `lag.growth = 0`, `cond.growth` compares the values of test cells against the value of the focal cell; two objects identified. **(b)** `lag.growth = Inf`, `cond.growth` compares the values of test cells against the value of the seed cell; one objects identified.</span></div>
 
 ## cond.4.nofn (hgrowth) {#hgrowth}
 
@@ -269,7 +294,7 @@ The function `cond.4.nofn()` can be used to expand the borders of raster objects
 
 In the following example we will: (i) identify peak cells ([peak.cell](scapesClassification_01_3_ClassFunctions.html#peak-cell)), (ii) assign a unique ID to each peak ([anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed)) and (iii) use the function `cond.4.nofn()` to expand the borders of the two peak objects. The borders are expanded based on the [focal cell rule](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) `dummy_var <= dummy_var[]` and on the [test cell rule](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions) `dummy_var > 1` ([Figure 3c](#figure3)).
 
-Note that the computed class vectors are added to the attribute table, in this way classification rules can take them into account. 
+Note that intermediate class vectors are added as column vectors in the attribute table; in this way they can be accessed by name and used in classification rules. 
 
 ```{r hgrowth, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # IDENTIFY RASTER OBJECTS (a,b) AND RESHAPE THEIR BORDERS (c)
@@ -381,48 +406,53 @@ text(x=0.24, y=0.00, cex=1.5, font=1, adj=c(0,1), "& dummy_var > 1", family = "s
 
 ## obj.border
 
-The function `obj.border()` identifies the borders of raster objects. To handle missing values on raster surfaces, the function was designed to work with raster cells identified by attribute table row indices rather then with cell numbers (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n^th^ row correspond to the n^th^ cell). With missing values it ceases to be true. 
+The function `obj.border()` identifies the borders of raster objects. 
 
-As an example we will re-compute the class vector `cv2` of the previous example, but before we will add an NA-value in the initial raster and compute the neighborhood list with neighborhoods identified by row numbers (see `?ngbList`).
+When missing values are present on a raster surface, the function works only with raster cells identified by attribute table row indices (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When no missing value is present, row cell indices and cell numbers become equivalent (i.e. n^th^ row correspond to the n^th^ cell).
+
+As an example we will: **(i)** add a missing value in the dummy raster and compute the neighborhood list with neighborhoods identified by row numbers (see `?ngbList`), **(ii)** re-compute the raster objects of `cv2` ([Figure 3](#figure3)) and **(iii)** identify the borders of the raster objects ([Figure 4](#figure4)).
 
 ```{r bordNA, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# (i)
+
 # ADD NA-VALUE
-r[11] <- NA
+r2 <- r
+r2[11] <- NA
 
 # COMPUTE THE ATTRIBUTE TABLE
-at <- attTbl(r, "dummy_var")
+at2 <- attTbl(r2, "dummy_var")
 
 # COMPUTE THE LIST OF NEIGBORHOODS
-nbs <- ngbList(r, rNumb=TRUE, attTbl=at) # rnumb MUST be true to use obj.border
+nbs2 <- ngbList(r2, rNumb=TRUE, attTbl=at2) # rnumb MUST be true to use obj.border
 ```
 
-We can re-compute the [raster objects](scapesClassification_01_4_ObjFunctions.html#hgrowth).
-
 ```{r obj_2, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# (ii)
+
 # a. cv0, identify peak cells
-at$cv0 <- peak.cell(at, nbs, rNumb=TRUE, p_edge=TRUE, p_col="dummy_var", p_fun="max")
+at2$cv0 <- peak.cell(at2, nbs2, rNumb=TRUE, p_edge=TRUE, p_col="dummy_var", p_fun="max")
 
 # b. cv1, assign unique IDs
-at$cv1 <- anchor.seed(at, nbs, rNumb=TRUE, silent=TRUE, cond.filter="!is.na(cv0)", cond.seed="TRUE")
+at2$cv1 <- anchor.seed(at2, nbs2, rNumb=TRUE, silent=TRUE, cond.filter="!is.na(cv0)", cond.seed="TRUE")
 
-# c. cv2, homogeneous growth of raster objects                   
-at$cv2 <- cond.4.nofn(at, nbs, rNumb=TRUE, classVector=at$cv1, nbs_of=c(1, 2), hgrowth=TRUE,
+# c. cv2b, homogeneous growth of raster objects                   
+at2$cv2b<- cond.4.nofn(at2, nbs2, rNumb=TRUE, classVector=at2$cv1, nbs_of=c(1, 2), hgrowth=TRUE,
                       cond="dummy_var <= dummy_var[] & dummy_var > 1")
 ```
 
-And identify their borders ([Figure 4](#figure4)).
-
 ```{r bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# (iii)
+
 # RASTER OBJECTS
-RO <- split(1:NROW(at), at$cv2)
+RO <- split(1:NROW(at2), at2$cv2b)
 print(RO) # values are attribute table row indices
 
 # COMPUTE BORDERS
-RO_bd <- obj.border(RO, nbs, silent = TRUE)
+RO_bd <- obj.border(RO, nbs2, silent = TRUE)
 
 # CONVERT ROW INDICES TO CELL NUMBERS
-RO_bd1 <- at$Cell[RO_bd[["1"]]]
-RO_bd2 <- at$Cell[RO_bd[["2"]]]
+RO_bd1 <- at2$Cell[RO_bd[["1"]]]
+RO_bd2 <- at2$Cell[RO_bd[["2"]]]
 
 # ROW INDICES AND CELL NUMBERS ARE NOT EQUAL
 print(RO_bd)  # attribute table row indices
@@ -438,31 +468,29 @@ print(RO_bd2)
 
 ```{r bord_plot, message=FALSE, warning=FALSE, echo=FALSE}
 # CONVERT THE CLASS VECTORS INTO A RASTER
-r_cv2 <- cv.2.rast(r, classVector = at$cv2)
+r_cv2b <- cv.2.rast(r2, classVector = at2$cv2b)
 
 # PLOT
 m <- c(1,1,1,1)
 
-plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+plot(r_cv2b, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
      legend=FALSE, col=c("#78b2c4","#cfc1af"))
 lines(r)
-text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2", family = "serif")
-points(terra::xyFromCell(r, RO_bd1), pch=20, col="blue")
-points(terra::xyFromCell(r, RO_bd2), pch=20, col="red")
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2b", family = "serif")
+points(terra::xyFromCell(r2, RO_bd1), pch=20, col="blue")
+points(terra::xyFromCell(r2, RO_bd2), pch=20, col="red")
 legend(1, 1, legend=c("1", "2"), bty = "n", title="Object:",
        fill=c("#78b2c4", "#cfc1af"), cex=1)
 legend(1, 0.75, legend=c("Obj1", "Obj2"), bty = "n", title="Border:",
        col=c("blue", "red"), pch=20, cex=1, pt.cex = 1.2)
-text(xyFromCell(r, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, family = "mono")
+text(xyFromCell(r2, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, family = "mono")
 ```
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 4 - Obj.border** identifies the borders of raster objects.</span></div>
 
 ## obj.nbs
 
-The function `obj.nbs()` identifies the shared borders of raster objects as well as all the neighbors of every raster object. As in the case of the function [obj.border](scapesClassification_01_4_ObjFunctions.html#obj-border), `obj.nbs()` was designed to work with raster cells identified by attribute table row indices (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n^th^ row correspond to the n^th^ cell). With missing values it ceases to be true. 
-
-The function `obj.nbs()` returns a named nested lists:
+The function `obj.nbs()` returns a named nested lists having the following characteristics:
 
 * Each element of the list corresponds to a raster object;
 
@@ -470,27 +498,32 @@ The function `obj.nbs()` returns a named nested lists:
 
 * The values of the nested lists identify the raster cells comprising the shared borders. 
 
+When missing values are present on a raster surface, the function works only with raster cells identified by attribute table row indices (see [format inputs](scapesClassification_01_1_FormatInputs.html)). When no missing value is present, row cell indices and cell numbers become equivalent (i.e. n^th^ row correspond to the n^th^ cell).
+
 We can use the class vector `cv2` computed in the previews example ([obj.border](scapesClassification_01_4_ObjFunctions.html#obj-border)) to illustrate how the function works. 
 
 ```{r shared_bord, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
 # RASTER OBJECTS
-RO <- split(1:NROW(at), at$cv2)
+RO <- split(1:NROW(at), at2$cv2b)
 print(RO) # values are attribute table row indices
 
-RO_bd <- obj.border(RO, nbs, silent = TRUE) # compute borders
+# COMPUTE BORDERS
+RO_bd <- obj.border(RO, nbs2, silent = TRUE) # compute borders
 
+####################################################################################
 # COMPUTE SHARED BORDERS
-RO_shared_bd <- obj.nbs(RO_bd, nbs, silent = TRUE)
+####################################################################################
+RO_shared_bd <- obj.nbs(RO_bd, nbs2, silent = TRUE)
 
-# Obj.1 has as neighbor Obj.2 and its border with it are cells in rows 24 and 31
+# Obj.1 has as neighbor Obj.2 and cells in rows 24 and 31 comprise the shared border
 RO_shared_bd[["1"]]
 
-# Obj.2 has as neighbor Obj.1 and its border with it are cells in rows 30 and 37 
+# Obj.2 has as neighbor Obj.1 and cells in rows 30 and 37 comprise the shared border
 RO_shared_bd[["2"]]
 
 # CONVERT ROW INDICES TO CELL NUMBERS
-sharedBD1 <- at$Cell[ RO_shared_bd[["1"]][["2"]] ]
-sharedBD2 <- at$Cell[ RO_shared_bd[["2"]][["1"]] ]
+sharedBD1 <- at2$Cell[ RO_shared_bd[["1"]][["2"]] ]
+sharedBD2 <- at2$Cell[ RO_shared_bd[["2"]][["1"]] ]
 ```
 
 <a id="figure5"></a>
@@ -499,10 +532,10 @@ sharedBD2 <- at$Cell[ RO_shared_bd[["2"]][["1"]] ]
 # PLOT
 m <- c(1,1,1,1)
 
-plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
+plot(r_cv2b, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE, 
      legend=FALSE, col=c("#78b2c4","#cfc1af"))
 lines(r)
-text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2", family = "serif")
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "cv2b", family = "serif")
 points(terra::xyFromCell(r, sharedBD1), pch=20, col="blue")
 points(terra::xyFromCell(r, sharedBD2), pch=20, col="red")
 legend(1, 1, legend=c("1", "2"), bty = "n", title="Object:",
@@ -513,3 +546,103 @@ text(xyFromCell(r, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, ac, family = "mon
 ```
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 5 - obj.nbs** identifies the shared borders of raster objects.</span></div>
+
+## rel.pi
+
+The function `rel.pi()` computes the standardized or normalized relative position index of raster objects.
+
+* _Standardized_ position index values are computed with the formula `( x - mean(x) ) / sd(x)`;
+
+* _Normalized_ position index values are computed with the formula `( x - min(x) ) / ( max(x) - min(x) )`.
+
+In either case position index values are relative to individual raster objects: high values indicate the top positions of an object; low values indicate the bottom positions of an object. We can compute the relative position index of `cv2` ([Figure 3](#figure3)). Results are plotted in [Figure 6](#figure6). 
+
+```{r rel_pi, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# STANDARDIZED RELATIVE POSITION INDEX
+relPI_s <- rel.pi(attTbl = at, RO = "cv2", el = "dummy_var",
+                  type = "s")
+
+# NORMALIZED RELATIVE POSITION INDEX
+relPI_n <- rel.pi(attTbl = at, RO = "cv2", el = "dummy_var",
+                  type = "n")
+```
+
+```{r rel_pi_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.5}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+r_relPI_s <- cv.2.rast(r, classVector = relPI_s)
+r_relPI_n <- cv.2.rast(r, classVector = relPI_n)
+
+layout(matrix(c(1, 2,
+                1, 2,
+                3, 4, 
+                3, 4), nrow=4, byrow=TRUE))
+
+m <- c(0,0.5,0,3)
+
+# PLOT 1
+################################################################################
+plot(r_cv2, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#78b2c4","#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2")))
+text(r);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(a) cv2", family = "serif")
+
+# PLOT 2
+################################################################################
+brk <- c(-2,-1,0,1,2,3,4)
+plot(r_relPI_s, type="interval", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     breaks = brk, plg=list(x=1, y=1, cex=0.9))
+text(xyFromCell(r,at$Cell), as.character(round(relPI_s,2)))
+lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(b) standardized relPI", family = "serif")
+points(terra::xFromCell(r, at$Cell[which(at$cv2==1)]),
+       terra::yFromCell(r, at$Cell[which(at$cv2==1)]) - 0.045,
+       pch=21, bg="#78b2c4", col="black", cex=1.4)
+points(terra::xFromCell(r, at$Cell[which(at$cv2==2)]),
+       terra::yFromCell(r, at$Cell[which(at$cv2==2)]) - 0.045,
+       pch=21, bg="#cfc1af", col="black", cex=1.4)
+legend(1.02, 0.65, legend=c("1", "2"), bty = "n", title="Obj.:", xpd=TRUE,
+       col=c("#78b2c4", "#cfc1af"), pch=20, cex=0.9, pt.cex = 1.5)
+
+# PLOT 3
+################################################################################
+brk <- seq(0,1,0.1)
+plot(r_relPI_n, type="interval", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     breaks = brk, plg=list(x=1, y=1, cex=0.9, xpd=TRUE))
+text(xyFromCell(r,at$Cell), as.character(round(relPI_n,2)))
+lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(c) normalized relPI", family = "serif")
+points(terra::xFromCell(r, at$Cell[which(at$cv2==1)]),
+       terra::yFromCell(r, at$Cell[which(at$cv2==1)]) - 0.045,
+       pch=21, bg="#78b2c4", col="black", cex=1.4)
+points(terra::xFromCell(r, at$Cell[which(at$cv2==2)]),
+       terra::yFromCell(r, at$Cell[which(at$cv2==2)]) - 0.045,
+       pch=21, bg="#cfc1af", col="black", cex=1.4)
+legend(1.02, 0.45, legend=c("1", "2"), bty = "n", title="Obj.:", xpd=TRUE,
+       col=c("#78b2c4", "#cfc1af"), pch=20, cex=0.9, pt.cex = 1.5)
+
+# PLOT 4 -LEGEND
+################################################################################
+plot(r, type="classes", col="white", legend=FALSE, mar=m, axes=FALSE, 
+     ylim=c(-0.10,1.08))
+
+text(x=0, y=1.04, cex=1.7, font=2, adj=0, "Relative position index (relPI):", 
+     family = "serif")
+
+# Standardized
+text(x=0.04, y=0.87, cex=1.5, font=2, adj=0, "Standardized", family = "serif")
+text(x=0.04, y=0.80, cex=1.5, font=1, adj=c(0,1), "Formula:", family = "serif",
+     col="#818792")
+text(x=0.1, y=0.72, cex=1.4, font=3, adj=c(0,1), "x - mean(x) /\nsd(x)", family = "serif",
+     col="#818792")
+
+# Normalized
+text(x=0.04, y=0.40, cex=1.5, font=2, adj=0, "Normalized", family = "serif")
+text(x=0.04, y=0.33, cex=1.5, font=1, adj=c(0,1), "Formula:", family = "serif",
+     col="#818792")
+text(x=0.1, y=0.25, cex=1.4, font=3, adj=c(0,1), "x - min(x) /\nmax(x) - min(x)", family = "serif",
+     col="#818792")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - rel.pi** identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span></div>

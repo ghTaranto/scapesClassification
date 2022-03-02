@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Object functions</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Fri 25, February, 2022</h4>
+            <h4 data-toc-skip class="date">Wed 02, March, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_4_ObjFunctions.Rmd</code></div>
@@ -237,7 +237,7 @@
 <p><a id="figure2"></a></p>
 <p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/lag_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.9em; margin-bottom: 1.5em;">
-<span class="legend"><strong>Figure 2 - Anchor.seed evaluation lag</strong>. The function arguments <code>lag.*</code> control the evaluation lag of relative focal cell conditions. <strong>(a)</strong> <code>lag.growth = 0</code>, growth conditions test the values of test cells against the value of the focal cell; two objects identified. <strong>(b)</strong> <code>lag.growth = Inf</code>, growth conditions test the values of test cells against the value of the seed cell; one objects identified.</span>
+<span class="legend"><strong>Figure 2 - Anchor.seed evaluation lag</strong>. The function arguments <code>lag.*</code> control the evaluation lag of relative focal cell conditions (<code>[]</code>). <strong>(a)</strong> <code>lag.growth = 0</code>, <code>cond.growth</code> compares the values of test cells against the value of the focal cell; two objects identified. <strong>(b)</strong> <code>lag.growth = Inf</code>, <code>cond.growth</code> compares the values of test cells against the value of the seed cell; one objects identified.</span>
 </div>
 </div>
 </div>
@@ -246,7 +246,7 @@
 </h2>
 <p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to expand the borders of raster objects. This functionality is activated with the argument <code>hgrowth = TRUE</code> (<strong>homogeneous growth</strong>, see <code><a href="../reference/cond.4.nofn.html">?cond.4.nofn</a></code> for additional details).</p>
 <p>In the following example we will: (i) identify peak cells (<a href="scapesClassification_01_3_ClassFunctions.html#peak-cell">peak.cell</a>), (ii) assign a unique ID to each peak (<a href="scapesClassification_01_4_ObjFunctions.html#anchor-seed">anchor.seed</a>) and (iii) use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to expand the borders of the two peak objects. The borders are expanded based on the <a href="scapesClassification_01_2_RulesEvalTypes.html#relative-conditions">focal cell rule</a> <code>dummy_var &lt;= dummy_var[]</code> and on the <a href="scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions">test cell rule</a> <code>dummy_var &gt; 1</code> (<a href="#figure3">Figure 3c</a>).</p>
-<p>Note that the computed class vectors are added to the attribute table, in this way classification rules can take them into account.</p>
+<p>Note that intermediate class vectors are added as column vectors in the attribute table; in this way they can be accessed by name and used in classification rules.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># IDENTIFY RASTER OBJECTS (a,b) AND RESHAPE THEIR BORDERS (c)</span>
 
@@ -273,32 +273,38 @@
 <div class="section level2">
 <h2 id="obj-border">obj.border<a class="anchor" aria-label="anchor" href="#obj-border"></a>
 </h2>
-<p>The function <code><a href="../reference/obj.border.html">obj.border()</a></code> identifies the borders of raster objects. To handle missing values on raster surfaces, the function was designed to work with raster cells identified by attribute table row indices rather then with cell numbers (see <a href="scapesClassification_01_1_FormatInputs.html">format inputs</a>). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n<sup>th</sup> row correspond to the n<sup>th</sup> cell). With missing values it ceases to be true.</p>
-<p>As an example we will re-compute the class vector <code>cv2</code> of the previous example, but before we will add an NA-value in the initial raster and compute the neighborhood list with neighborhoods identified by row numbers (see <code><a href="../reference/ngbList.html">?ngbList</a></code>).</p>
+<p>The function <code><a href="../reference/obj.border.html">obj.border()</a></code> identifies the borders of raster objects.</p>
+<p>When missing values are present on a raster surface, the function works only with raster cells identified by attribute table row indices (see <a href="scapesClassification_01_1_FormatInputs.html">format inputs</a>). When no missing value is present, row cell indices and cell numbers become equivalent (i.e. n<sup>th</sup> row correspond to the n<sup>th</sup> cell).</p>
+<p>As an example we will: <strong>(i)</strong> add a missing value in the dummy raster and compute the neighborhood list with neighborhoods identified by row numbers (see <code><a href="../reference/ngbList.html">?ngbList</a></code>), <strong>(ii)</strong> re-compute the raster objects of <code>cv2</code> (<a href="#figure3">Figure 3</a>) and <strong>(iii)</strong> identify the borders of the raster objects (<a href="#figure4">Figure 4</a>).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># ADD NA-VALUE</span>
-<span class="va">r</span><span class="op">[</span><span class="fl">11</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
+<code class="sourceCode R"><span class="co"># (i)</span>
+
+<span class="co"># ADD NA-VALUE</span>
+<span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">r</span>
+<span class="va">r2</span><span class="op">[</span><span class="fl">11</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
 
 <span class="co"># COMPUTE THE ATTRIBUTE TABLE</span>
-<span class="va">at</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dummy_var"</span><span class="op">)</span>
+<span class="va">at2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r2</span>, <span class="st">"dummy_var"</span><span class="op">)</span>
 
 <span class="co"># COMPUTE THE LIST OF NEIGBORHOODS</span>
-<span class="va">nbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, attTbl<span class="op">=</span><span class="va">at</span><span class="op">)</span> <span class="co"># rnumb MUST be true to use obj.border</span></code></pre></div>
-<p>We can re-compute the <a href="scapesClassification_01_4_ObjFunctions.html#hgrowth">raster objects</a>.</p>
+<span class="va">nbs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r2</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, attTbl<span class="op">=</span><span class="va">at2</span><span class="op">)</span> <span class="co"># rnumb MUST be true to use obj.border</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># a. cv0, identify peak cells</span>
-<span class="va">at</span><span class="op">$</span><span class="va">cv0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak.cell.html">peak.cell</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, p_edge<span class="op">=</span><span class="cn">TRUE</span>, p_col<span class="op">=</span><span class="st">"dummy_var"</span>, p_fun<span class="op">=</span><span class="st">"max"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co"># (ii)</span>
+
+<span class="co"># a. cv0, identify peak cells</span>
+<span class="va">at2</span><span class="op">$</span><span class="va">cv0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak.cell.html">peak.cell</a></span><span class="op">(</span><span class="va">at2</span>, <span class="va">nbs2</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, p_edge<span class="op">=</span><span class="cn">TRUE</span>, p_col<span class="op">=</span><span class="st">"dummy_var"</span>, p_fun<span class="op">=</span><span class="st">"max"</span><span class="op">)</span>
 
 <span class="co"># b. cv1, assign unique IDs</span>
-<span class="va">at</span><span class="op">$</span><span class="va">cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/anchor.seed.html">anchor.seed</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, silent<span class="op">=</span><span class="cn">TRUE</span>, cond.filter<span class="op">=</span><span class="st">"!is.na(cv0)"</span>, cond.seed<span class="op">=</span><span class="st">"TRUE"</span><span class="op">)</span>
+<span class="va">at2</span><span class="op">$</span><span class="va">cv1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/anchor.seed.html">anchor.seed</a></span><span class="op">(</span><span class="va">at2</span>, <span class="va">nbs2</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, silent<span class="op">=</span><span class="cn">TRUE</span>, cond.filter<span class="op">=</span><span class="st">"!is.na(cv0)"</span>, cond.seed<span class="op">=</span><span class="st">"TRUE"</span><span class="op">)</span>
 
-<span class="co"># c. cv2, homogeneous growth of raster objects                   </span>
-<span class="va">at</span><span class="op">$</span><span class="va">cv2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, classVector<span class="op">=</span><span class="va">at</span><span class="op">$</span><span class="va">cv1</span>, nbs_of<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, hgrowth<span class="op">=</span><span class="cn">TRUE</span>,
+<span class="co"># c. cv2b, homogeneous growth of raster objects                   </span>
+<span class="va">at2</span><span class="op">$</span><span class="va">cv2b</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.nofn.html">cond.4.nofn</a></span><span class="op">(</span><span class="va">at2</span>, <span class="va">nbs2</span>, rNumb<span class="op">=</span><span class="cn">TRUE</span>, classVector<span class="op">=</span><span class="va">at2</span><span class="op">$</span><span class="va">cv1</span>, nbs_of<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, hgrowth<span class="op">=</span><span class="cn">TRUE</span>,
                       cond<span class="op">=</span><span class="st">"dummy_var &lt;= dummy_var[] &amp; dummy_var &gt; 1"</span><span class="op">)</span></code></pre></div>
-<p>And identify their borders (<a href="#figure4">Figure 4</a>).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># RASTER OBJECTS</span>
-<span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/split.html" class="external-link">split</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">at</span><span class="op">)</span>, <span class="va">at</span><span class="op">$</span><span class="va">cv2</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co"># (iii)</span>
+
+<span class="co"># RASTER OBJECTS</span>
+<span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/split.html" class="external-link">split</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">at2</span><span class="op">)</span>, <span class="va">at2</span><span class="op">$</span><span class="va">cv2b</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">RO</span><span class="op">)</span> <span class="co"># values are attribute table row indices</span>
 <span class="co">## $`1`</span>
 <span class="co">##  [1]  4  5  6  7 11 12 13 17 18 19 20 24 25 26 27 31 32 33 34</span>
@@ -307,11 +313,11 @@
 <span class="co">## [1] 28 29 30 35 36 37 42 43 44</span>
 
 <span class="co"># COMPUTE BORDERS</span>
-<span class="va">RO_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.border.html">obj.border</a></span><span class="op">(</span><span class="va">RO</span>, <span class="va">nbs</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">RO_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.border.html">obj.border</a></span><span class="op">(</span><span class="va">RO</span>, <span class="va">nbs2</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="co"># CONVERT ROW INDICES TO CELL NUMBERS</span>
-<span class="va">RO_bd1</span> <span class="op">&lt;-</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span><span class="va">RO_bd</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>
-<span class="va">RO_bd2</span> <span class="op">&lt;-</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span><span class="va">RO_bd</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>
+<span class="va">RO_bd1</span> <span class="op">&lt;-</span> <span class="va">at2</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span><span class="va">RO_bd</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>
+<span class="va">RO_bd2</span> <span class="op">&lt;-</span> <span class="va">at2</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span><span class="va">RO_bd</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>
 
 <span class="co"># ROW INDICES AND CELL NUMBERS ARE NOT EQUAL</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">RO_bd</span><span class="op">)</span>  <span class="co"># attribute table row indices</span>
@@ -337,17 +343,17 @@
 <div class="section level2">
 <h2 id="obj-nbs">obj.nbs<a class="anchor" aria-label="anchor" href="#obj-nbs"></a>
 </h2>
-<p>The function <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code> identifies the shared borders of raster objects as well as all the neighbors of every raster object. As in the case of the function <a href="scapesClassification_01_4_ObjFunctions.html#obj-border">obj.border</a>, <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code> was designed to work with raster cells identified by attribute table row indices (see <a href="scapesClassification_01_1_FormatInputs.html">format inputs</a>). When there are no missing values, row cell indices and cell numbers are equivalent (i.e. n<sup>th</sup> row correspond to the n<sup>th</sup> cell). With missing values it ceases to be true.</p>
-<p>The function <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code> returns a named nested lists:</p>
+<p>The function <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code> returns a named nested lists having the following characteristics:</p>
 <ul>
 <li><p>Each element of the list corresponds to a raster object;</p></li>
 <li><p>Each element contains a named nested list whose names correspond to the IDs of neighboring raster objects;</p></li>
 <li><p>The values of the nested lists identify the raster cells comprising the shared borders.</p></li>
 </ul>
+<p>When missing values are present on a raster surface, the function works only with raster cells identified by attribute table row indices (see <a href="scapesClassification_01_1_FormatInputs.html">format inputs</a>). When no missing value is present, row cell indices and cell numbers become equivalent (i.e. n<sup>th</sup> row correspond to the n<sup>th</sup> cell).</p>
 <p>We can use the class vector <code>cv2</code> computed in the previews example (<a href="scapesClassification_01_4_ObjFunctions.html#obj-border">obj.border</a>) to illustrate how the function works.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># RASTER OBJECTS</span>
-<span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/split.html" class="external-link">split</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">at</span><span class="op">)</span>, <span class="va">at</span><span class="op">$</span><span class="va">cv2</span><span class="op">)</span>
+<span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/split.html" class="external-link">split</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">at</span><span class="op">)</span>, <span class="va">at2</span><span class="op">$</span><span class="va">cv2b</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">RO</span><span class="op">)</span> <span class="co"># values are attribute table row indices</span>
 <span class="co">## $`1`</span>
 <span class="co">##  [1]  4  5  6  7 11 12 13 17 18 19 20 24 25 26 27 31 32 33 34</span>
@@ -355,28 +361,53 @@
 <span class="co">## $`2`</span>
 <span class="co">## [1] 28 29 30 35 36 37 42 43 44</span>
 
-<span class="va">RO_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.border.html">obj.border</a></span><span class="op">(</span><span class="va">RO</span>, <span class="va">nbs</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># compute borders</span>
+<span class="co"># COMPUTE BORDERS</span>
+<span class="va">RO_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.border.html">obj.border</a></span><span class="op">(</span><span class="va">RO</span>, <span class="va">nbs2</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># compute borders</span>
 
+<span class="co">####################################################################################</span>
 <span class="co"># COMPUTE SHARED BORDERS</span>
-<span class="va">RO_shared_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.nbs.html">obj.nbs</a></span><span class="op">(</span><span class="va">RO_bd</span>, <span class="va">nbs</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">####################################################################################</span>
+<span class="va">RO_shared_bd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/obj.nbs.html">obj.nbs</a></span><span class="op">(</span><span class="va">RO_bd</span>, <span class="va">nbs2</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
-<span class="co"># Obj.1 has as neighbor Obj.2 and its border with it are cells in rows 24 and 31</span>
+<span class="co"># Obj.1 has as neighbor Obj.2 and cells in rows 24 and 31 comprise the shared border</span>
 <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span>
 <span class="co">## $`2`</span>
 <span class="co">## [1] 24 31</span>
 
-<span class="co"># Obj.2 has as neighbor Obj.1 and its border with it are cells in rows 30 and 37 </span>
+<span class="co"># Obj.2 has as neighbor Obj.1 and cells in rows 30 and 37 comprise the shared border</span>
 <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span>
 <span class="co">## $`1`</span>
 <span class="co">## [1] 30 37</span>
 
 <span class="co"># CONVERT ROW INDICES TO CELL NUMBERS</span>
-<span class="va">sharedBD1</span> <span class="op">&lt;-</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span> <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span> <span class="op">]</span>
-<span class="va">sharedBD2</span> <span class="op">&lt;-</span> <span class="va">at</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span> <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span> <span class="op">]</span></code></pre></div>
+<span class="va">sharedBD1</span> <span class="op">&lt;-</span> <span class="va">at2</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span> <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span> <span class="op">]</span>
+<span class="va">sharedBD2</span> <span class="op">&lt;-</span> <span class="va">at2</span><span class="op">$</span><span class="va">Cell</span><span class="op">[</span> <span class="va">RO_shared_bd</span><span class="op">[[</span><span class="st">"2"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span> <span class="op">]</span></code></pre></div>
 <p><a id="figure5"></a></p>
 <p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/shared_bord_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;">
 <span class="legend"><strong>Figure 5 - obj.nbs</strong> identifies the shared borders of raster objects.</span>
+</div>
+</div>
+<div class="section level2">
+<h2 id="rel-pi">rel.pi<a class="anchor" aria-label="anchor" href="#rel-pi"></a>
+</h2>
+<p>The function <code><a href="../reference/rel.pi.html">rel.pi()</a></code> computes the standardized or normalized relative position index of raster objects.</p>
+<ul>
+<li><p><em>Standardized</em> position index values are computed with the formula <code>( x - mean(x) ) / sd(x)</code>;</p></li>
+<li><p><em>Normalized</em> position index values are computed with the formula <code>( x - min(x) ) / ( max(x) - min(x) )</code>.</p></li>
+</ul>
+<p>In either case position index values are relative to individual raster objects: high values indicate the top positions of an object; low values indicate the bottom positions of an object. We can compute the relative position index of <code>cv2</code> (<a href="#figure3">Figure 3</a>). Results are plotted in <a href="#figure6">Figure 6</a>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># STANDARDIZED RELATIVE POSITION INDEX</span>
+<span class="va">relPI_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rel.pi.html">rel.pi</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, RO <span class="op">=</span> <span class="st">"cv2"</span>, el <span class="op">=</span> <span class="st">"dummy_var"</span>,
+                  type <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span>
+
+<span class="co"># NORMALIZED RELATIVE POSITION INDEX</span>
+<span class="va">relPI_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rel.pi.html">rel.pi</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, RO <span class="op">=</span> <span class="st">"cv2"</span>, el <span class="op">=</span> <span class="st">"dummy_var"</span>,
+                  type <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></code></pre></div>
+<p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/rel_pi_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 6 - rel.pi</strong> identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span>
 </div>
 </div>
   </div>
