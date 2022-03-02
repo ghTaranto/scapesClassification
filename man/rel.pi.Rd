@@ -2,39 +2,46 @@
 % Please edit documentation in R/piFunctions.R
 \name{rel.pi}
 \alias{rel.pi}
-\title{Standardized relative position index}
+\title{Relative position index}
 \usage{
-rel.pi(attTbl, RO_col, el_col, plot = FALSE, SpatRaster = NULL)
+rel.pi(attTbl, RO_col, el_col, type = "s", plot = FALSE, SpatRaster = NULL)
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{RO_col}{column name, the name of the attribute table column with the
-raster object IDs.}
+\item{RO_col}{column name, the name of the column with the raster object IDs.}
 
-\item{el_col}{column name, the name of the attribute table column with the
-elevation values on which the relative position index is computed.}
+\item{el_col}{column name, the name of column with the elevation values on
+which the relative position index is computed.}
+
+\item{type}{character, defines if position index values are \emph{standardized}
+(\code{"s"}) or \emph{normalized} (\code{"n"}).}
 
 \item{plot}{logic, plot the results.}
 
 \item{SpatRaster}{a \code{SpatRaster} object, the raster used to compute the
-attribute table. Required only if \code{plot=TRUE}}
+attribute table. Required only if \code{plot = TRUE}.}
 }
 \value{
-The function returns a vector with standardized relative position
-index values. The vector has length equal to the number of rows of the
-attribute table. NA values are assigned to cells that do not belong to any
-raster object.
+The function returns a vector with relative position index values.
+The vector has length equal to the number of rows of the attribute table.
+NA values are assigned to cells that do not belong to any raster object.
 }
 \description{
-Compute the standardized relative position index of raster objects
+Compute the relative position index of raster objects.
 }
 \details{
-For every raster object mean and standard deviation for elevation
-values are computed. Then, the \emph{standardized relative position index} is
-computed by subtracting the mean and dividing by the standard deviation for
-each elevation value within raster objects.
+Position index values are computed only for cells that belong to a
+raster object.
+\itemize{
+\item \emph{Standardized position index values} (\code{type="s"}) are computed with
+the formula \code{( x - mean(x) ) / sd(x)};
+\item \emph{Normalized position index values} (\code{type="n"}) are computed with
+the formula \code{( x - min(x) ) / ( max(x) - min(x) )};
+\item Variable \code{x} represents the elevation values
+of individual raster object.
+}
 }
 \examples{
 # DUMMY DATA
@@ -67,6 +74,22 @@ at$RO <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
 # STANDARDIZED RELATIVE POSITION INDEX
 ################################################################################
 relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+                type = "s",
+                plot = TRUE, SpatRaster = r)
+
+points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
+       terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
+       pch=20, col="yellow")
+points(terra::xFromCell(r, at$Cell[which(at$RO==2)]),
+       terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
+       pch=20, col="darkgreen")
+text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
+
+################################################################################
+# NORMALIZED RELATIVE POSITION INDEX
+################################################################################
+relPI <- rel.pi(attTbl = at, RO_col = "RO", el_col = "dummy_var",
+                type = "n",
                 plot = TRUE, SpatRaster = r)
 
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
