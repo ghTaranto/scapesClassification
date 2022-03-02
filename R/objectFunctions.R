@@ -20,7 +20,7 @@
 #'   identified by attribute table row indices (each corresponding to a raster
 #'   cell). Row indices can be converted into raster cells using the \code{Cell}
 #'   column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
-#'   \code{\link{attTbl}})}.
+#'   \code{\link{attTbl}}).}
 #'
 #' @return The function returns a named list of object borders. List names
 #'   identify the objects; list element values identify the raster cells

@@ -34,7 +34,7 @@ names correspond to raster object IDs.
 identified by attribute table row indices (each corresponding to a raster
 cell). Row indices can be converted into raster cells using the \code{Cell}
 column of the attribute table (e.g. \code{attTbl$Cell[indices]}) (see
-\code{\link{attTbl}})}.
+\code{\link{attTbl}}).}
 }
 \examples{
 # DUMMY DATA
