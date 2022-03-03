@@ -133,7 +133,7 @@ rel.pi <- function(attTbl,
   if(plot){
 
     graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-    m <- c(1,1,1,3)
+    m <- c(1.2,1.2,1.2,3)
 
     r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
     terra::plot(r_RO, type="classes", main="Raster objects", mar=m,
@@ -183,10 +183,10 @@ rel.pi <- function(attTbl,
 #'   values.
 #' @param secPI column name, the name of the column with secondary position
 #'   index values.
-#' @param cut.mPI numeric, threshold of the main position index values below
-#'   which cells are excluded from raster objects.
-#' @param cut.sPI numeric, threshold of the secondary position index values
-#'   below which cells are excluded from raster objects.
+#' @param cut.mPI numeric, threshold of main position index values. Cells with
+#'   values below the threshold are excluded from raster objects.
+#' @param cut.sPI numeric, threshold of secondary position index values. Cells
+#'   with values below the threshold are excluded from raster objects.
 #' @param min.N numeric, the minimum number of cells a raster object has to have
 #'   to be included in the function output.
 #' @param plot logic, plot the results.
@@ -201,14 +201,21 @@ rel.pi <- function(attTbl,
 #'   different position indices can be passed to the function (\code{mainPI} and
 #'   \code{secPI}).
 #'
-#'   * Cells with Values below \code{mainPI} **or** below \code{mainPI} are
-#'   excluded from raster objects;
-#'
 #'   * Input raster objects are assigned to the same class to flag cells that
-#'   are part of a raster objects;
+#'   are part of raster objects;
 #'
-#'   * Each non-continuous group of raster object cells will identify the
-#'   an output raster objects.
+#'   * Cells with values below \code{mainPI} **OR** below \code{mainPI} are
+#'   flagged as not being part of any raster object;
+#'
+#'   * Each non-continuous group of raster object cells will identify an output
+#'   raster object.
+#'
+#'   * Only raster objects with at least as many cells as specified by the
+#'   argument \code{min.N} are included in the function output.
+#'
+#'   * If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
+#'   function will exclusively filter raster objects based on their size
+#'   \code{min.N}.
 #'
 #' @export
 #' @examples
@@ -238,7 +245,7 @@ rel.pi <- function(attTbl,
 #'                      cond.growth = "dummy_var<dummy_var[]",
 #'                      lag.growth  = Inf)
 #'
-#' # One raster object
+#' # One input raster object
 #' unique(at$RO)
 #'
 #' ################################################################################
@@ -252,14 +259,14 @@ rel.pi <- function(attTbl,
 #' RO1 <- pi.sgm(at, nbs,
 #'               RO = "RO",        # Raster objects
 #'               mainPI = "relPI", # PI segmentation layer
-#' #'               cut.mPI = 0,      # segment on relPI values <= 0
-#'              plot = TRUE, r = r)
+#'               cut.mPI = 0,      # segment on relPI values <= 0
+#'               plot = TRUE, r = r)
 #'
 #' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-#' text(xyFromCell(r,at$Cell), as.character(at$relPI)) # visualize relPI values
+#' text(xyFromCell(r,at$Cell), as.character(round(at$relPI,2))) # visualize relPI
 #'
-#' # Two raster object
-#' unique(at$RO1)
+#' # Two output raster objects
+#' unique(RO1)
 
 pi.sgm <- function(attTbl,
                    ngbList,
@@ -327,8 +334,12 @@ pi.sgm <- function(attTbl,
 
     }
 
-    ind <- which( attTbl[[mainPI]][noNA]<cut.mPI | attTbl[[secPI]][noNA]<cut.sPI )
+    ind <- which( attTbl[[mainPI]][noNA]<=cut.mPI | attTbl[[secPI]][noNA]<=cut.sPI )
     RO1[ match(attTbl[noNA,][["Cell"]][ind], attTbl$Cell) ] <- NA
+
+    if(all(is.na(RO1))){
+      stop("All raster object cells below PI values")
+    }
 
     # Compute new raster objects
     RO1 <- anchor.seed(data.frame(Cell=attTbl$Cell, RO1), ngbList,
@@ -353,10 +364,222 @@ pi.sgm <- function(attTbl,
     m <- c(1.2,1.2,1.2,3)
 
     r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
-    terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m)
+    terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
+                plg=list(x=1, y=1, cex=0.9))
 
     r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
-    terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m)
+    terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+                plg=list(x=1, y=1, cex=0.9))
+  }
+
+  on.exit(graphics::layout(1))
+  return(RO1)
+
+}
+
+#' Position index addition
+#'
+#' Add new raster objects based on position index values.
+#'
+#' @param attTbl data.frame, the attribute table returned by the function
+#'   \code{\link{attTbl}}.
+#' @param ngbList list, the list of neighborhoods returned by the function
+#'   \code{\link{ngbList}}.
+#' @param rNumb logic, the neighborhoods of the argument \code{ngbList} are
+#'   identified by cell numbers (\code{rNumb=FALSE}) or by row numbers
+#'   (\code{rNumb=TRUE}) (see \code{\link{ngbList}}). It is advised to use row
+#'   numbers for large rasters.
+#' @param RO column name, the name of the column with the raster object IDs.
+#' @param mainPI column name, the name of the column with main position index
+#'   values.
+#' @param secPI column name, the name of the column with secondary position
+#'   index values.
+#' @param add.mPI numeric, threshold of main position index values. Cells with
+#'   values above the threshold are flagged as cells potentially being part of
+#'   new raster objects.
+#' @param add.sPI numeric, threshold of secondary position index values. Cells
+#'   with values above the threshold flagged as cells potentially being part of
+#'   new raster objects.
+#' @param min.N numeric, the minimum number of cells a raster object has to have
+#'   to be included in the function output.
+#' @param plot logic, plot the results.
+#' @param r a \code{SpatRaster} object, the raster used to compute the attribute
+#'   table. Required only if \code{plot = TRUE}.
+#'
+#' @return The function returns a class vector with raster objects IDs. The
+#'   vector has length equal to the number of rows of the attribute table. NA
+#'   values are assigned to cells that do not belong to any raster object.
+#'
+#' @details New raster objects are added based on position index values. Two
+#'   different position indices can be passed to the function (\code{mainPI} and
+#'   \code{secPI}).
+#'
+#'   * Input raster objects are assigned to the same class to flag cells that
+#'   are part of raster objects;
+#'
+#'   * Cells with values above \code{mainPI} **OR** above \code{mainPI} are
+#'   flagged as cells potentially being part of new raster objects;
+#'
+#'   * If not connected to any of the existing raster objects, the groups of
+#'   cells above position index values are assigned to new raster objects.
+#'
+#'   * Only raster objects with at least as many cells as specified by the
+#'   argument \code{min.N} are included in the function output.
+#'
+#'   * If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
+#'   function will exclusively filter raster objects based on their size
+#'   \code{min.N}.
+#'
+#' @export
+#' @examples
+#' # DUMMY DATA
+#' ######################################################################################
+#' # LOAD LIBRARIES
+#' library(scapesClassification)
+#' library(terra)
+#'
+#' # LOAD THE DUMMY RASTER
+#' r <- list.files(system.file("extdata", package = "scapesClassification"),
+#'                 pattern = "dummy_raster\\.tif", full.names = TRUE)
+#' r <- terra::rast(r)
+#'
+#' # COMPUTE THE ATTRIBUTE TABLE
+#' at <- attTbl(r, "dummy_var")
+#'
+#' # COMPUTE THE LIST OF NEIGBORHOODS
+#' nbs <- ngbList(r, attTbl=at)
+#'
+#' ################################################################################
+#' # COMPUTE RASTER OBJECTS
+#' ################################################################################
+#' at$RO[at$dummy_var==8] <- 1
+#' at$RO <- cond.4.nofn(at, nbs, classVector = at$RO, class=1, nbs_of = 1,
+#'                      cond = "dummy_var < dummy_var[] & dummy_var > 2")
+#'
+#' # One raster object
+#' unique(at$RO)
+#'
+#' ################################################################################
+#' # POSITION INDEX
+#' ################################################################################
+#' at$PI <- (at$dummy_var - mean(at$dummy_var))/stats::sd(at$dummy_var)
+#'
+#' ################################################################################
+#' # POSITION INDEX ADDITION
+#' ################################################################################
+#' RO1 <- pi.add(at, nbs,
+#'               RO = "RO",     # Raster objects
+#'               mainPI = "PI", # PI addition layer
+#'               add.mPI = 1,   # add disjoint objects with PI values > 1
+#'               plot = TRUE,
+#'               r = r)
+#'
+#' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+#' text(xyFromCell(r,at$Cell), as.character(round(at$PI,2))) # visualize relPI
+#'
+#' # Two raster object
+#' unique(RO1)
+
+pi.add <- function(attTbl,
+                   ngbList,
+                   rNumb = FALSE,
+                   RO,
+                   mainPI,
+                   secPI = NULL,
+                   add.mPI = NULL,
+                   add.sPI = NULL,
+                   min.N = NULL,
+                   plot = FALSE,
+                   r = NULL){
+
+
+  # TEST ARGUMENT RO, mainPI
+  if( !all(c(RO, mainPI) %in% names(attTbl)) ){
+    stop("'RO', 'mainPI' must be columns of 'attTbl'")
+  }
+
+  if( !is.null(secPI) ){
+    if(!secPI %in% names(attTbl)){
+      stop("'secPI' must be a column of 'attTbl'")
+    }
+  }
+
+  # TEST FOR COLUMN CELL IN attTbl
+  if (!("Cell" %in% names(attTbl))){
+    stop("attribute table mising 'Cell' column. Check ?attTbl")
+  }
+
+  # TEST FOR CORRESPONDENCE attTbl, ngbList
+  if (length(ngbList) != nrow(attTbl)) {
+    stop("ngbList and attTbl shoud have the same length/nrows")
+  }
+
+  # TEST FOR PLOT
+  if(is.null(r) & plot){stop("r must be provided if plot = TRUE")}
+
+  # CONVERT NBS FORM CELL IDS TO CELL INDECES
+  if(!rNumb){
+    fct     <- rep(seq_along(lengths(ngbList)), lengths(ngbList))
+    ngbList <- match(unlist(ngbList), attTbl$Cell)
+    no_nas  <- !is.na(ngbList)
+    ngbList <- ngbList[no_nas]
+    fct     <- fct[no_nas]
+
+    ngbList <- split(ngbList, fct)
+
+    rm(fct, no_nas)
+  }
+
+  # ADD SEGMENTS ###################################################################
+  RO1 <- attTbl[[RO]]
+
+  if(!is.null(add.mPI) | !is.null(add.sPI)){
+
+    if(is.null(add.mPI)){add.mPI <- max(attTbl[[mainPI]], na.rm = TRUE)+0.1}
+    if(is.null(add.sPI)){
+
+      if(is.null(secPI)){secPI <- mainPI}
+      add.sPI <- max(attTbl[[secPI]], na.rm = TRUE)+0.1
+
+    }
+
+    RO1[!is.na(RO1)] <- 1
+    RO1[(attTbl[[mainPI]]>=add.mPI | attTbl[[secPI]]>=add.sPI ) & is.na(RO1)] <- 0
+
+    # REMOVE SEGMENT CONTINUOUS WITH EXISTING OBJECTS
+    RO1 <- reclass.nbs(attTbl, ngbList, rNumb = rNumb, classVector = RO1,
+                       nbs_of = 1, class = 0, reclass = NA, reclass_all = TRUE)
+
+  }
+
+  # RASTER OBJECTS #################################################################
+  RO1 <- anchor.seed(data.frame(Cell=attTbl$Cell, RO1), ngbList,
+                     rNumb = TRUE, class = NULL, silent = TRUE,
+                     cond.filter = "!is.na(RO1)",
+                     cond.seed   = "!is.na(RO1)",
+                     cond.growth = "!is.na(RO1)")
+
+  # REMOVE SMALL RASTER OBJECTS
+  if(!is.null(min.N)){
+
+    l <- lengths(split(RO1, RO1)) >= min.N
+    l <- as.numeric(names(l)[l])
+
+    RO1[!(RO1 %in% l)] <- NA
+  }
+
+  if(plot){
+
+    graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+    m <- c(1.2,1.2,1.2,3)
+
+    r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
+    terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
+                plg=list(x=1, y=1, cex=0.9))
+
+    r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
+    terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+                plg=list(x=1, y=1, cex=0.9))
   }
 
   on.exit(graphics::layout(1))
