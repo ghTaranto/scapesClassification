@@ -65,6 +65,8 @@ reference:
       - "`obj.border`"
       - "`obj.nbs`"
       - "`rel.pi`"
+      - "`pi.sgm`"
+      - "`pi.add`"
 
 navbar:
   type: light
