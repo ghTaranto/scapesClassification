@@ -77,6 +77,7 @@ relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "s",
                 plot = TRUE, r = r)
 
+graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
        pch=20, col="yellow")
@@ -92,6 +93,7 @@ relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "n",
                 plot = TRUE, r = r)
 
+graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
        pch=20, col="yellow")
