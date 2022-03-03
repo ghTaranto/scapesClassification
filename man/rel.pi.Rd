@@ -4,7 +4,7 @@
 \alias{rel.pi}
 \title{Relative position index}
 \usage{
-rel.pi(attTbl, RO, el, type = "s", plot = FALSE, SpatRaster = NULL)
+rel.pi(attTbl, RO, el, type = "s", plot = FALSE, r = NULL)
 }
 \arguments{
 \item{attTbl}{data.frame, the attribute table returned by the function
@@ -20,7 +20,7 @@ which the relative position index is computed.}
 
 \item{plot}{logic, plot the results.}
 
-\item{SpatRaster}{a \code{SpatRaster} object, the raster used to compute the
+\item{r}{a \code{SpatRaster} object, the raster used to compute the
 attribute table. Required only if \code{plot = TRUE}.}
 }
 \value{
@@ -75,7 +75,7 @@ at$RO <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
 ################################################################################
 relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "s",
-                plot = TRUE, SpatRaster = r)
+                plot = TRUE, r = r)
 
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
@@ -90,7 +90,7 @@ text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
 ################################################################################
 relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "n",
-                plot = TRUE, SpatRaster = r)
+                plot = TRUE, r = r)
 
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,

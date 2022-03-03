@@ -10,7 +10,7 @@
 #' @param type character, defines if position index values are _standardized_
 #'   (\code{"s"}) or _normalized_ (\code{"n"}).
 #' @param plot logic, plot the results.
-#' @param SpatRaster a \code{SpatRaster} object, the raster used to compute the
+#' @param r a \code{SpatRaster} object, the raster used to compute the
 #'   attribute table. Required only if \code{plot = TRUE}.
 #'
 #' @details Position index values are computed only for cells that belong to a
@@ -62,7 +62,7 @@
 #' ################################################################################
 #' relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
 #'                 type = "s",
-#'                 plot = TRUE, SpatRaster = r)
+#'                 plot = TRUE, r = r)
 #'
 #' points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
 #'        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
@@ -77,7 +77,7 @@
 #' ################################################################################
 #' relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
 #'                 type = "n",
-#'                 plot = TRUE, SpatRaster = r)
+#'                 plot = TRUE, r = r)
 #'
 #' points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
 #'        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
@@ -92,22 +92,25 @@ rel.pi <- function(attTbl,
                    el,
                    type = "s",
                    plot = FALSE,
-                   SpatRaster=NULL){
+                   r=NULL){
 
   # TEST FOR COLUMN CELL IN attTbl
   if (!("Cell" %in% names(attTbl))){
     stop("attribute table mising 'Cell' column. Check ?attTbl")
   }
 
-  # TEST ARGUMENT RO, regPI_col, el and locPI_col
+  # TEST ARGUMENT RO, el
   if( !all(c(RO,el) %in% names(attTbl)) ){
     stop("'RO', 'el' must be columns of 'attTbl'")
   }
 
-  # TEST ARGUMENT RO, regPI_col, el and locPI_col
+  # TEST relPI TYPES
   if( !(type %in% c("s","n")) ){
     stop("type must be s (standardized) or n (normalized)")
   }
+
+  # TEST FOR PLOT
+  if(is.null(r) & plot){stop("r must be provided if plot = TRUE")}
 
   ROcell <- split(attTbl[["Cell"]], attTbl[[RO]])
   ROcell <- unlist(ROcell)
@@ -130,11 +133,11 @@ rel.pi <- function(attTbl,
     graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
     m <- c(1,1,1,3)
 
-    r_RO  <- cv.2.rast(r = SpatRaster, classVector = attTbl[[RO]])
+    r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
     terra::plot(r_RO, type="classes", main="Raster objects", mar=m,
                 plg=list(x=1, y=1, cex=0.9))
 
-    r_rPI <- cv.2.rast(r = SpatRaster, classVector = attTbl$relPI)
+    r_rPI <- cv.2.rast(r = r, classVector = attTbl$relPI)
 
     # breaks
     if(type == "s"){
@@ -155,6 +158,7 @@ rel.pi <- function(attTbl,
                 plg=list(x=1, y=1, cex=0.9))
   }
 
+  on.exit(graphics::layout(1))
   return(attTbl$relPI)
 
 }
