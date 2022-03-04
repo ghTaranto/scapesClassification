@@ -77,14 +77,14 @@ computed for cells with missing values.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">ngbList</span><span class="op">(</span><span class="va">SpatRaster</span>, rNumb <span class="op">=</span> <span class="cn">FALSE</span>, attTbl <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">ngbList</span><span class="op">(</span><span class="va">r</span>, rNumb <span class="op">=</span> <span class="cn">FALSE</span>, attTbl <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>SpatRaster</dt>
-<dd><p>a <code>SpatRaster</code> object (see <code><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">help("rast",
-terra)</a></code>).</p></dd>
+    <dl><dt>r</dt>
+<dd><p>single or multi-layer raster of the class <code>SpatRaster</code> (see
+<code><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">help("rast", terra)</a></code>).</p></dd>
 <dt>rNumb</dt>
 <dd><p>logic, the neighbors of a raster cell are identified by <strong>cell
 numbers (<code>rNumb=FALSE</code>)</strong> or by <strong>row numbers (<code>rNumb=TRUE</code>)</strong>.

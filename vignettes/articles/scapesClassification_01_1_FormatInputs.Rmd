@@ -31,7 +31,7 @@ As an example we can consider a 3X3 raster and some dummy data ([Figure 1](#figu
 ```{r exm_rast}
 # 3X3 RASTER
 library(terra)
-r <- rast(matrix(c(NA,100,100,NA,100,100,0,0,0),nrow = 3,ncol = 3,byrow = TRUE))
+r <- rast(matrix(c(NA,100,100,NA,100,100,0,0,0),nrow = 3,ncol = 3,byrow = TRUE), extent=c(0,1,0,1))
 ```
 
 <a id="figure1"></a>
@@ -89,7 +89,7 @@ all.equal(values(r), values(r2), values(r3))
 
 # PLOT r2 
 plot(r2, type="classes", legend = FALSE, col="black")
-text(xyFromCell(r2, 1:9),as.character(values(r2)[,1]), cex=1.2, col="white")
+text(r, cex=1.2, col="white")
 ```
 
 ### List of neighborhoods 

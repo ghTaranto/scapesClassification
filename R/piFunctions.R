@@ -433,6 +433,9 @@ pi.sgm <- function(attTbl,
 #'   function will exclusively filter raster objects based on their size
 #'   \code{min.N}.
 #'
+#' @note Output raster objects can never share any border with input raster
+#'   objects.
+#'
 #' @export
 #' @examples
 #' # DUMMY DATA

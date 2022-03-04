@@ -38,7 +38,7 @@ library(scapesClassification)
 library(terra)
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
-r   <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+r   <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,1,0,1))
 nbs <- ngbList(r)
 
 # CLASS VECTOR WITH ONE TEST AND ONE FOCAL CELL
@@ -55,11 +55,11 @@ fcn <- terra::vect(fcn, type="polygons")
 
 # PLOT - FOCAL EVALUATION DEFINITIONS
 m<- c(1,1,1,1)
-plot(r_cv, type = "class", legend = TRUE, axes = FALSE, ylim=c(-0.15,1.06), mar=m,
+plot(r_cv, type = "class", legend = TRUE, axes = FALSE, ylim=c(-0.15,1.08), mar=m,
      col = c("#1088a0","goldenrod3"), colNA= "black",
      plg=list(x=1, y=1, cex=0.9, legend=c("Focal cell","Test cell")))
 text(r, col="white", cex=1.0, family = "sans")
-text(x=0, y=1.03, cex=1.5, font=2, adj=0, "Evaluation neighborhood", family = "serif")
+text(x=0, y=1.04, cex=1.5, font=2, adj=0, "Evaluation neighborhood", family = "serif")
 lines(r, col="white", lwd=2)
 lines(tcn, col="#1088a0", lwd=2)
 lines(fcn, col="goldenrod3", lwd=2)
@@ -85,7 +85,7 @@ library(terra)
 m  <- matrix(1,nrow = 7, ncol = 7, byrow = TRUE)
 m[1:4,4:7]  <- 10
 m[6:7, 1:5] <- 10
-r <- terra::rast(m)
+r <- terra::rast(m, extent=c(0,1,0,1))
 r_lg <- r; r_lg[] <- 1
 
 #plot
@@ -324,7 +324,9 @@ A detailed explanation about conditions and classification workflow in `scapesCl
 
 ---
 
-> In the following examples conditions are evaluated based on focal evaluations that consider only class contiguity. 
+___In the following examples conditions are evaluated based on focal evaluations that consider only class contiguity.___
+
+---
 
 ### Absolute conditions
 

@@ -81,6 +81,10 @@ function will exclusively filter raster objects based on their size
 \code{min.N}.
 }
 }
+\note{
+Output raster objects can never share any border with input raster
+objects.
+}
 \examples{
 # DUMMY DATA
 ######################################################################################

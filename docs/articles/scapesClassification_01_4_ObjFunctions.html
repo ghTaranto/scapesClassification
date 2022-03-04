@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Object functions</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Thu 03, March, 2022</h4>
+            <h4 data-toc-skip class="date">Fri 04, March, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_4_ObjFunctions.Rmd</code></div>
@@ -405,9 +405,63 @@
 <span class="co"># NORMALIZED RELATIVE POSITION INDEX</span>
 <span class="va">relPI_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rel.pi.html">rel.pi</a></span><span class="op">(</span>attTbl <span class="op">=</span> <span class="va">at</span>, RO <span class="op">=</span> <span class="st">"cv2"</span>, el <span class="op">=</span> <span class="st">"dummy_var"</span>,
                   type <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></code></pre></div>
+<p><a id="figure6"></a></p>
 <p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/rel_pi_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 6 - rel.pi</strong> identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pi-sgm">pi.sgm<a class="anchor" aria-label="anchor" href="#pi-sgm"></a>
+</h2>
+<p>The function <code><a href="../reference/pi.sgm.html">pi.sgm()</a></code> segments raster objects based on position index values. As an example we will imagine that all raster values greater than 1 constitute a single raster object. We will segment the raster object at positions having normalized relative position index values of <code>0</code> (<a href="#figure7">Figure 7</a>).</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># a) initial raster object</span>
+<span class="va">at</span><span class="op">$</span><span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond.4.all.html">cond.4.all</a></span><span class="op">(</span><span class="va">at</span>, <span class="st">"dummy_var &gt; 1"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+
+<span class="co"># b) compute normalized relative position index</span>
+<span class="va">at</span><span class="op">$</span><span class="va">PI</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rel.pi.html">rel.pi</a></span><span class="op">(</span>attTbl<span class="op">=</span><span class="va">at</span>, RO<span class="op">=</span><span class="st">"RO"</span>, el<span class="op">=</span><span class="st">"dummy_var"</span>, type <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span>
+
+<span class="co"># c) segment raster object</span>
+<span class="va">at</span><span class="op">$</span><span class="va">ROs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pi.sgm.html">pi.sgm</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, RO <span class="op">=</span> <span class="st">"RO"</span>, mainPI <span class="op">=</span> <span class="st">"PI"</span>, cut.mPI <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
+
+<span class="co"># d) segment raster object, min number of cell is 5</span>
+<span class="va">at</span><span class="op">$</span><span class="va">ROn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pi.sgm.html">pi.sgm</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, RO <span class="op">=</span> <span class="st">"RO"</span>, mainPI <span class="op">=</span> <span class="st">"PI"</span>, cut.mPI <span class="op">=</span> <span class="fl">0</span>,
+                 min.N <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></code></pre></div>
+<p><a id="figure7"></a></p>
+<p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/pi_sgm_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 7 - pi.sgm</strong> segments raster objects based on position index values. <strong>(a)</strong> Initial raster object. <strong>(b)</strong> Position index values. <strong>(c)</strong> Segment on values equal to <code>0</code>. <strong>(d)</strong> Segment on values equal to <code>0</code> and remove objects with less than 5 cells.</span>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pi-add">pi.add<a class="anchor" aria-label="anchor" href="#pi-add"></a>
+</h2>
+<p>The function <code><a href="../reference/pi.add.html">pi.add()</a></code> adds new raster objects based on position index values. As an example we will (i) slightly modify the values of our dummy variable, (ii) assume to have, initially, a single raster object, (iii) compute standardized position index values based on all dummy raster values and (iv) add <strong>disjoint</strong> raster objects with position index values greater than 0.8 (<a href="#figure8">Figure 8</a>).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Modify dummy raster values</span>
+<span class="va">r</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">45</span>,<span class="fl">46</span>,<span class="fl">47</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">6</span>
+<span class="va">at</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/attTbl.html">attTbl</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dummy_var"</span><span class="op">)</span><span class="co"># re-compute at</span>
+<span class="va">nbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ngbList.html">ngbList</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>            <span class="co"># re-compute nbs</span>
+
+<span class="co"># a) initial raster object</span>
+<span class="va">at</span><span class="op">$</span><span class="va">RO</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/anchor.seed.html">anchor.seed</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, class<span class="op">=</span><span class="fl">1</span>, silent <span class="op">=</span> <span class="cn">TRUE</span>,
+                     cond.seed   <span class="op">=</span> <span class="st">"dummy_var == 8"</span>,
+                     cond.growth <span class="op">=</span> <span class="st">"dummy_var == 5"</span><span class="op">)</span>
+
+<span class="co"># b) compute standardized relative position index</span>
+<span class="va">at</span><span class="op">$</span><span class="va">PI</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">at</span><span class="op">$</span><span class="va">dummy_var</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">at</span><span class="op">$</span><span class="va">dummy_var</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">at</span><span class="op">$</span><span class="va">dummy_var</span><span class="op">)</span>
+
+<span class="co"># c) add raster object</span>
+<span class="va">at</span><span class="op">$</span><span class="va">ROa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pi.add.html">pi.add</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, RO <span class="op">=</span> <span class="st">"RO"</span>, mainPI <span class="op">=</span> <span class="st">"PI"</span>, add.mPI <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span>
+
+<span class="co"># d) add raster object, min number of cell is 3</span>
+<span class="va">at</span><span class="op">$</span><span class="va">ROn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pi.add.html">pi.add</a></span><span class="op">(</span><span class="va">at</span>, <span class="va">nbs</span>, RO <span class="op">=</span> <span class="st">"RO"</span>, mainPI <span class="op">=</span> <span class="st">"PI"</span>, add.mPI <span class="op">=</span> <span class="fl">0.8</span>,
+                 min.N <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<p><a id="figure8"></a></p>
+<p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/pi_add_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;">
+<span class="legend"><strong>Figure 8 - pi.add</strong> adds new raster objects based on position index values. <strong>(a)</strong> Initial raster object. <strong>(b)</strong> Position index values. <strong>(c)</strong> Add raster objects composed of cells having position index values <code>&gt;0.8</code>. <strong>(d)</strong> Add raster objects composed of cells having position index values <code>&gt;0.8</code> and with at least 3 cells. Note that new raster objects are added only if they do not share any border with the initial object.</span>
 </div>
 </div>
   </div>

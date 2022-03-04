@@ -567,6 +567,8 @@ relPI_n <- rel.pi(attTbl = at, RO = "cv2", el = "dummy_var",
                   type = "n")
 ```
 
+<a id="figure6"></a>
+
 ```{r rel_pi_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.5}
 # CONVERT THE CLASS VECTORS INTO A RASTER
 r_relPI_s <- cv.2.rast(r, classVector = relPI_s)
@@ -646,3 +648,197 @@ text(x=0.1, y=0.25, cex=1.4, font=3, adj=c(0,1), "x - min(x) /\nmax(x) - min(x)"
 ```
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - rel.pi** identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span></div>
+
+## pi.sgm
+
+The function `pi.sgm()` segments raster objects based on position index values. As an example we will imagine that all raster values greater than 1 constitute a single raster object. We will segment the raster object at positions having normalized relative position index values of `0` ([Figure 7](#figure7)).
+
+```{r pi_sgm, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# a) initial raster object
+at$RO <- cond.4.all(at, "dummy_var > 1", class = 1)
+
+# b) compute normalized relative position index
+at$PI <- rel.pi(attTbl=at, RO="RO", el="dummy_var", type = "n")
+
+# c) segment raster object
+at$ROs <- pi.sgm(at, nbs, RO = "RO", mainPI = "PI", cut.mPI = 0)
+
+# d) segment raster object, min number of cell is 5
+at$ROn <- pi.sgm(at, nbs, RO = "RO", mainPI = "PI", cut.mPI = 0,
+                 min.N = 5)
+```
+
+<a id="figure7"></a>
+
+```{r pi_sgm_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.5}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+PIc <- at$PI
+PIc[PIc>0] <- NA
+
+r_RO  <- cv.2.rast(r, classVector = at$RO)
+r_PIc <- cv.2.rast(r, classVector = PIc)
+r_ROs <- cv.2.rast(r, classVector = at$ROs)
+r_ROn <- cv.2.rast(r, classVector = at$ROn)
+
+r2 <- r
+r2[r2<2] <- NA 
+
+
+layout(matrix(c(1, 2,
+                1, 2,
+                3, 4, 
+                3, 4), nrow=4, byrow=TRUE))
+
+m <- c(0,0.5,0.5,3)
+
+# PLOT 1
+################################################################################
+plot(r_RO, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1")))
+text(r2);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(a) RO", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "cond.: dummy_var > 1", 
+     family = "serif", col="#818792")
+
+# PLOT 2
+################################################################################
+plot(r_RO, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af"), legend = FALSE)
+plot(r_PIc, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#ff000060"), add = TRUE,
+     plg=list(x=1, y=1, cex=1.1, title = "Cut:", title.adj = 0.2,
+              legend=c("PI=0")))
+text(xyFromCell(r,at$Cell), as.character(round(at$PI,2)))
+lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(b) PI", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "cond.: PI > 0", 
+     family = "serif", col="#818792")
+
+# PLOT 3
+################################################################################
+r2[r2==2] <- NA
+
+plot(r_ROs, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af", "#78b2c4"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2")))
+text(r2);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(c) ROs", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "min.N: NA", 
+     family = "serif", col="#818792")
+
+# PLOT 4
+################################################################################
+r2[which(is.na(at$ROn))] <- NA
+
+plot(r_ROn, type = "classes", ylim=c(-0.10,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1")))
+text(r2);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(d) ROn", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "min.N: 5", 
+     family = "serif", col="#818792")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 - pi.sgm** segments raster objects based on position index values. **(a)** Initial raster object. **(b)** Position index values. **(c)** Segment on values equal to `0`. **(d)** Segment on values equal to `0` and remove objects with less than 5 cells.</span></div>
+
+## pi.add
+
+The function `pi.add()` adds new raster objects based on position index values. As an example we will (i) slightly modify the values of our dummy variable, (ii) assume to have, initially, a single raster object, (iii) compute standardized position index values based on all dummy raster values and (iv) add **disjoint** raster objects with position index values greater than 0.8 ([Figure 8](#figure8)).
+
+```{r pi_add, message=FALSE, warning=FALSE, echo=TRUE, collapse=TRUE}
+# Modify dummy raster values
+r[c(1,2,45,46,47)] <- 6
+at  <- attTbl(r, "dummy_var")# re-compute at
+nbs <- ngbList(r)            # re-compute nbs
+
+# a) initial raster object
+at$RO <- anchor.seed(at, nbs, class=1, silent = TRUE,
+                     cond.seed   = "dummy_var == 8",
+                     cond.growth = "dummy_var == 5")
+
+# b) compute standardized relative position index
+at$PI <- (at$dummy_var - mean(at$dummy_var))/stats::sd(at$dummy_var)
+
+# c) add raster object
+at$ROa <- pi.add(at, nbs, RO = "RO", mainPI = "PI", add.mPI = 0.8)
+
+# d) add raster object, min number of cell is 3
+at$ROn <- pi.add(at, nbs, RO = "RO", mainPI = "PI", add.mPI = 0.8,
+                 min.N = 3)
+```
+
+<a id="figure8"></a>
+
+```{r pi_add_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.5}
+# CONVERT THE CLASS VECTORS INTO A RASTER
+PIc <- at$PI
+PIc[PIc<0.8 | at$RO==1] <- NA
+PIc[PIc>0.8] <- 1
+
+r_RO  <- cv.2.rast(r, classVector = at$RO)
+r_PIc <- cv.2.rast(r, classVector = PIc)
+r_ROa <- cv.2.rast(r, classVector = at$ROa)
+r_ROn <- cv.2.rast(r, classVector = at$ROn)
+
+layout(matrix(c(1, 2,
+                1, 2,
+                3, 4, 
+                3, 4), nrow=4, byrow=TRUE))
+
+m <- c(0,0.4,0.5,3.1)
+
+# PLOT 1
+################################################################################
+plot(r_RO, type = "classes", ylim=c(-0.14,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1")))
+text(r);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(a) RO", family = "serif")
+text(x=0, y=-0.04, cex=1.4, font=1, adj=0, family = "serif", col="#818792",
+     "cond.seed: dummy_var == 8")
+text(x=0, y=-0.10, cex=1.4, font=1, adj=0, family = "serif", col="#818792",
+     "cond.growth: dummy_var == 5")
+
+# PLOT 2
+################################################################################
+plot(r_RO, type = "classes", ylim=c(-0.14,1.08), mar = m, axes=FALSE,
+     col=c("#cfc1af"), legend = FALSE)
+plot(r_PIc, type = "classes", ylim=c(-0.12,1.08), mar = m, axes=FALSE,
+     col=c("#ff000060"), add = TRUE,
+     plg=list(x=1, y=1, cex=1.1, title = "Add:", title.adj = 0.2,
+              legend=c("PI >0.8")))
+text(xyFromCell(r,at$Cell), as.character(round(at$PI,2)))
+lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(b) PI", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "cond.: PI > 0.8", 
+     family = "serif", col="#818792")
+
+# PLOT 3
+################################################################################
+plot(r_ROa, type = "classes", ylim=c(-0.14,1.08), mar = m, axes=FALSE,
+     col=c("#818792", "#78b2c4", "#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2", "3")))
+text(r);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(c) ROa", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "min.N: NA", 
+     family = "serif", col="#818792")
+
+# PLOT 4
+################################################################################
+plot(r_ROn, type = "classes", ylim=c(-0.14,1.08), mar = m, axes=FALSE,
+     col=c("#78b2c4", "#cfc1af"), 
+     plg=list(x=1, y=1, cex=1.1, title = "Obj.:", title.adj = 0.2,
+              legend=c("1", "2")))
+text(r);lines(r)
+text(x=0, y=1.05, cex=1.7, font=2, adj=0, "(d) ROn", family = "serif")
+text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "min.N: 3", 
+     family = "serif", col="#818792")
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 8 - pi.add** adds new raster objects based on position index values. **(a)** Initial raster object. **(b)** Position index values. **(c)** Add raster objects composed of cells having position index values `>0.8`. **(d)** Add raster objects composed of cells having position index values `>0.8` and with at least 3 cells. Note that new raster objects are added only if they do not share any border with the initial object.</span></div>
