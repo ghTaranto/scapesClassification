@@ -48,11 +48,17 @@ In the following examples we will show how class vectors are computed. However, 
 
 > The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and (ii) use `terra::plot()` or any other software suitable for raster plots. 
 
-## anchor.seed
+## Manipulation functions
+
+**Functions:** `anchor.seed()` and `cond.4.nofn()`.
+
+Raster object manipulation functions can be used to identify and manipulate raster objects. 
+
+### anchor.seed
 
 The function `anchor.seed()` can be considered as an [anchor cell function](scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions) and as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (_seed cells_) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics. 
 
-### Condition arguments
+#### Condition arguments
 
 The function `anchor.seed()` take as inputs four sets of conditions:
 
@@ -65,7 +71,7 @@ The function `anchor.seed()` take as inputs four sets of conditions:
 4. **`cond.isol`**, the conditions to isolate one seed cell (and its buffer) from another. 
 
 
-### Condition evaluation
+#### Condition evaluation
 
 The first set of conditions to be evaluated is the `cond.filter`. The evaluation of the remaining sets of conditions is iterative ([Figure 1](#figure1)):
 
@@ -197,7 +203,7 @@ text(x=1, y=1.05, cex=1.7, font=3, adj=1, "cond.isol", family = "serif")
 
 ---
 
-### Evaluation lag
+#### Evaluation lag
 
 The function arguments `lag.growth` and `lag.isol` control the evaluation lag of [relative focal cell conditions](scapesClassification_01_2_RulesEvalTypes.html#relative-conditions) ([Figure 2](#figure2)).
 
@@ -288,7 +294,7 @@ text(x=0.28, y=-0.16, cex=1.1, font=1, adj=0, "dummy_var < dummy_var[ ]",
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Anchor.seed evaluation lag**. The function arguments `lag.*` control the evaluation lag of relative focal cell conditions (`[]`). **(a)** `lag.growth = 0`, `cond.growth` compares the values of test cells against the value of the focal cell; two objects identified. **(b)** `lag.growth = Inf`, `cond.growth` compares the values of test cells against the value of the seed cell; one objects identified.</span></div>
 
-## cond.4.nofn (hgrowth) {#hgrowth}
+### cond.4.nofn (hgrowth) {#hgrowth}
 
 The function `cond.4.nofn()` can be used to expand the borders of raster objects. This functionality is activated with the argument `hgrowth = TRUE` (__homogeneous growth__, see `?cond.4.nofn` for additional details).
 
@@ -404,7 +410,13 @@ text(x=0.24, y=0.00, cex=1.5, font=1, adj=c(0,1), "& dummy_var > 1", family = "s
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Identify raster objects and reshape their borders. (a)** Two peak cells are identified. **(b)** A unique ID is assigned to each peak cell; **(c)** Homogeneous growth of raster objects; the borders of each peak object are expanded to include connected raster cells having decreasing `dummy_var` values `AND` `dummy_var` values greater than 1.</span></div>
 
-## obj.border
+## Border functions
+
+**Functions:** `obj.border()` and `obj.nbs()`.
+
+Raster object border functions can be used to identify the borders of raster objects. 
+
+### obj.border
 
 The function `obj.border()` identifies the borders of raster objects. 
 
@@ -488,7 +500,7 @@ text(xyFromCell(r2, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, family = "mono")
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 4 - Obj.border** identifies the borders of raster objects.</span></div>
 
-## obj.nbs
+### obj.nbs
 
 The function `obj.nbs()` returns a named nested lists having the following characteristics:
 
@@ -547,7 +559,13 @@ text(xyFromCell(r, 11), "NA\nvalue", cex=0.9, font=1, adj=0.5, ac, family = "mon
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em; text-align: center;"><span class="legend">**Figure 5 - obj.nbs** identifies the shared borders of raster objects.</span></div>
 
-## rel.pi
+## Position index functions
+
+**Functions:** `rel.pi()`, `pi.sgm()` and `pi.add()`.
+
+Raster object position index functions can be used to compute relative position indices and to use them to manipulate raster objects.
+
+### rel.pi
 
 The function `rel.pi()` computes the standardized or normalized relative position index of raster objects.
 
@@ -649,7 +667,7 @@ text(x=0.1, y=0.25, cex=1.4, font=3, adj=c(0,1), "x - min(x) /\nmax(x) - min(x)"
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 6 - rel.pi** identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span></div>
 
-## pi.sgm
+### pi.sgm
 
 The function `pi.sgm()` segments raster objects based on position index values. As an example we will imagine that all raster values greater than 1 constitute a single raster object. We will segment the raster object at positions having normalized relative position index values of `0` ([Figure 7](#figure7)).
 
@@ -745,7 +763,7 @@ text(x=0, y=-0.04, cex=1.5, font=1, adj=0, "min.N: 5",
 
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 7 - pi.sgm** segments raster objects based on position index values. **(a)** Initial raster object. **(b)** Position index values. **(c)** Segment on values equal to `0`. **(d)** Segment on values equal to `0` and remove objects with less than 5 cells.</span></div>
 
-## pi.add
+### pi.add
 
 The function `pi.add()` adds new raster objects based on position index values. As an example we will (i) slightly modify the values of our dummy variable, (ii) assume to have, initially, a single raster object, (iii) compute standardized position index values based on all dummy raster values and (iv) add **disjoint** raster objects with position index values greater than 0.8 ([Figure 8](#figure8)).
 

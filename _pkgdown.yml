@@ -59,11 +59,16 @@ reference:
       - "`reclass.nbs`"
       - "`classify.all`"
   - title: Raster object functions
+  - subtitle: Manipulation functions
     contents:
       - "`cond.4.nofn`"
       - "`anchor.seed`"
+  - subtitle: Border functions
+    contents:
       - "`obj.border`"
       - "`obj.nbs`"
+  - subtitle: Position index functions
+    contents:
       - "`rel.pi`"
       - "`pi.sgm`"
       - "`pi.add`"

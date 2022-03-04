@@ -158,12 +158,17 @@
 </blockquote>
 </div>
 <div class="section level2">
-<h2 id="anchor-seed">anchor.seed<a class="anchor" aria-label="anchor" href="#anchor-seed"></a>
+<h2 id="manipulation-functions">Manipulation functions<a class="anchor" aria-label="anchor" href="#manipulation-functions"></a>
 </h2>
-<p>The function <code><a href="../reference/anchor.seed.html">anchor.seed()</a></code> can be considered as an <a href="scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions">anchor cell function</a> and as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (<em>seed cells</em>) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics.</p>
+<p><strong>Functions:</strong> <code><a href="../reference/anchor.seed.html">anchor.seed()</a></code> and <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code>.</p>
+<p>Raster object manipulation functions can be used to identify and manipulate raster objects.</p>
 <div class="section level3">
-<h3 id="condition-arguments">Condition arguments<a class="anchor" aria-label="anchor" href="#condition-arguments"></a>
+<h3 id="anchor-seed">anchor.seed<a class="anchor" aria-label="anchor" href="#anchor-seed"></a>
 </h3>
+<p>The function <code><a href="../reference/anchor.seed.html">anchor.seed()</a></code> can be considered as an <a href="scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions">anchor cell function</a> and as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (<em>seed cells</em>) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics.</p>
+<div class="section level4">
+<h4 id="condition-arguments">Condition arguments<a class="anchor" aria-label="anchor" href="#condition-arguments"></a>
+</h4>
 <p>The function <code><a href="../reference/anchor.seed.html">anchor.seed()</a></code> take as inputs four sets of conditions:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong><code>cond.filter</code></strong>, the conditions to define what cells have to be evaluated by the function.</p></li>
@@ -172,9 +177,9 @@
 <li><p><strong><code>cond.isol</code></strong>, the conditions to isolate one seed cell (and its buffer) from another.</p></li>
 </ol>
 </div>
-<div class="section level3">
-<h3 id="condition-evaluation">Condition evaluation<a class="anchor" aria-label="anchor" href="#condition-evaluation"></a>
-</h3>
+<div class="section level4">
+<h4 id="condition-evaluation">Condition evaluation<a class="anchor" aria-label="anchor" href="#condition-evaluation"></a>
+</h4>
 <p>The first set of conditions to be evaluated is the <code>cond.filter</code>. The evaluation of the remaining sets of conditions is iterative (<a href="#figure1">Figure 1</a>):</p>
 <ul>
 <li><p>A <em>seed cell</em> is identified and receives a classification number (as specified by the argument <code>class</code>). If the argument <code>class=NULL</code>, then a new ID is assigned to every new seed cell.</p></li>
@@ -202,9 +207,9 @@
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="evaluation-lag">Evaluation lag<a class="anchor" aria-label="anchor" href="#evaluation-lag"></a>
-</h3>
+<div class="section level4">
+<h4 id="evaluation-lag">Evaluation lag<a class="anchor" aria-label="anchor" href="#evaluation-lag"></a>
+</h4>
 <p>The function arguments <code>lag.growth</code> and <code>lag.isol</code> control the evaluation lag of <a href="scapesClassification_01_2_RulesEvalTypes.html#relative-conditions">relative focal cell conditions</a> (<a href="#figure2">Figure 2</a>).</p>
 <ul>
 <li><p>When <code>lag.*</code> are set to 0, relative focal cell conditions have a standard behavior and compare the values of the <a href="scapesClassification_01_2_RulesEvalTypes.html#en">test cells</a> against the value of the <a href="scapesClassification_01_2_RulesEvalTypes.html#en">focal cell</a>.</p></li>
@@ -241,9 +246,9 @@
 </div>
 </div>
 </div>
-<div class="section level2">
-<h2 id="hgrowth">cond.4.nofn (hgrowth)<a class="anchor" aria-label="anchor" href="#hgrowth"></a>
-</h2>
+<div class="section level3">
+<h3 id="hgrowth">cond.4.nofn (hgrowth)<a class="anchor" aria-label="anchor" href="#hgrowth"></a>
+</h3>
 <p>The function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> can be used to expand the borders of raster objects. This functionality is activated with the argument <code>hgrowth = TRUE</code> (<strong>homogeneous growth</strong>, see <code><a href="../reference/cond.4.nofn.html">?cond.4.nofn</a></code> for additional details).</p>
 <p>In the following example we will: (i) identify peak cells (<a href="scapesClassification_01_3_ClassFunctions.html#peak-cell">peak.cell</a>), (ii) assign a unique ID to each peak (<a href="scapesClassification_01_4_ObjFunctions.html#anchor-seed">anchor.seed</a>) and (iii) use the function <code><a href="../reference/cond.4.nofn.html">cond.4.nofn()</a></code> to expand the borders of the two peak objects. The borders are expanded based on the <a href="scapesClassification_01_2_RulesEvalTypes.html#relative-conditions">focal cell rule</a> <code>dummy_var &lt;= dummy_var[]</code> and on the <a href="scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions">test cell rule</a> <code>dummy_var &gt; 1</code> (<a href="#figure3">Figure 3c</a>).</p>
 <p>Note that intermediate class vectors are added as column vectors in the attribute table; in this way they can be accessed by name and used in classification rules.</p>
@@ -270,9 +275,15 @@
 <span class="legend"><strong>Figure 3 - Identify raster objects and reshape their borders. (a)</strong> Two peak cells are identified. <strong>(b)</strong> A unique ID is assigned to each peak cell; <strong>(c)</strong> Homogeneous growth of raster objects; the borders of each peak object are expanded to include connected raster cells having decreasing <code>dummy_var</code> values <code>AND</code> <code>dummy_var</code> values greater than 1.</span>
 </div>
 </div>
+</div>
 <div class="section level2">
-<h2 id="obj-border">obj.border<a class="anchor" aria-label="anchor" href="#obj-border"></a>
+<h2 id="border-functions">Border functions<a class="anchor" aria-label="anchor" href="#border-functions"></a>
 </h2>
+<p><strong>Functions:</strong> <code><a href="../reference/obj.border.html">obj.border()</a></code> and <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code>.</p>
+<p>Raster object border functions can be used to identify the borders of raster objects.</p>
+<div class="section level3">
+<h3 id="obj-border">obj.border<a class="anchor" aria-label="anchor" href="#obj-border"></a>
+</h3>
 <p>The function <code><a href="../reference/obj.border.html">obj.border()</a></code> identifies the borders of raster objects.</p>
 <p>When missing values are present on a raster surface, the function works only with raster cells identified by attribute table row indices (see <a href="scapesClassification_01_1_FormatInputs.html">format inputs</a>). When no missing value is present, row cell indices and cell numbers become equivalent (i.e. n<sup>th</sup> row correspond to the n<sup>th</sup> cell).</p>
 <p>As an example we will: <strong>(i)</strong> add a missing value in the dummy raster and compute the neighborhood list with neighborhoods identified by row numbers (see <code><a href="../reference/ngbList.html">?ngbList</a></code>), <strong>(ii)</strong> re-compute the raster objects of <code>cv2</code> (<a href="#figure3">Figure 3</a>) and <strong>(iii)</strong> identify the borders of the raster objects (<a href="#figure4">Figure 4</a>).</p>
@@ -340,9 +351,9 @@
 <span class="legend"><strong>Figure 4 - Obj.border</strong> identifies the borders of raster objects.</span>
 </div>
 </div>
-<div class="section level2">
-<h2 id="obj-nbs">obj.nbs<a class="anchor" aria-label="anchor" href="#obj-nbs"></a>
-</h2>
+<div class="section level3">
+<h3 id="obj-nbs">obj.nbs<a class="anchor" aria-label="anchor" href="#obj-nbs"></a>
+</h3>
 <p>The function <code><a href="../reference/obj.nbs.html">obj.nbs()</a></code> returns a named nested lists having the following characteristics:</p>
 <ul>
 <li><p>Each element of the list corresponds to a raster object;</p></li>
@@ -388,9 +399,15 @@
 <span class="legend"><strong>Figure 5 - obj.nbs</strong> identifies the shared borders of raster objects.</span>
 </div>
 </div>
+</div>
 <div class="section level2">
-<h2 id="rel-pi">rel.pi<a class="anchor" aria-label="anchor" href="#rel-pi"></a>
+<h2 id="position-index-functions">Position index functions<a class="anchor" aria-label="anchor" href="#position-index-functions"></a>
 </h2>
+<p><strong>Functions:</strong> <code><a href="../reference/rel.pi.html">rel.pi()</a></code>, <code><a href="../reference/pi.sgm.html">pi.sgm()</a></code> and <code><a href="../reference/pi.add.html">pi.add()</a></code>.</p>
+<p>Raster object position index functions can be used to compute relative position indices and to use them to manipulate raster objects.</p>
+<div class="section level3">
+<h3 id="rel-pi">rel.pi<a class="anchor" aria-label="anchor" href="#rel-pi"></a>
+</h3>
 <p>The function <code><a href="../reference/rel.pi.html">rel.pi()</a></code> computes the standardized or normalized relative position index of raster objects.</p>
 <ul>
 <li><p><em>Standardized</em> position index values are computed with the formula <code>( x - mean(x) ) / sd(x)</code>;</p></li>
@@ -411,9 +428,9 @@
 <span class="legend"><strong>Figure 6 - rel.pi</strong> identifies the relative position index of raster objects. In the presented formulae, variable x represents the elevation values of individual raster object.</span>
 </div>
 </div>
-<div class="section level2">
-<h2 id="pi-sgm">pi.sgm<a class="anchor" aria-label="anchor" href="#pi-sgm"></a>
-</h2>
+<div class="section level3">
+<h3 id="pi-sgm">pi.sgm<a class="anchor" aria-label="anchor" href="#pi-sgm"></a>
+</h3>
 <p>The function <code><a href="../reference/pi.sgm.html">pi.sgm()</a></code> segments raster objects based on position index values. As an example we will imagine that all raster values greater than 1 constitute a single raster object. We will segment the raster object at positions having normalized relative position index values of <code>0</code> (<a href="#figure7">Figure 7</a>).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># a) initial raster object</span>
@@ -434,9 +451,9 @@
 <span class="legend"><strong>Figure 7 - pi.sgm</strong> segments raster objects based on position index values. <strong>(a)</strong> Initial raster object. <strong>(b)</strong> Position index values. <strong>(c)</strong> Segment on values equal to <code>0</code>. <strong>(d)</strong> Segment on values equal to <code>0</code> and remove objects with less than 5 cells.</span>
 </div>
 </div>
-<div class="section level2">
-<h2 id="pi-add">pi.add<a class="anchor" aria-label="anchor" href="#pi-add"></a>
-</h2>
+<div class="section level3">
+<h3 id="pi-add">pi.add<a class="anchor" aria-label="anchor" href="#pi-add"></a>
+</h3>
 <p>The function <code><a href="../reference/pi.add.html">pi.add()</a></code> adds new raster objects based on position index values. As an example we will (i) slightly modify the values of our dummy variable, (ii) assume to have, initially, a single raster object, (iii) compute standardized position index values based on all dummy raster values and (iv) add <strong>disjoint</strong> raster objects with position index values greater than 0.8 (<a href="#figure8">Figure 8</a>).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Modify dummy raster values</span>
@@ -462,6 +479,7 @@
 <p><img src="scapesClassification_01_4_ObjFunctions_files/figure-html/pi_add_plot-1.png" width="95%" style="display: block; margin: auto;"></p>
 <div style="line-height: 0.9em; margin-bottom: 1.5em;">
 <span class="legend"><strong>Figure 8 - pi.add</strong> adds new raster objects based on position index values. <strong>(a)</strong> Initial raster object. <strong>(b)</strong> Position index values. <strong>(c)</strong> Add raster objects composed of cells having position index values <code>&gt;0.8</code>. <strong>(d)</strong> Add raster objects composed of cells having position index values <code>&gt;0.8</code> and with at least 3 cells. Note that new raster objects are added only if they do not share any border with the initial object.</span>
+</div>
 </div>
 </div>
   </div>

@@ -149,12 +149,16 @@ cells above position index values are assigned to new raster objects.</p></li>
 argument <code>min.N</code> are included in the function output.</p></li>
 <li><p>If both <code>mainPI</code> and <code>secPI</code> are equal to <code>NULL</code>, the
 function will exclusively filter raster objects based on their size
-<code>min.N</code>.</p></li>
+(<code>min.N</code>).</p></li>
 </ul></div>
     <div id="note">
     <h2>Note</h2>
-    <p>Output raster objects can never share any border with input raster
-objects.</p>
+    <p>Raster objects are added only if they do not share any border with
+input raster objects.</p>
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p><code><a href="attTbl.html">attTbl()</a></code>, <code><a href="ngbList.html">ngbList()</a></code>, <code><a href="rel.pi.html">rel.pi()</a></code>, <code><a href="pi.sgm.html">pi.sgm()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
