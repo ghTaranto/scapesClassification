@@ -3,8 +3,8 @@
 #' Returns a vector of raster cell numbers extracted at the locations of a
 #' spatial object.
 #'
-#' @param SpatRaster raster, a \code{SpatRaster} object (see \code{help("rast",
-#'   terra)}).
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}).
 #' @param dsn data source name (filename) or an `sf`, a `Spatial` or a
 #'   `SpatVector` object.
 #' @param only_NAs logic, cell numbers extracted only for incomplete cases at
@@ -24,7 +24,7 @@
 #'
 #' @details When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
 #'   numeric output is equivalent to the output of the function
-#'   \code{terra::extract(SpatRaster, dsn, cells = TRUE)[["cell"]]}.
+#'   \code{terra::extract(r, dsn, cells = TRUE)[["cell"]]}.
 #'
 #' @export
 #' @examples
@@ -35,7 +35,7 @@
 #' library(terra)
 #'
 #' # CELL NUMBERS OF A DUMMY RASTER (7X7)
-#' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+#' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,1,0,1))
 #'
 #' # SET SOME NA-VALUE
 #' r_cn[c(9, 10, 11, 17, 18)] <- NA
@@ -110,7 +110,7 @@
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
 
-anchor.svo <- function(SpatRaster,
+anchor.svo <- function(r,
                        dsn,
                        only_NAs = FALSE,
                        fill_NAs = FALSE,
@@ -135,7 +135,7 @@ anchor.svo <- function(SpatRaster,
   if(is.character(dsn)){
 
     p <- terra::vect(dsn)
-    p <- terra::project(p, terra::crs(SpatRaster))
+    p <- terra::project(p, terra::crs(r))
 
   } else if(methods::is(dsn, "sf")|
             methods::is(dsn, "Spatial")|
@@ -149,14 +149,14 @@ anchor.svo <- function(SpatRaster,
 
   }
 
-  i_cell <- terra::cells(SpatRaster, p)[,2]
+  i_cell <- terra::cells(r, p)[,2]
 
   if (is.na(i_cell)[1] & length(i_cell==1)){
     stop("no overlap between raster and shape files")}
 
   # only_NA & fillNAs arguments
-  v           <- as.data.frame(terra::values(SpatRaster))
-  v[["Cell"]] <- seq(terra::ncell(SpatRaster))
+  v           <- as.data.frame(terra::values(r))
+  v[["Cell"]] <- seq(terra::ncell(r))
   c_cc        <- v[stats::complete.cases(v), "Cell"]
 
   if (only_NAs) {
@@ -164,7 +164,7 @@ anchor.svo <- function(SpatRaster,
   }
 
   if (fill_NAs) {
-    nbs <- ngb8(terra::nrow(SpatRaster) , terra::ncol(SpatRaster))
+    nbs <- ngb8(terra::nrow(r) , terra::ncol(r))
 
     continue <- T
     i_cell0  <- i_cell
@@ -190,7 +190,7 @@ anchor.svo <- function(SpatRaster,
   }
 
   # outputs
-  r2   <- SpatRaster[[1]]
+  r2   <- r[[1]]
   r2[] <- NA
   r2[i_cell] <- 1
 

@@ -10,8 +10,9 @@
 #' @param type character, defines if position index values are _standardized_
 #'   (\code{"s"}) or _normalized_ (\code{"n"}).
 #' @param plot logic, plot the results.
-#' @param r a \code{SpatRaster} object, the raster used to compute the
-#'   attribute table. Required only if \code{plot = TRUE}.
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}) used to compute the attribute table. Required
+#'   only if \code{plot = TRUE}.
 #'
 #' @details Position index values are computed only for cells that belong to a
 #'   raster object.
@@ -190,8 +191,9 @@ rel.pi <- function(attTbl,
 #' @param min.N numeric, the minimum number of cells a raster object has to have
 #'   to be included in the function output.
 #' @param plot logic, plot the results.
-#' @param r a \code{SpatRaster} object, the raster used to compute the attribute
-#'   table. Required only if \code{plot = TRUE}.
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}) used to compute the attribute table. Required
+#'   only if \code{plot = TRUE}.
 #'
 #' @return The function returns a class vector with raster objects IDs. The
 #'   vector has length equal to the number of rows of the attribute table. NA
@@ -403,8 +405,9 @@ pi.sgm <- function(attTbl,
 #' @param min.N numeric, the minimum number of cells a raster object has to have
 #'   to be included in the function output.
 #' @param plot logic, plot the results.
-#' @param r a \code{SpatRaster} object, the raster used to compute the attribute
-#'   table. Required only if \code{plot = TRUE}.
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}) used to compute the attribute table. Required
+#'   only if \code{plot = TRUE}.
 #'
 #' @return The function returns a class vector with raster objects IDs. The
 #'   vector has length equal to the number of rows of the attribute table. NA

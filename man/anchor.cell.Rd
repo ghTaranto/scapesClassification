@@ -6,7 +6,7 @@
 \usage{
 anchor.cell(
   attTbl,
-  SpatRaster,
+  r,
   anchor,
   class,
   classVector = NULL,
@@ -22,7 +22,7 @@ anchor.cell(
 \item{attTbl}{data.frame, the attribute table returned by the function
 \code{\link{attTbl}}.}
 
-\item{SpatRaster}{raster, the \code{SpatRaster} object (see
+\item{r}{single or multi-layer raster of the class \code{SpatRaster} (see
 \code{help("rast", terra)}) used to compute the \code{\link{attTbl}}.}
 
 \item{anchor}{integer vector of raster cell numbers.}
@@ -78,7 +78,7 @@ library(scapesClassification)
 library(terra)
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
-r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,1,0,1))
 
 # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
 at  <- attTbl(r_cn, "dummy_var")
@@ -88,13 +88,13 @@ nbs <- ngbList(r_cn)
 ################################################################################
 # ANCHOR.CELL
 ################################################################################
-cv1  <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+cv1  <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
                     class2cell = TRUE, class2nbs  = FALSE)
 
-cv2 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+cv2 <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
                    class2cell = FALSE, class2nbs  = TRUE)
 
-cv3 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+cv3 <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
                    class2cell = TRUE, class2nbs  = TRUE)
 
 # Convert class vectors to rasters

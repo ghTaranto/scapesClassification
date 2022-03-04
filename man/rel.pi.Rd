@@ -20,8 +20,9 @@ which the relative position index is computed.}
 
 \item{plot}{logic, plot the results.}
 
-\item{r}{a \code{SpatRaster} object, the raster used to compute the
-attribute table. Required only if \code{plot = TRUE}.}
+\item{r}{single or multi-layer raster of the class \code{SpatRaster} (see
+\code{help("rast", terra)}) used to compute the attribute table. Required
+only if \code{plot = TRUE}.}
 }
 \value{
 The function returns a vector with relative position index values.

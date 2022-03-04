@@ -5,7 +5,7 @@
 \title{Anchor cells from spatial vector objects}
 \usage{
 anchor.svo(
-  SpatRaster,
+  r,
   dsn,
   only_NAs = FALSE,
   fill_NAs = FALSE,
@@ -16,8 +16,8 @@ anchor.svo(
 )
 }
 \arguments{
-\item{SpatRaster}{raster, a \code{SpatRaster} object (see \code{help("rast",
-terra)}).}
+\item{r}{single or multi-layer raster of the class \code{SpatRaster} (see
+\code{help("rast", terra)}).}
 
 \item{dsn}{data source name (filename) or an \code{sf}, a \code{Spatial} or a
 \code{SpatVector} object.}
@@ -50,7 +50,7 @@ spatial object.
 \details{
 When the arguments \code{only_NA} and \code{fill_NAs} are FALSE the
 numeric output is equivalent to the output of the function
-\code{terra::extract(SpatRaster, dsn, cells = TRUE)[["cell"]]}.
+\code{terra::extract(r, dsn, cells = TRUE)[["cell"]]}.
 }
 \examples{
 # DUMMY DATA
@@ -60,7 +60,7 @@ library(scapesClassification)
 library(terra)
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
-r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,1,0,1))
 
 # SET SOME NA-VALUE
 r_cn[c(9, 10, 11, 17, 18)] <- NA

@@ -5,11 +5,11 @@
 \alias{ngbList}
 \title{List of neighborhoods}
 \usage{
-ngbList(SpatRaster, rNumb = FALSE, attTbl = NULL)
+ngbList(r, rNumb = FALSE, attTbl = NULL)
 }
 \arguments{
-\item{SpatRaster}{a \code{SpatRaster} object (see \code{help("rast",
-terra)}).}
+\item{r}{single or multi-layer raster of the class \code{SpatRaster} (see
+\code{help("rast", terra)}).}
 
 \item{rNumb}{logic, the neighbors of a raster cell are identified by \strong{cell
 numbers (\code{rNumb=FALSE})} or by \strong{row numbers (\code{rNumb=TRUE})}.

@@ -64,4 +64,5 @@ cv <- cond.4.all(attTbl = at, cond = "dummy_var > 1", class = 1)
 
 # Class vector to raster
 cv.2.rast(r, cv, plot = TRUE)
+text(r) # add raster values
 }

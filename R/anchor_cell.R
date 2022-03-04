@@ -4,7 +4,7 @@
 #'
 #' @param attTbl data.frame, the attribute table returned by the function
 #'   \code{\link{attTbl}}.
-#' @param SpatRaster raster, the \code{SpatRaster} object (see
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
 #'   \code{help("rast", terra)}) used to compute the \code{\link{attTbl}}.
 #' @param anchor integer vector of raster cell numbers.
 #' @param class numeric, the classification number to assign to all cells that
@@ -49,7 +49,7 @@
 #' library(terra)
 #'
 #' # CELL NUMBERS OF A DUMMY RASTER (7X7)
-#' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+#' r_cn <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,1,0,1))
 #'
 #' # COMPUTE ATTRIBUTE TABLE AND LIST OF NEIGHBORHOODS
 #' at  <- attTbl(r_cn, "dummy_var")
@@ -59,13 +59,13 @@
 #' ################################################################################
 #' # ANCHOR.CELL
 #' ################################################################################
-#' cv1  <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#' cv1  <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
 #'                     class2cell = TRUE, class2nbs  = FALSE)
 #'
-#' cv2 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#' cv2 <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
 #'                    class2cell = FALSE, class2nbs  = TRUE)
 #'
-#' cv3 <- anchor.cell(attTbl = at, SpatRaster = r_cn, anchor = 1:7, class  = 10,
+#' cv3 <- anchor.cell(attTbl = at, r = r_cn, anchor = 1:7, class  = 10,
 #'                    class2cell = TRUE, class2nbs  = TRUE)
 #'
 #' # Convert class vectors to rasters
@@ -108,7 +108,7 @@
 #'        legend = c("Classified cells","Unclassified cells"))
 
 anchor.cell <-
-  function(attTbl, SpatRaster, anchor, class,
+  function(attTbl, r, anchor, class,
            classVector = NULL,
            class2cell = TRUE,
            class2nbs = TRUE,
@@ -152,7 +152,7 @@ anchor.cell <-
     ###
     if (class2nbs) {
       nbs_anchor <-
-        ngb8(n_row = terra::nrow(SpatRaster), terra::ncol(SpatRaster))
+        ngb8(n_row = terra::nrow(r), terra::ncol(r))
       nbs_anchor <- unlist(nbs_anchor[anchor])
 
       if (!overwrite_class) {
@@ -168,7 +168,7 @@ anchor.cell <-
       }
     }
 
-    r2   <- SpatRaster[[1]]
+    r2   <- r[[1]]
     r2[] <- NA
     r2[attTbl$Cell[!is.na(classVector)]] <-
       classVector[!is.na(classVector)]

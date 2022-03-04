@@ -3,8 +3,8 @@
 #' Converts a single or a multi-layer raster into an attribute table
 #' (\code{data.frame}).
 #'
-#' @param SpatRaster a \code{SpatRaster} object (see \code{help("rast",
-#'   terra)}).
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}).
 #' @param var_names character vector, raster layers' names in the attribute
 #'   table. If \code{NULL}, then the original layers' names are used.
 #'
@@ -60,9 +60,9 @@
 #' # Note that cells 1 and 4 have missing values and therefore are not included in the table
 #' any(at$Cell %in% c(1,4))
 
-attTbl <- function(SpatRaster, var_names = NULL){
+attTbl <- function(r, var_names = NULL){
 
-  dt <- data.frame(Cell=1:terra::ncell(SpatRaster), terra::values(SpatRaster))
+  dt <- data.frame(Cell=1:terra::ncell(r), terra::values(r))
   dt <- dt[stats::complete.cases(dt),]
   row.names(dt) <- NULL
 
@@ -70,7 +70,7 @@ attTbl <- function(SpatRaster, var_names = NULL){
 
     if( length(var_names) != length(names(dt)) -1 ){
 
-      stop("var_names length should be equal to the number of layers in SpatRaster")
+      stop("var_names length should be equal to the number of layers in r")
 
     } else {
 
@@ -90,8 +90,8 @@ attTbl <- function(SpatRaster, var_names = NULL){
 #' Computes the neighborhoods of the cells of a raster. Neighborhoods are not
 #' computed for cells with missing values.
 #'
-#' @param SpatRaster a \code{SpatRaster} object (see \code{help("rast",
-#'   terra)}).
+#' @param r single or multi-layer raster of the class \code{SpatRaster} (see
+#'   \code{help("rast", terra)}).
 #' @param rNumb logic, the neighbors of a raster cell are identified by **cell
 #'   numbers (\code{rNumb=FALSE})** or by **row numbers (\code{rNumb=TRUE})**.
 #'   If true, the argument \code{attTbl} cannot be NULL.
@@ -231,10 +231,10 @@ attTbl <- function(SpatRaster, var_names = NULL){
 #' r[c(1,4)]
 
 
-ngbList <- function(SpatRaster, rNumb = FALSE, attTbl = NULL){
+ngbList <- function(r, rNumb = FALSE, attTbl = NULL){
 
-  ind <- which(stats::complete.cases( as.data.frame(terra::values(SpatRaster)) ))
-  nbs <- ngb8(terra::nrow(SpatRaster[[1]]), terra::ncol(SpatRaster[[1]]))
+  ind <- which(stats::complete.cases( as.data.frame(terra::values(r)) ))
+  nbs <- ngb8(terra::nrow(r[[1]]), terra::ncol(r[[1]]))
 
   nbs <- nbs[ind]
 

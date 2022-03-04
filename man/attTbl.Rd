@@ -5,11 +5,11 @@
 \alias{attTbl}
 \title{Attribute table}
 \usage{
-attTbl(SpatRaster, var_names = NULL)
+attTbl(r, var_names = NULL)
 }
 \arguments{
-\item{SpatRaster}{a \code{SpatRaster} object (see \code{help("rast",
-terra)}).}
+\item{r}{single or multi-layer raster of the class \code{SpatRaster} (see
+\code{help("rast", terra)}).}
 
 \item{var_names}{character vector, raster layers' names in the attribute
 table. If \code{NULL}, then the original layers' names are used.}

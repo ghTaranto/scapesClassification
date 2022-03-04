@@ -228,7 +228,7 @@ conditions1(names_attTbl, cond)
 ################################################################################
 
 # CELL NUMBERS OF A DUMMY RASTER (7X7)
-r   <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE))
+r   <- terra::rast(matrix(1:49, nrow = 7, byrow = TRUE), extent=c(0,7,0,7))
 nbs <- ngbList(r)
 
 # CLASS VECTOR WITH ONE TEST AND ONE FOCAL CELL
@@ -237,11 +237,11 @@ cv[c(32, 25)] <- c(1, 2) # tc (class 1), fc (class 2)
 r_cv <- cv.2.rast(r, classVector = cv)
 
 # POLYGONS REPRESENTING NEIGHBORHOODS
-tcn <- rbind(c(1/7*2, 1/7*5), c(1/7*5, 1/7*5), c(1/7*5, 1/7*2), c(1/7*2, 1/7*2), c(1/7*2, 1/7*5))
-tcn <- terra::vect(tcn, type="polygons")
-
-fcn <- rbind(c(1/7*2, 1/7*4), c(1/7*5, 1/7*4), c(1/7*5, 1/7*1), c(1/7*2, 1/7*1), c(1/7*2, 1/7*4))
+fcn <- rbind(c(2,5), c(5,5), c(5,2), c(2,2), c(2,5))
 fcn <- terra::vect(fcn, type="polygons")
+
+tcn <- rbind(c(2,4), c(5,4), c(5,1), c(2,1), c(2,4))
+tcn <- terra::vect(tcn, type="polygons")
 
 # PLOT - FOCAL EVALUATION DEFINITIONS
 m <- c(3.5, 8, 1.2, 8)
@@ -255,8 +255,8 @@ mtext(side=1, line=1, cex=0.9, adj=0,
       "Test cell neighborhood: 24, 25, 26, 31, 33, 38, 39, 40")
 mtext(side=1, line=2, cex=0.9, adj=0,
      "Directional neighborhood: 24, 25, 26, 31, 32, 33")
-lines(tcn, col="#1088a0", lwd=2)
-lines(fcn, col="#cfad8999", lwd=2)
+lines(fcn, col="#1088a0", lwd=2)
+lines(tcn, col="#cfad8999", lwd=2)
 legend("bottomleft", ncol = 1, bg = "white", y.intersp= 1.3,
        legend = c("Focal cell", "Test cell"), fill = c("#1088a0", "goldenrod3"))
 }
