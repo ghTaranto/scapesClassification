@@ -30,6 +30,8 @@
 #'   The vector has length equal to the number of rows of the attribute table.
 #'   NA values are assigned to cells that do not belong to any raster object.
 #'
+#' @seealso [attTbl()], [ngbList()], [pi.add()], [pi.sgm()]
+#'
 #' @export
 #' @examples
 #' # DUMMY DATA
@@ -158,7 +160,7 @@ rel.pi <- function(attTbl,
     }
 
     terra::plot(r_rPI, type="interval", main=tt, mar=m, breaks=brk,
-                plg=list(x=1, y=1, cex=0.9))
+                plg=list(x=terra::ext(r_rPI)[2], y=terra::ext(r_rPI)[4], cex=0.9))
   }
 
   on.exit(graphics::layout(1))
@@ -217,7 +219,9 @@ rel.pi <- function(attTbl,
 #'
 #'   * If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
 #'   function will exclusively filter raster objects based on their size
-#'   \code{min.N}.
+#'   (\code{min.N}).
+#'
+#' @seealso [attTbl()], [ngbList()], [rel.pi()], [pi.add()]
 #'
 #' @export
 #' @examples
@@ -367,11 +371,11 @@ pi.sgm <- function(attTbl,
 
     r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
     terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
-                plg=list(x=1, y=1, cex=0.9))
+                plg=list(x=terra::ext(r_RO)[2], y=terra::ext(r_RO)[4], cex=0.9))
 
     r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
     terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
-                plg=list(x=1, y=1, cex=0.9))
+                plg=list(x=terra::ext(r_RO1)[2], y=terra::ext(r_RO1)[4], cex=0.9))
   }
 
   on.exit(graphics::layout(1))
@@ -431,10 +435,12 @@ pi.sgm <- function(attTbl,
 #'
 #'   * If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
 #'   function will exclusively filter raster objects based on their size
-#'   \code{min.N}.
+#'   (\code{min.N}).
 #'
-#' @note Output raster objects can never share any border with input raster
-#'   objects.
+#' @note Raster objects are added only if they do not share any border with
+#'   input raster objects.
+#'
+#' @seealso [attTbl()], [ngbList()], [rel.pi()], [pi.sgm()]
 #'
 #' @export
 #' @examples
@@ -581,11 +587,11 @@ pi.add <- function(attTbl,
 
     r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
     terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
-                plg=list(x=1, y=1, cex=0.9))
+                plg=list(x=terra::ext(r_RO)[2], y=terra::ext(r_RO)[4], cex=0.9))
 
     r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
     terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
-                plg=list(x=1, y=1, cex=0.9))
+                plg=list(x=terra::ext(r_RO1)[2], y=terra::ext(r_RO1)[4], cex=0.9))
   }
 
   on.exit(graphics::layout(1))

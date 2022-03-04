@@ -103,3 +103,6 @@ points(terra::xFromCell(r, at$Cell[which(at$RO==2)]),
        pch=20, col="darkgreen")
 text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
 }
+\seealso{
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=pi.add]{pi.add()}}, \code{\link[=pi.sgm]{pi.sgm()}}
+}

@@ -76,7 +76,7 @@ raster object.
 argument \code{min.N} are included in the function output.
 \item If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
 function will exclusively filter raster objects based on their size
-\code{min.N}.
+(\code{min.N}).
 }
 }
 \examples{
@@ -128,4 +128,7 @@ text(xyFromCell(r,at$Cell), as.character(round(at$relPI,2))) # visualize relPI
 
 # Two output raster objects
 unique(RO1)
+}
+\seealso{
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=rel.pi]{rel.pi()}}, \code{\link[=pi.add]{pi.add()}}
 }

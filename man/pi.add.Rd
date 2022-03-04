@@ -78,12 +78,12 @@ cells above position index values are assigned to new raster objects.
 argument \code{min.N} are included in the function output.
 \item If both \code{mainPI} and \code{secPI} are equal to \code{NULL}, the
 function will exclusively filter raster objects based on their size
-\code{min.N}.
+(\code{min.N}).
 }
 }
 \note{
-Output raster objects can never share any border with input raster
-objects.
+Raster objects are added only if they do not share any border with
+input raster objects.
 }
 \examples{
 # DUMMY DATA
@@ -133,4 +133,7 @@ text(xyFromCell(r,at$Cell), as.character(round(at$PI,2))) # visualize relPI
 
 # Two raster object
 unique(RO1)
+}
+\seealso{
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=rel.pi]{rel.pi()}}, \code{\link[=pi.sgm]{pi.sgm()}}
 }
