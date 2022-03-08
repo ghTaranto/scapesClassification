@@ -1,0 +1,154 @@
+---
+title: "Peak cells"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Peak cells}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+Peak cells are _local maxima_ on a raster surface ([Figure 1](#figure1)). In `scapesClassification`, a cell constitutes a _local maximum_ if its elevation value is larger than the values of all the cells in its [neighborhood](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods). 
+
+## Load data
+
+Libraries and data are loaded and processed as explained in [format input data](scapesClassification_02_1_DATA.html). 
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- rast(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+```
+
+### Class vector filters
+
+We will also load the class vector of the [island shelf unit (ISU)](scapesClassification_02_2_ISU.html), add it to the attribute table and use it as a classification filter to exclude ISU areas from peak search areas.
+
+```{r ISU_filter, message=FALSE, warning=FALSE}
+# ADD ISU FILTER
+ISU <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T,
+                  pattern = "ISU_Cells\\.RDS")
+
+atbl$ISU <- readRDS(ISU)
+atbl$ISU[!is.na(atbl$ISU)] <- 1 # Class 1 identifies all ISU cells 
+
+head(atbl)
+```
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+
+# set gerenal options
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE,
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- rast(hs[grepl("hillshade\\.grd", hs)])
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+## Peak cell
+
+We will identify peak cells on our bathymetric surface using the function `peak.cell()`. In a second step, we will use the function `cond.reclass()` to filter out (i) peaks within the island shelf unit and (ii) peaks that are not on prominent relieves.
+
+* __[peak.cell](scapesClassification_01_3_ClassFunctions.html#peak-cell):__ finds local maxima or minima on a raster surface. In this example, we will find _local maxima_ in the _bathymetry_ column of the attribute table. Cells on the edge of the raster and cells adjacent to NA-cell are excluded from the peak search area (`p_edge = FALSE`).
+
+* __[cond.reclass](scapesClassification_01_3_ClassFunctions.html#cond-reclass):__ evaluates conditions for cells of a class and reclassifies them if conditions are true. In this examples peak cells not meeting the filter condition are reclassified as NA-cells and excluded from the peak class vector. 
+
+```{r peak_cell, message=FALSE, warning=FALSE, collapse = TRUE}
+# PEAK CELL
+atbl$pc <- peak.cell(atbl, nbs, rNumb = TRUE,
+                     p_col = "bathymetry", # column on which local maxima are searched
+                     p_edge = FALSE)       # local maxima or minima are not searched on edge cells
+
+# FILTER PEAK CELL
+
+# Filter condition:
+# (i)  peak cell within the ISU            -> !is.na(ISU)
+# (ii) peak cell not on prominent features -> BPI > 100
+
+cond <- "regional_bpi < 100 | local_bpi < 100 | !is.na(ISU)"
+
+# Filter
+atbl$pc <- cond.reclass(atbl, nbs, rNumb = TRUE, classVector = atbl$pc, # filter class vector atbl$pc
+                        cond = cond,  # filter condition
+                        class = 1,    # peak cells meeting conditions...
+                        reclass = NA) # are reclassified as NA-cells
+```
+
+<a id="figure1"></a>
+
+```{r peak_cell_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# Land cells
+lc <- readRDS(list.files(system.file("extdata", package = "scapesClassification"), 
+                         full.names = T, pattern = "Land_Cells.RDS"))
+
+rL <- rstack[[1]]; rL[]  <- NA; rL[lc] <- 1
+rL <- as.polygons(rL, dissolve = TRUE)
+
+# Peak cells
+rPC <- cv.2.rast(rstack, atbl$pc, atbl$Cell)
+rISU<- cv.2.rast(rstack, atbl$ISU, atbl$Cell)
+rPC  <- as.polygons(rPC, dissolve = TRUE)
+rISU <- as.polygons(rISU, dissolve = TRUE)
+
+# Map
+rL$dummy   <- 1
+rPC$dummy  <- 1
+rISU$dummy <- 1
+
+m <-
+  mapview(raster::raster(hs), col.regions = c("gray0", "gray50", "grey100"), alpha.regions=1, 
+          legend = FALSE, label = FALSE) +
+  mapview(as(rL,"Spatial"), alpha.regions = 1, col.regions = "black", popup = NULL, 
+          legend = FALSE, label = FALSE) +
+  mapview(as(rISU,"Spatial"), alpha.regions = 1, 
+          col.regions = "gray", layer.name = "ISU cell", popup = NULL, label = "ISU cell") + 
+  mapview(as(rPC,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "black", layer.name = "Peak cell", popup = NULL, label = "Peak cell") + 
+  mapview(raster::raster(rstack[[1]]), layer.name = "Depth (m)", col.regions = palRYB) 
+  
+m@map %>% 
+  addLayersControl(overlayGroups = c("ISU cell", "Peak cell", "Depth (m)"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Peak cells,** _local maxima_ found on the bathymetric raster layer.</span></div>
+
+
+## Final class vector
+
+The peak class vector is saved in the file `'PKS_Cells.RDS'` and shared as part of the package data. 
+
+```{r classVect_PKS, message=FALSE, warning=FALSE, collapse = TRUE}
+# # PEAK CELLS
+# unique(atbl$PKS)
+# 
+# # atbl$PKS == 1,  Peak cells
+# # atbl$PKS == NA, Unclassified cells
+```

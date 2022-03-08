@@ -14,7 +14,7 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
 ## Study case and input data
-Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge ([Figure 1](#figure1)). Geomorphic management units (GMUs) will be identified using a [`RasterStack`](https://rspatial.org/raster/spatial/4-rasterdata.html#rasterstack-and-rasterbrick) of six layers that includes bathymetry, bathymetric derivatives ([Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm)) and the geomorphons of the area ([Jasiewicz and Stepinski, 2013](https://www.sciencedirect.com/science/article/pii/S0169555X12005028#!)):
+Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge ([Figure 1](#figure1)). Geomorphic management units (GMUs) will be identified using a `SpatRaster`([`terra package`](https://rspatial.org/spatial-terra/4-rasterdata.html#spatrast)) of six layers that includes bathymetry, bathymetric derivatives ([Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm)) and the geomorphons of the area ([Jasiewicz and Stepinski, 2013](https://www.sciencedirect.com/science/article/pii/S0169555X12005028#!)):
   
 * **Bathymetry:** depth values;
 * **Local BPI:** bathymetric position index (BPI) computed with an outer radius of 10px (ca. 5 km);
@@ -26,20 +26,20 @@ Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around 
 We will start by loading the required libraries and data into the workspace:
 ```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
 # LOAD LIBRARIES
-library(raster)
 library(scapesClassification)
+library(terra)
 
 # LOAD DATA
 grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
 grd <- grd[grepl("\\.grd", grd)]
 grd <- grd[!grepl("hillshade", grd)]
-rstack <- stack(grd)
+rstack <- rast(grd)
 ```
 
 ```{r hillShade, message=FALSE, include=FALSE}
 # hillShade
 hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
-hs <- raster(hs[grepl("hillshade\\.grd", hs)])
+hs <- rast(hs[grepl("hillshade\\.grd", hs)])
 ```
 
 ```{r loadMapView, message=FALSE, include=FALSE}
@@ -60,15 +60,17 @@ gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b
 
 <a id="figure1"></a>
 We can plot the raster stack as an interactive map using the R packages [`mapview`](https://r-spatial.github.io/mapview/) and [`leaflet`](https://rstudio.github.io/leaflet/): 
+
+_Note that raster of class `SpatRaster` (package `terra`) are not yet supported in interactive maps, therefore, we will always convert raster objects to the class `RasterLayer` (package `raster`) before plotting._
+
 ```{r plotRSTACK, message=FALSE, warning=FALSE, echo=FALSE}
-# plotRSTACK
-m <- mapview(rstack[[1]], layer.name = c("Bathymetry (m)"), col.regions = palRYB) +
-  mapview(rstack[[3]], layer.name = c("Local BPI"), col.regions = palBYR, hide = TRUE) + 
-  mapview(rstack[[4]], layer.name = c("Regional BPI"), col.regions = palBYR, hide = TRUE) +
-  mapview(rstack[[6]], layer.name = c("Slope (deg)"), col.regions = palYGB, hide = TRUE) + 
-  mapview(rstack[[5]], layer.name = c("SD Bathymetry (9x9)"), col.regions = palYGB, hide = TRUE) + 
-  mapview(as.factor(rstack[[2]]), layer.name = c("Geomorphons"), method = "ngb", col.regions = gm_col, at=0:10)
-  
+m <- mapview(raster::raster(rstack[[1]]), layer.name = c("Bathymetry (m)"), col.regions = palRYB) +
+  mapview(raster::raster(rstack[[3]]), layer.name = c("Local BPI"), col.regions = palBYR, hide = TRUE) + 
+  mapview(raster::raster(rstack[[4]]), layer.name = c("Regional BPI"), col.regions = palBYR, hide = TRUE) +
+  mapview(raster::raster(rstack[[6]]), layer.name = c("Slope (deg)"), col.regions = palYGB, hide = TRUE) + 
+  mapview(raster::raster(rstack[[5]]), layer.name = c("SD Bathymetry (9x9)"), col.regions = palYGB, hide = TRUE) + 
+  mapview(as.factor(raster::raster(rstack[[2]])), layer.name = c("Geomorphons"), method = "ngb", col.regions = gm_col, at=0:10)
+
 m@map %>% 
   hideGroup(c("Local BPI", "Regional BPI", "Slope (deg)", "SD Bathymetry (9x9)", "Geomorphons")) %>% 
   setView(lng = -28.55, lat = 38.45, zoom = 8) %>%
@@ -77,10 +79,10 @@ m@map %>%
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
-<div style="line-height: 0.8em; margin-bottom: 1.5em;"><span class="legend">**FIGURE 1 -** Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**FIGURE 1 -** Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression.</span></div>
 
 ## Format input data
-The classification process in [scapesClassification](https://github.com/ghTaranto/scapesClassification) begins with the computation of two objects:
+The classification process in `scapesClassification` begins with the computation of two elements (see [Format inputs](scapesClassification_01_1_FormatInputs.html)):
 
 __Attribute table:__ the raster object converted into a `data.frame`. Attribute tables include only raster cells having no missing values. Function `attTbl()`.
 ```{r attTbl, message=FALSE, warning=FALSE, collapse = TRUE}
@@ -88,20 +90,20 @@ __Attribute table:__ the raster object converted into a `data.frame`. Attribute 
 atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
 
 # VIEW THE TOP 3 ROWS OF `atbl`
-# Each row corresponds to the raster cell indicated in atbl$Cell
+# Each row corresponds to a raster cell as indicated in the column `atbl$Cell`
 
 head(atbl, 3) 
 ```
 
-__Neighborhood list:__ the `list` of neighbors of every raster cell included in the attribute table. Function `ngbList()`. 
+__List of neighborhoods:__ the neighborhoods of every raster cell included in the attribute table. Function `ngbList()`. 
 ```{r ngbList, message=FALSE, warning=FALSE, collapse = TRUE}
 # COMPUTE NEIGHBORHOOD LIST
-nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # the neighbors are identified by row numbers (see ?ngbList)
 
 # VIEW THE TOP ELEMENT OF `nbs`
 nbs[1]
 
 # nbs[1] reads as:
 # the cell in row $`1` of `atbl` has 
-# cells of rows 2, 291 and 292 as neighbors
+# cells in `atbl` rows 2, 291 and 292 as neighbors
 ```

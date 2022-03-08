@@ -56,7 +56,7 @@ Raster object manipulation functions can be used to identify and manipulate rast
 
 ### anchor.seed
 
-The function `anchor.seed()` can be considered as an [anchor cell function](scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions) and as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (_seed cells_) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics. 
+The function `anchor.seed()` can be considered as an [anchor cell function](scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions) as well as a raster object function. Its two principal uses are: (i) identify cells having particular characteristics (_seed cells_) and define around them growth and isolation buffers; (ii) assign unique IDs to groups of cells having particular characteristics. 
 
 #### Condition arguments
 

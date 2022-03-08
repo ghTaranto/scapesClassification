@@ -1,0 +1,264 @@
+---
+title: "Island shelf unit (ISU)"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Island shelf unit (ISU)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+The island shelf unit (ISU) is composed of two main elements: _(i)_ __shelves__ (i.e., relatively flat areas surrounding islands) and _(ii_) __slopes__ (i.e., areas that connect island shelves to the seafloor).
+
+## Load data
+
+Libraries and data are loaded and processed as explained in [format input data](scapesClassification_02_1_DATA.html).
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- rast(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+```
+
+```{r hillShade, message=FALSE, include=FALSE}
+# hillShade
+hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+hs <- rast(hs[grepl("hillshade\\.grd", hs)])
+
+library(mapview)
+library(leaflet)
+library(leafem)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+## ISU cells
+
+ISU cells will be identified in a series of steps. Each classification step will be saved as a **class vector**, a vector of length equal to the number of rows of the attribute table. The n^th^ element of a class vector corresponds to the raster cell in the n^th^ row of an attribute table (see also `?conditions` and [class vectors](scapesClassification_01_3_ClassFunctions.html#class-vectors)).
+
+Class vectors can be converted into a raster, plotted and saved using the function `cv.2.rast()`. However, here we will present classification outputs as interactive maps using the R packages [`mapview`](https://r-spatial.github.io/mapview/) and [`leaflet`](https://rstudio.github.io/leaflet/). The plots’ code can be accessed in the *.RMD file used to generate the html file.
+
+### Anchor cells
+__[Anchor cells](scapesClassification_01_3_ClassFunctions.html#anchor-cell-functions)__ are raster cells that can be easily assigned to a class because of some distinctive attribute(s). For example, cells ___'adjacent to an island'___ by definition are _'shelf cells'_. We can derive this initial set of cells using two functions ([Figure 1](#figure1)):
+
+* __[anchor.svo](scapesClassification_01_3_ClassFunctions.html#anchor-svo):__ returns a vector of cell numbers extracted at the locations of a spatial vector object. In this example, _'land cells'_ are defined as raster cells extracted at island locations that are incomplete cases (arg. `only_NAs = T`) and at contiguous locations that are also incomplete cases (arg. `fill_NAs = T`);
+
+* __[anchor.cell](scapesClassification_01_3_ClassFunctions.html#anchor-cell):__ converts a vector of cell numbers into a class vector. In this example, all cells adjacent to _'land cells'_ are classified as _'ISU-anchor cells'_. 
+
+```{r ISU_land_anchor, message=FALSE, warning=FALSE, collapse = TRUE}
+# ISLAND SHAPEFILE PATH
+shp <- system.file("extdata", "Azores.shp", package = "scapesClassification")
+
+# EXTRACT LAND POSITIONS
+anchorLAND <- anchor.svo(r = rstack, dsn = shp, only_NAs = TRUE, fill_NAs = TRUE)
+
+# IDENTIFY ANCHOR CELLS
+anchorCELL <- anchor.cell(attTbl = atbl, r = rstack, anchor = anchorLAND, class = 1, 
+                          class2cell = FALSE, # class not attributed to land cells
+                          class2nbs  = TRUE)  # class attributed to cell adjacent to land cells
+```
+
+<a id="figure1"></a>
+```{r ISU_anchor_map, message=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+# ISU_anchor
+island <- terra::vect(shp)
+island$BASE[c(5,4,49)] <- c("Pico", "Faial", "Sao Jorge") # mouseover labels
+
+rL  <- rstack[[1]]; rL[]  <- NA; rL[anchorLAND] <- 1
+rAC <- rstack[[1]]; rAC[] <- NA; rAC[atbl$Cell] <- anchorCELL
+
+rL  <- as.polygons(rL, dissolve = TRUE)
+rAC <- as.polygons(rAC, dissolve = TRUE)
+
+# add a column so that mapview legend reads layer.name and not values
+rL$dummy  <- 1
+rAC$dummy <- 1
+
+m <- 
+  mapview(as(rAC,"Spatial"), alpha.regions = 1, 
+          col.regions = "orange", layer.name = "Anchor cell", popup = NULL, label = "Anchor Cell") + 
+  mapview(as(rL,"Spatial"), alpha.regions = 1, 
+          col.regions = "black", layer.name = "Land cell", popup = NULL, label = "Land cell") + 
+  mapview(as(island,"Spatial"), alpha.region = 0, col.regions = "cyan", color = "#00FFFF50", lwd = 2, label = "BASE", 
+          layer.name = "Island shapefile", popup = NULL)
+
+m@map %>% 
+  setView(lng = -28.35, lat = 38.59, zoom = 10) %>%
+  addLayersControl(baseGroups = c("OpenStreetMap", "Esri.OceanBasemap"),
+                   overlayGroups = c("Anchor cell", "Land cell", "Complete cases", "Island shapefile"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 -** **Anchor cells,** raster cells adjacent to a 'land cell'. **Land cells,** raster cells extracted at island locations that are not complete cases and at contiguous locations that are also not complete cases (complete cases are raster cells having no missing value in no layer of the stack). **Island shapefile,** the shapefile of Faial, Pico and São Jorge Islands.</span></div>
+
+```{r cVect, message=FALSE, warning=FALSE, collapse = TRUE}
+# CLASS VECTOR
+unique(anchorCELL) 
+
+# anchorCELL == 1,  ISU anchor cells
+# anchorCELL == NA, unclassified cells
+
+length(anchorCELL) == NROW(atbl)
+```
+
+### Shelf cells
+In the previous section we identified the portion of _'shelf cells'_ contiguous to an island. The remaining shelf cells can be identified considering that (i) island shelves tend to be flat and that (ii) raster cells surrounded by shelf cells can be assumed to be part of the shelf. These rules can be implemented using the function `cond.4.nofn()` ([Figure 2](#figure2)).
+
+* __[cond.4.nofn](scapesClassification_01_3_ClassFunctions.html#cond-4-nofn)__: evaluates conditions for cells neighboring specific classes and classify them if conditions are true. In this example the function is used to identify: **(i) flat cells,** cells with `slope < 5º` connected with an anchor cell (see [focal evaluation](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation)) and **(ii) hole cells,** cells with at least 60% of neighbors belonging to a 'shelf cell' class. 
+
+```{r ISU_shelf, message=FALSE, warning=FALSE, collapse = TRUE}
+# FLAT CELLS
+flatCELLS <- cond.4.nofn(atbl, nbs, rNumb = TRUE, classVector = anchorCELL, # update previous class vector 
+                         class = 2,          # flat cell class 
+                         nbs_of = c(1, 2),   # focal cells
+                         cond = "slope <= 5",# condition (slope refers to the column `slope` of `atbl`)
+                         min.bord = 0.2)     # a test cell is classified only if cond=TRUE AND
+                                             # if at least 20% of its neighbors belong to a shelf cell class
+
+# HOLE CELLS
+holeCELLS <- cond.4.nofn(atbl, nbs, rNumb = TRUE, classVector = flatCELLS, # update previous class vector
+                         class = 3,          # hole cell class  
+                         nbs_of = c(1, 2, 3),# focal cells
+                         cond = "TRUE",      # conditions are always true
+                         min.bord = 0.6)     # a test cell is classified only if 60% of its neighbors 
+                                             # belong to a shelf cell class  
+```
+
+<a id="figure2"></a>
+```{r ISU_shelf_map, message=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+rSC1 <- rstack[[1]]; rSC1[] <- NA; rSC1[ atbl$Cell[ which(holeCELLS == 2) ] ] <- 1
+rSC2 <- rstack[[1]]; rSC2[] <- NA; rSC2[ atbl$Cell[ which(holeCELLS == 3) ] ] <- 1
+
+rSC1 <- as.polygons(rSC1, dissolve = TRUE)
+rSC2 <- as.polygons(rSC2, dissolve = TRUE)
+
+rSC1$dummy <- 1
+rSC2$dummy <- 1
+
+m <-
+  mapview(as(rL,"Spatial"), alpha.regions = 1, 
+          col.regions = "black", layer.name = "Land cell", popup = NULL, label = "Land cell", legend = FALSE) + 
+  mapview(as(rAC,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "orange", layer.name = "Anchor cell", popup = NULL, label = "ISU shelf cell (anchor cell)") + 
+  mapview(as(rSC1,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "#FFD700", layer.name = "Flat cell", popup = NULL, label = "ISU shelf cell (flat cell)") + 
+  mapview(as(rSC2,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "#A0522D", layer.name = "Hole cell", popup = NULL, label = "ISU shelf cell (hole cell)") + 
+  mapview(raster::raster(rstack[[6]]), layer.name = "Slope (deg)", col.regions = palYGB)
+
+m@map %>% 
+  hideGroup(c("SLOPE (deg)")) %>% 
+  # setView(lng = -28.40, lat = 38.55, zoom = 9) %>%
+  addLayersControl(overlayGroups = c("Anchor cell", "Flat cell", "Hole cell", "Slope (deg)"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 -** **Anchor cell,** raster cells adjacent to a 'land cell'. **Flat cell,** raster cells with `slope < 5º` connected with an anchor cells. **Hole cell:** cells with at least 60% of neighbors belonging to a 'shelf cell' class. **Slope,** slope values (due to plot re-projection, displayed and original values might be slightly different).</span></div>
+
+#### Focal evaluation 
+
+Note that flatness is a property shared by several classes such as flat tops or abyssal plains. In order to exclusively identify shelf cells, the flatness rule has to only be evaluated only at locations in continuity with ISU anchor cells (see [focal evaluation](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation)). 
+
+#### Updating class vectors
+
+[Class vectors](scapesClassification_01_3_ClassFunctions.html#class-vectors) are updated each time they are passed to a [classification function](scapesClassification_01_3_ClassFunctions.html). Cells that have not been classified and that meet the conditions get a classification number. The class vector `holeCELLS` was the latest to be computed and it includes all the shelf cell classes ([Figure 2](#figure2)). 
+
+```{r classVect_exm, message=FALSE, warning=FALSE, collapse = TRUE}
+# ISLAND SHELF CELLS
+unique(holeCELLS)
+
+# holeCELLS == 1,  ISU anchor cells
+# holeCELLS == 2,  ISU flat cells
+# holeCELLS == 3,  ISU hole cells
+# holeCELLS == NA, unclassified cells
+```
+
+### Slope cells
+
+ISU slopes can be defined as raster cells that connect shelf cells to the seafloor. Seafloor cells tend to have near zero or negative benthic position index (BPI) values. We will use the function `cond.4.nofn()` and two layers (`regional_bpi` and `local_bpi`, see [input data](scapesClassification_02_1_DATA.html)) to identify _'slope cells'_. The use of regional and local BPI layers help to identify both large and small features that elevate above the seafloor and to better classify slope cells ([Figure 3](#figure3)). 
+
+In this example, _slope cells_ are in [continuity](scapesClassification_01_2_RulesEvalTypes.html#continuity) with shelf cells and respect the following classification rules:
+
+* `regional_bpi > 100` **OR**
+
+* `local_bpi{} > 100`, `peval = 0.4`; 
+
+The tag `{}` flags an [absolute neighborhood condition](scapesClassification_01_2_RulesEvalTypes.html#absolute-conditions): test cells receive a classification number only if the rule is true for at least as many evaluations as the ones specified by the argument `peval`.
+
+```{r slope, message=FALSE, message=FALSE, warning=FALSE}
+slope <- cond.4.nofn(atbl, nbs, rNumb = TRUE, classVector = holeCELLS, # update previous class vector
+                     class = 4,           # slope cell class
+                     nbs_of = c(1,2,3,4), # focal cells
+                     cond = "regional_bpi > 100 | local_bpi{} > 100", # conditions
+                     peval = 0.4)    # minimum number of positive evaluations (neighborhood condition, ?conditions)
+```
+
+<a id="figure3"></a>
+
+```{r ISU_slope_map, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6.0}
+rSL1 <- rstack[[1]]; rSL1[] <- NA; rSL1[ atbl$Cell[ which(slope == 4) ] ] <- 1
+rSL1 <- as.polygons(rSL1, dissolve = TRUE)
+rSL1$dummy <- 1
+
+m <-
+  mapview(as(rL,"Spatial"), alpha.regions = 1, 
+          col.regions = "black", layer.name = "Land cell", popup = NULL, label = "Land cell", legend = FALSE) +
+  mapview(as(rAC,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "orange", layer.name = "Anchor cell", popup = NULL, label = "ISU shelf cell (anchor cell)") + 
+  mapview(as(rSC1,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "#FFD700", layer.name = "Flat cell", popup = NULL, label = "ISU shelf cell (flat cell)") + 
+  mapview(as(rSC2,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "#A0522D", layer.name = "Hole cell", popup = NULL, label = "ISU shelf cell (hole cell)") + 
+  mapview(as(rSL1,"Spatial"), alpha.regions = 0.8, 
+          col.regions = "cyan", layer.name = "Slope cell", popup = NULL, label = "ISU shelf cell (slope cell)") +
+  mapview(raster::raster(rstack[[4]]), layer.name = "Regional BPI", col.regions = palBYR) + 
+  mapview(raster::raster(rstack[[3]]), layer.name = "Local BPI", col.regions = palBYR)
+
+m@map %>% 
+  hideGroup(c("Local BPI")) %>% 
+  # setView(lng = -28.40, lat = 38.55, zoom = 9) %>%
+  addLayersControl(overlayGroups = c("Anchor cell", "Flat cell", "Hole cell", "Slope cell", "Regional BPI", "Local BPI"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = TRUE))
+```
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Island shelf unit (ISUs)** consisting of anchor, flat, hole and slope cells. BPI values are provided in background (due to plot re-projection, displayed and original values might be slightly different).</span></div>
+
+## Final class vector
+
+The class vector `slope` includes all the cells of the island shelf unit ([Figure 3](#figure3)). It is always possible to save and share classification steps as [*.RDS files](https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRDS.html). In this case, the ISU classification is saved in the file `'ISU_Cells.RDS'` and shared as part of the package data. 
+
+```{r classVect_ISU, message=FALSE, warning=FALSE, collapse = TRUE}
+# ISU CELLS
+unique(slope)
+
+# slope3 == 1,  ISU anchor cells
+# slope3 == 2,  ISU flat cells
+# slope3 == 3,  ISU hole cells
+# slope3 == 4,  ISU slope cells
+# slope3 == NA, unclassified cells
+```

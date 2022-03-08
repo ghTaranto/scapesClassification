@@ -42,6 +42,26 @@
       <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Example
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
+    <li>
+      <a href="../articles/scapesClassification_02_1_DATA.html">Format input data</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_2_ISU.html">Island shelf unit</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_3_PKS.html">Peak cells</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_4_OBJ.html">Relief unit and raster objects</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../reference/index.html">Functions</a>
 </li>
@@ -111,10 +131,12 @@ vectors.</p>
     <div id="details">
     <h2>Details</h2>
     
-<ul><li><p>A <em>local maximum</em> is defined as a cell on a raster
-surface with all neighboring cells having smaller values.</p></li>
-<li><p>A <em>local minimum</em> is defined as a cell on a raster surface with all
-neighboring cells having larger values.</p></li>
+<ul><li><p>A cell constitutes a <em>local maximum</em> if its
+elevation value is larger than the values of all the cells in its
+neighborhood (see <code><a href="ngbList.html">ngbList</a></code>).</p></li>
+<li><p>A cell constitutes a <em>local minimum</em> if its elevation value is
+smaller than the values of all the cells in its neighborhood (see
+<code><a href="ngbList.html">ngbList</a></code>).</p></li>
 </ul></div>
     <div id="see-also">
     <h2>See also</h2>

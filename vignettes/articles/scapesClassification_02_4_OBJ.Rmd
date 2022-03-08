@@ -1,0 +1,213 @@
+---
+title: "Relief unit and raster objects"
+author: "Gerald H. Taranto"
+date: "`r format(Sys.time(), '%a %d, %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Relief unit and raster objects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
+```
+
+The relief unit (RU) is composed of prominent seamounts, banks and ridges. In this article individual elements of the relief unit will be classified as distinct raster objects each characterized by a unique ID ([Figure 1](#figure1)). The set of all objects will define the relief unit (RU) of our working example. 
+
+## Load data
+
+Libraries and data are loaded and processed as explained in [format input data](scapesClassification_02_1_DATA.html). 
+
+```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE, class.source = 'fold-hide'}
+# LOAD LIBRARIES
+library(scapesClassification)
+library(terra)
+
+# LOAD DATA
+grd <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
+grd <- grd[grepl("\\.grd", grd)]
+grd <- grd[!grepl("hillshade", grd)]
+rstack <- rast(grd)
+
+# COMPUTE ATTRIBUTE TABLE
+atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+
+# COMPUTE NEIGHBORHOOD LIST
+nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
+```
+
+### Class vector filters
+
+We will also add to the attribute table the class vector of the [island shelf unit (ISU)](scapesClassification_02_2_ISU.html) and the class vector of the [peak cells](scapesClassification_02_3_PKS.html) so that they can be used to build classification rules. 
+
+```{r loadCV, message=FALSE, warning=FALSE}
+# LOAD ISU CLASSIFICATION
+ISU <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T,
+                  pattern = "ISU_Cells.RDS")
+
+atbl$ISU <- readRDS(ISU)
+atbl$ISU[!is.na(atbl$ISU)] <- 1 # Class 1 identifies all ISU cells 
+
+# LOAD PEAK CLASSIFICATION
+PKS <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T, 
+                  pattern = "PKS_Cells.RDS")
+atbl$PKS <- readRDS(PKS)
+
+head(atbl)
+```
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+library(leafpop)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+## RU objects
+
+Relief units will be identified in a sequence of classification steps using raster object manipulation functions and position index functions. In the current example, the tasks fulfilled by these functions are: 
+
+1. **[anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed):** identifies all raster cells (i) on prominent relieves that are (ii) not ISU cells and that are (iii) in continuity with peak cells. It assigns a different ID to each non-continuous group of cell ([Figure 1a](#figure1)).
+
+2. **[rel.pi](scapesClassification_01_4_ObjFunctions.html#rel-pi):** computes the standardized relative position index (`rPI`) of each raster object. 
+
+3. **[pi.sgm](scapesClassification_01_4_ObjFunctions.html#pi-sgm):** fulfills two tasks: (i) segments large raster objects that have negative `rPI` values or negative [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values; (ii) remove small raster objects composed of less than 40 cells ([Figure 1b](#figure1)). 
+
+4. **[pi.add](scapesClassification_01_4_ObjFunctions.html#pi-add):** adds new raster objects composed of cells that have [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values greater than 100 that do not have as neighbor any other object (i.e. an object is added only if it is disjoint from other objects) ([Figure 1c](#figure1)). 
+
+5. **[cond.4.nofn](scapesClassification_01_4_ObjFunctions.html#hgrowth):** allows a homogeneous growth of raster objects. At turns, each object add contiguous cells having [local or regional bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values greater than 100 ([Figure 1d](#figure1)). 
+
+--- 
+
+_Addition information for the above functions can be consulted as [function documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html#manipulation-functions) or in the [object functions](scapesClassification_01_4_ObjFunctions.html) article._
+
+---
+
+```{r ro_cell, message=FALSE, warning=FALSE, collapse = TRUE}
+# 1. ANCHOR.SEED
+# Tasks:
+# Identify raster cells on prominent features in connection with peak cells
+# that are not within island shelf units.
+atbl$RO <- anchor.seed(atbl, nbs, rNumb = TRUE, silent = TRUE,
+                       class = NULL,
+                       cond.filter = "regional_bpi >= 100 & is.na(ISU)",
+                       cond.seed   = "PKS == 1",
+                       cond.growth = "regional_bpi >= 100")
+
+rRO1 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+
+# 2. REL.PI
+# Tasks: 
+# standardized relative position index (`rPI`) of each raster object.
+atbl$rPI <- rel.pi(atbl, RO="RO", el="bathymetry")
+
+# 3. PI.SGM
+# Tasks:
+# Segments large raster objects that have negative rPI or negative local bpi;
+# Remove raster objects with less than 40 cells.
+atbl$RO <- pi.sgm(atbl, nbs, rNumb = TRUE,
+                  RO = "RO", 
+                  mainPI = "rPI",
+                  secPI = "local_bpi", 
+                  cut.mPI = 0, 
+                  cut.sPI = 0,
+                  min.N = 40)
+
+rRO2 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+
+# 4. PI.ADD
+# Tasks:
+# Adds new raster objects composed of cells with local_bpi>100; 
+# An object is added only if it is disjoint from other objects
+# and if it has more than 40 cells.
+atbl$RO <- pi.add(atbl, nbs, rNumb = TRUE,
+                  RO = "RO",
+                  mainPI = "local_bpi", 
+                  add.mPI = 100, 
+                  min.N = 40,
+                  cond.filter = "is.na(ISU)")
+
+rRO3 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+
+# 4. COND.4.NOFN (HGROWTH)
+# Task:
+# Homogeneous growth of raster objects;
+# At turns, each raster object adds contiguous cells having 
+# regional or local BPI values > 100
+IDs <- unique(atbl$RO)[!is.na(unique(atbl$RO))]
+
+atbl$RO <- cond.4.nofn(atbl, nbs, rNumb = TRUE, classVector = atbl$RO,
+                       nbs_of = IDs, class = NULL,
+                       cond = "regional_bpi > 100 | local_bpi > 100",
+                       hgrowth = TRUE) 
+
+rRO4 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+```
+
+<a id="figure1"></a>
+
+```{r ro_plot, message=FALSE, warning=FALSE, echo=FALSE, fig.height=7}
+# COMPUTE BORDERS FOR PLOTTING
+RO_bd <- obj.border(split(1:NROW(atbl), atbl$RO), nbs, silent = TRUE)
+RO_bd <- obj.nbs(RO_bd, nbs, silent = TRUE)
+RO_bd <- unlist(unique(RO_bd))
+RO_bd <- atbl$Cell[RO_bd]
+
+rRO_bd <- rRO3; rRO_bd[] <- NA; rRO_bd[ RO_bd ] <- 1
+
+
+layout(matrix(c(1, 2,
+                1, 2,
+                3, 4, 
+                3, 4), nrow=4, byrow=TRUE))
+
+m <- c(1.5,1,2,1)
+
+xl <- ext(rRO1)[c(1,2)]
+yl <- ext(rRO1)[c(3,4)]
+
+# PLOT 1
+plot(rRO1, type = "classes", legend= FALSE, mar=m, xlim=xl, ylim=yl)
+title("(a) anchor.seed", adj = 0, family = "serif", cex = 1.2)
+
+# PLOT 2
+plot(rRO2, type = "classes", legend= FALSE, mar=m, xlim=xl, ylim=yl)
+title("(b) pi.sgm", adj = 0, family = "serif", cex = 1.2)
+
+# PLOT 3
+plot(rRO3, type = "classes", legend= FALSE, mar=m, xlim=xl, ylim=yl)
+title("(c) pi.add", adj = 0, family = "serif", cex = 1.2)
+
+# PLOT 4
+plot(rRO4, type = "classes", legend= FALSE, mar=m, xlim=xl, ylim=yl)
+title("(d) cond.4.nofn (hgrowth)", adj = 0, family = "serif", cex = 1.2)
+plot(rRO_bd, col = "black", legend= FALSE, add = TRUE)
+```
+
+## RU-objects: class vectors
+
+The class vectors `atbl$RU_obj` and `atbl$RU_obj2` can be saved as `*.RDS` files.
+
+```{r classVect_PKS, message=FALSE, warning=FALSE, collapse = TRUE}
+# PEAK CELLS
+# length(unique(na.omit(atbl$RU_obj2)))
+
+# There are 18 RU-objects
+
+# SAVE `atbl$RU_obj`
+# saveRDS(atbl$RU_obj, "RU_obj.RDS")
+
+# SAVE `atbl$RU_obj2`
+# saveRDS(atbl$RU_obj2, "RU_obj2.RDS")
+```

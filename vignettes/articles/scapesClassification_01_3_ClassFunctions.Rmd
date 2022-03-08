@@ -627,7 +627,7 @@ unique(cv2_rclass)
 
 # class = 0,  focal cell
 # class = 1,  cells with values greater than the value of 60% of their neighbors
-# class = 2,  reclassified cells (dummy_var{} >= 3, fn_perc = 1)
+# class = 2,  reclassified cells (dummy_var{} >= 5, peval = 6/9)
 # class = NA, unclassified cells
 ```
 

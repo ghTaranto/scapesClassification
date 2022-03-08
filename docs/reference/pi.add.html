@@ -42,6 +42,26 @@
       <a href="../articles/scapesClassification_01_4_ObjFunctions.html">Object functions</a>
     </li>
   </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Example
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Geomorphic management units (GMUs)</li>
+    <li>
+      <a href="../articles/scapesClassification_02_1_DATA.html">Format input data</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_2_ISU.html">Island shelf unit</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_3_PKS.html">Peak cells</a>
+    </li>
+    <li>
+      <a href="../articles/scapesClassification_02_4_OBJ.html">Relief unit and raster objects</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../reference/index.html">Functions</a>
 </li>
@@ -84,6 +104,7 @@
   secPI <span class="op">=</span> <span class="cn">NULL</span>,
   add.mPI <span class="op">=</span> <span class="cn">NULL</span>,
   add.sPI <span class="op">=</span> <span class="cn">NULL</span>,
+  cond.filter <span class="op">=</span> <span class="cn">NULL</span>,
   min.N <span class="op">=</span> <span class="cn">NULL</span>,
   plot <span class="op">=</span> <span class="cn">FALSE</span>,
   r <span class="op">=</span> <span class="cn">NULL</span>
@@ -119,6 +140,10 @@ new raster objects.</p></dd>
 <dd><p>numeric, threshold of secondary position index values. Cells
 with values above the threshold flagged as cells potentially being part of
 new raster objects.</p></dd>
+<dt>cond.filter</dt>
+<dd><p>character string, defines what cells have to be considered
+by the function the arguments. Test cell absolute conditions can be used
+(see <code><a href="conditions.html">conditions</a></code>).</p></dd>
 <dt>min.N</dt>
 <dd><p>numeric, the minimum number of cells a raster object has to have
 to be included in the function output.</p></dd>
@@ -158,7 +183,7 @@ input raster objects.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="attTbl.html">attTbl()</a></code>, <code><a href="ngbList.html">ngbList()</a></code>, <code><a href="rel.pi.html">rel.pi()</a></code>, <code><a href="pi.sgm.html">pi.sgm()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="attTbl.html">attTbl()</a></code>, <code><a href="ngbList.html">ngbList()</a></code>, <code><a href="rel.pi.html">rel.pi()</a></code>, <code><a href="pi.sgm.html">pi.sgm()</a></code>, <code><a href="conditions.html">conditions()</a></code></p></div>
     </div>
 
     <div id="ref-examples">

@@ -100,6 +100,18 @@ navbar:
           href: articles/scapesClassification_01_3_ClassFunctions.html
         - text: Object functions
           href: articles/scapesClassification_01_4_ObjFunctions.html
+    workex:
+      text: Example
+      menu:
+        - text: Geomorphic management units (GMUs)
+        - text: Format input data
+          href: articles/scapesClassification_02_1_DATA.html
+        - text: Island shelf unit
+          href: articles/scapesClassification_02_2_ISU.html
+        - text: Peak cells
+          href: articles/scapesClassification_02_3_PKS.html
+        - text: Relief unit and raster objects
+          href: articles/scapesClassification_02_4_OBJ.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/ghTaranto/scapesClassification
