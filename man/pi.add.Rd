@@ -13,6 +13,7 @@ pi.add(
   secPI = NULL,
   add.mPI = NULL,
   add.sPI = NULL,
+  cond.filter = NULL,
   min.N = NULL,
   plot = FALSE,
   r = NULL
@@ -45,6 +46,10 @@ new raster objects.}
 \item{add.sPI}{numeric, threshold of secondary position index values. Cells
 with values above the threshold flagged as cells potentially being part of
 new raster objects.}
+
+\item{cond.filter}{character string, defines what cells have to be considered
+by the function the arguments. Test cell absolute conditions can be used
+(see \code{\link{conditions}}).}
 
 \item{min.N}{numeric, the minimum number of cells a raster object has to have
 to be included in the function output.}
@@ -135,5 +140,5 @@ text(xyFromCell(r,at$Cell), as.character(round(at$PI,2))) # visualize relPI
 unique(RO1)
 }
 \seealso{
-\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=rel.pi]{rel.pi()}}, \code{\link[=pi.sgm]{pi.sgm()}}
+\code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=rel.pi]{rel.pi()}}, \code{\link[=pi.sgm]{pi.sgm()}}, \code{\link[=conditions]{conditions()}}
 }

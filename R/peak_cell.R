@@ -16,13 +16,15 @@
 #'   'min' the function searches for local minima.
 #' @param p_edge logic, if false local maxima or minima are not searched on edge
 #'   cells. Edge cells are considered cells on the edge of the raster and cell
-#'   neighboring NA-cells.
+#' neighboring NA-cells.
 #'
-#' @details \itemize{ \item A _local maximum_ is defined as a cell on a raster
-#'   surface with all neighboring cells having smaller values.
+#' @details \itemize{ \item A cell constitutes a _local maximum_ if its
+#'   elevation value is larger than the values of all the cells in its
+#'   neighborhood (see \code{\link{ngbList}}).
 #'
-#'   \item A _local minimum_ is defined as a cell on a raster surface with all
-#'   neighboring cells having larger values.}
+#'   \item A cell constitutes a _local minimum_ if its elevation value is
+#'   smaller than the values of all the cells in its neighborhood (see
+#'   \code{\link{ngbList}}).}
 #'
 #' @return A \code{classVector} with peak cells identified by the numeric class
 #'   \code{1}. See \code{\link{conditions}} for more details about class

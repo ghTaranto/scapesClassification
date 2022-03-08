@@ -406,6 +406,9 @@ pi.sgm <- function(attTbl,
 #' @param add.sPI numeric, threshold of secondary position index values. Cells
 #'   with values above the threshold flagged as cells potentially being part of
 #'   new raster objects.
+#' @param cond.filter character string, defines what cells have to be considered
+#'   by the function the arguments. Test cell absolute conditions can be used
+#'   (see \code{\link{conditions}}).
 #' @param min.N numeric, the minimum number of cells a raster object has to have
 #'   to be included in the function output.
 #' @param plot logic, plot the results.
@@ -440,7 +443,7 @@ pi.sgm <- function(attTbl,
 #' @note Raster objects are added only if they do not share any border with
 #'   input raster objects.
 #'
-#' @seealso [attTbl()], [ngbList()], [rel.pi()], [pi.sgm()]
+#' @seealso [attTbl()], [ngbList()], [rel.pi()], [pi.sgm()], [conditions()]
 #'
 #' @export
 #' @examples
@@ -500,6 +503,7 @@ pi.add <- function(attTbl,
                    secPI = NULL,
                    add.mPI = NULL,
                    add.sPI = NULL,
+                   cond.filter = NULL,
                    min.N = NULL,
                    plot = FALSE,
                    r = NULL){
@@ -564,12 +568,19 @@ pi.add <- function(attTbl,
 
   }
 
+  # APPLY COND.FILTER ##############################################################
+  if(!is.null(cond.filter)){
+    cf <- paste0("!is.na(RO1)&", cond.filter)
+  } else{
+    cf <- "!is.na(RO1)"
+  }
+
   # RASTER OBJECTS #################################################################
-  RO1 <- anchor.seed(data.frame(Cell=attTbl$Cell, RO1), ngbList,
+  RO1 <- anchor.seed(cbind(attTbl, RO1), ngbList,
                      rNumb = TRUE, class = NULL, silent = TRUE,
-                     cond.filter = "!is.na(RO1)",
-                     cond.seed   = "!is.na(RO1)",
-                     cond.growth = "!is.na(RO1)")
+                     cond.filter = cf,
+                     cond.seed   = cf,
+                     cond.growth = cf)
 
   # REMOVE SMALL RASTER OBJECTS
   if(!is.null(min.N)){

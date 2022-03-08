@@ -37,11 +37,13 @@ vectors.
 Identify local maxima or minima on a raster surface.
 }
 \details{
-\itemize{ \item A \emph{local maximum} is defined as a cell on a raster
-surface with all neighboring cells having smaller values.
+\itemize{ \item A cell constitutes a \emph{local maximum} if its
+elevation value is larger than the values of all the cells in its
+neighborhood (see \code{\link{ngbList}}).
 
-\item A \emph{local minimum} is defined as a cell on a raster surface with all
-neighboring cells having larger values.}
+\item A cell constitutes a \emph{local minimum} if its elevation value is
+smaller than the values of all the cells in its neighborhood (see
+\code{\link{ngbList}}).}
 }
 \examples{
 # DUMMY DATA

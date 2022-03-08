@@ -150,6 +150,7 @@ anchor.svo <- function(r,
   }
 
   i_cell <- terra::cells(r, p)[,2]
+  i_cell <- i_cell[!is.na(i_cell)]
 
   if (is.na(i_cell)[1] & length(i_cell==1)){
     stop("no overlap between raster and shape files")}
