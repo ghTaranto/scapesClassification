@@ -13,8 +13,6 @@ vignette: >
 knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
-The relief unit (RU) is composed of prominent seamounts, banks and ridges. In this article individual elements of the relief unit will be classified as distinct raster objects each characterized by a unique ID ([Figure 1](#figure1)). The set of all objects will define the relief unit (RU) of our working example. 
-
 ## Load data
 
 Libraries and data are loaded and processed as explained in [format input data](scapesClassification_02_1_DATA.html). 
@@ -31,7 +29,7 @@ grd <- grd[!grepl("hillshade", grd)]
 rstack <- rast(grd)
 
 # COMPUTE ATTRIBUTE TABLE
-atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+atbl <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "slope"))
 
 # COMPUTE NEIGHBORHOOD LIST
 nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
@@ -57,40 +55,33 @@ atbl$PKS <- readRDS(PKS)
 head(atbl)
 ```
 
-```{r loadMapView, message=FALSE, include=FALSE}
-library(mapview)
-library(leaflet)
-library(leafem)
-library(leafpop)
+### Plots
 
-# set gerenal options 
-mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
-               query.position = "bottomright", legend.opacity = 0.9)
+In the following example we will show how the class vectors of raster objects are computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
 
-# set palettes
-palRYB <- c("#2892c7", "#fafa64", "#e81014")
-palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
-palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
-gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
-```
+The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and to (ii) visualize the raster using R or an external software. In our example we will use the R package `terra` to create static maps and the R packages `mapview` and `leaflet` to create interactive maps (_note that `mapview` do not support `terra` raster objects yet, therefore, they have to be converted into `raster` raster objects before plotting_). 
 
-## RU objects
+## Relief unit
 
-Relief units will be identified in a sequence of classification steps using raster object manipulation functions and position index functions. In the current example, the tasks fulfilled by these functions are: 
+The relief unit (RU) is composed of prominent seamounts, banks and ridges. In this article individual elements of the relief unit will be classified as distinct raster objects each characterized by a unique ID ([Figure 1](#figure1) and [Figure 4](#figure4)). The set of all objects will define the relief unit of our working example.
 
-1. **[anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed):** identifies all raster cells (i) on prominent relieves that are (ii) not ISU cells and that are (iii) in continuity with peak cells. It assigns a different ID to each non-continuous group of cell ([Figure 1a](#figure1)).
+### RU objects
 
-2. **[rel.pi](scapesClassification_01_4_ObjFunctions.html#rel-pi):** computes the standardized relative position index (`rPI`) of each raster object. 
+In this example, relief units objects will be identified in a sequence of classification steps using [raster object functions](https://ghtaranto.github.io/scapesClassification/reference/index.html#manipulation-functions) ([Figure 1](#figure1)). Our functions will perform the following tasks: 
 
-3. **[pi.sgm](scapesClassification_01_4_ObjFunctions.html#pi-sgm):** fulfills two tasks: (i) segments large raster objects that have negative `rPI` values or negative [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values; (ii) remove small raster objects composed of less than 40 cells ([Figure 1b](#figure1)). 
+1. **[anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed):** identify all raster cells (i) on prominent relieves that are (ii) not ISU cells and that are (iii) in continuity with peak cells. It assigns a different ID to each non-continuous group of cell ([Figure 1a](#figure1)).
 
-4. **[pi.add](scapesClassification_01_4_ObjFunctions.html#pi-add):** adds new raster objects composed of cells that have [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values greater than 100 that do not have as neighbor any other object (i.e. an object is added only if it is disjoint from other objects) ([Figure 1c](#figure1)). 
+2. **[rel.pi](scapesClassification_01_4_ObjFunctions.html#rel-pi):** compute the standardized relative position index (`rPI`) of each raster object. 
 
-5. **[cond.4.nofn](scapesClassification_01_4_ObjFunctions.html#hgrowth):** allows a homogeneous growth of raster objects. At turns, each object add contiguous cells having [local or regional bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values greater than 100 ([Figure 1d](#figure1)). 
+3. **[pi.sgm](scapesClassification_01_4_ObjFunctions.html#pi-sgm):** (i) segment raster objects at locations that have negative `rPI` or [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values; (ii) remove small raster objects composed of less than 40 cells ([Figure 1b](#figure1)). 
+
+4. **[pi.add](scapesClassification_01_4_ObjFunctions.html#pi-add):** add new raster objects composed of (i) cells that have [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values `>100` **and** (ii) that do not border any other object (i.e. an object is added only if it is disjoint from other objects) ([Figure 1c](#figure1)). 
+
+5. **[cond.4.nofn](scapesClassification_01_4_ObjFunctions.html#hgrowth):** homogeneous growth of raster objects. At turns, each object adds contiguous cells having [local or regional bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values `>100` ([Figure 1d](#figure1)). 
 
 --- 
 
-_Addition information for the above functions can be consulted as [function documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html#manipulation-functions) or in the [object functions](scapesClassification_01_4_ObjFunctions.html) article._
+_Additional information about the above functions is available at the following links: [function documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html#manipulation-functions) and [object functions](scapesClassification_01_4_ObjFunctions.html) (article)._
 
 ---
 
@@ -98,24 +89,32 @@ _Addition information for the above functions can be consulted as [function docu
 # 1. ANCHOR.SEED
 # Tasks:
 # Identify raster cells on prominent features in connection with peak cells
-# that are not within island shelf units.
+# that are not within island shelf units (ISU).
 atbl$RO <- anchor.seed(atbl, nbs, rNumb = TRUE, silent = TRUE,
-                       class = NULL,
-                       cond.filter = "regional_bpi >= 100 & is.na(ISU)",
-                       cond.seed   = "PKS == 1",
-                       cond.growth = "regional_bpi >= 100")
+                       
+                       class = NULL, # A new ID is assigned to every
+                                     # discrete group of cells...
+                      
+                       cond.seed   = "PKS == 1", # ...in continuity with peak cells...
+                       
+                       cond.growth = "regional_bpi >= 100", # ...that are on prominent features.
+                       
+                       cond.filter = "regional_bpi >= 100 & is.na(ISU)") # Only consider non-ISU cells 
+                                                                         # on prominent features.  
 
 rRO1 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+#######################################################################################################
 
 # 2. REL.PI
 # Tasks: 
-# standardized relative position index (`rPI`) of each raster object.
+# Compute the standardized relative position index (`rPI`) of each raster object.
 atbl$rPI <- rel.pi(atbl, RO="RO", el="bathymetry")
+#######################################################################################################
 
 # 3. PI.SGM
 # Tasks:
-# Segments large raster objects that have negative rPI or negative local bpi;
-# Remove raster objects with less than 40 cells.
+# (i) Segment large raster objects that have negative rPI or negative local bpi;
+# (ii) Remove raster objects with less than 40 cells.
 atbl$RO <- pi.sgm(atbl, nbs, rNumb = TRUE,
                   RO = "RO", 
                   mainPI = "rPI",
@@ -125,12 +124,13 @@ atbl$RO <- pi.sgm(atbl, nbs, rNumb = TRUE,
                   min.N = 40)
 
 rRO2 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+#######################################################################################################
 
 # 4. PI.ADD
 # Tasks:
-# Adds new raster objects composed of cells with local_bpi>100; 
-# An object is added only if it is disjoint from other objects
-# and if it has more than 40 cells.
+# Add new raster objects composed of cells with local_bpi>100; 
+# An object is added only if it is disjoint from other objects,
+# if it has more than 40 cells and if it is not within the ISU.
 atbl$RO <- pi.add(atbl, nbs, rNumb = TRUE,
                   RO = "RO",
                   mainPI = "local_bpi", 
@@ -195,19 +195,203 @@ title("(d) cond.4.nofn (hgrowth)", adj = 0, family = "serif", cex = 1.2)
 plot(rRO_bd, col = "black", legend= FALSE, add = TRUE)
 ```
 
-## RU-objects: class vectors
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Relief unit raster objects,** colors identify discrete raster objects. Figure panels show the classification steps used to identify the different raster objects. In panel (d) black lines show the borders of contiguous objects.</span></div>
 
-The class vectors `atbl$RU_obj` and `atbl$RU_obj2` can be saved as `*.RDS` files.
+### Relative position index
 
-```{r classVect_PKS, message=FALSE, warning=FALSE, collapse = TRUE}
+As we saw in the previous section, relative position indices are useful to segment and to identify raster objects. Another important quality of position indices is that they allow to visualize the depth distribution of individual objects and, thus, discern where summits and bases are ([Figure 2](#figure2)).
+
+```{r rPI, message=FALSE, warning=FALSE, collapse = TRUE}
+# NORMALIZED RELATIVE POSITION INDEX
+atbl$rPI <- rel.pi(atbl, RO="RO", el="bathymetry", type = "n")
+```
+
+<a id="figure2"></a>
+
+```{r rPI_plot, message=FALSE, warning=FALSE, echo=FALSE}
 # PEAK CELLS
-# length(unique(na.omit(atbl$RU_obj2)))
+library(data.table)
+atbl <- as.data.table(atbl)
+atbl[!is.na(RO), mbat := bathymetry == max(bathymetry), by = "RO"]
+pc <- atbl[which(mbat), Cell]
+atbl$mbat <- NULL
 
-# There are 18 RU-objects
+# PLOT
+r_rPI <- cv.2.rast(rstack, atbl$rPI)
+brk <- seq(0,1,0.2)
+terra::plot(r_rPI, type="interval", breaks=brk, 
+            plg = list(title="rPI", title.adj=0.1))
+terra::plot(rRO_bd, col = "black", legend= FALSE, add = TRUE)
 
-# SAVE `atbl$RU_obj`
-# saveRDS(atbl$RU_obj, "RU_obj.RDS")
+terra::points(xyFromCell(rstack, pc), pch=20, col="red", cex=0.9)
 
-# SAVE `atbl$RU_obj2`
-# saveRDS(atbl$RU_obj2, "RU_obj2.RDS")
+legend(ext(r_rPI)[2], ext(r_rPI)[4]-25000, legend=c("Peak"), bty = "n", xpd=TRUE,
+       col=c("red"), pch=20, cex=0.9, pt.cex = 1.5)
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 2 - Normalized relative position index,** normalized depth values computed independently for each raster objects. High values point to summit areas, low values to bottom areas. Black lines show the borders of contiguous objects</span></div>
+
+### Ridges
+
+Ridge systems are an ecologically important component of relieves. In this section we will identify the distinct ridges existing within the relief unit. 
+We will adopt a simple definition of what a ridge is: 
+
+* They are within raster objects;
+
+* They have high [local bpi](scapesClassification_02_1_DATA.html#study-case-and-input-data) values (`>100`);
+
+* They have a minimum of 20 cells.
+
+The first two rules are implemented using [anchor.seed](scapesClassification_01_4_ObjFunctions.html#anchor-seed), the last using [pi.sgm](scapesClassification_01_4_ObjFunctions.html#pi-sgm) ([Figure 3](#figure3)).
+
+```{r ridge_cell, message=FALSE, warning=FALSE, collapse = TRUE}
+# IDENTIFY RIDGES
+atbl$RDG <- anchor.seed(atbl, nbs, rNumb = TRUE, silent = TRUE, class = NULL,
+                        cond.seed   = "local_bpi > 100",
+                        cond.growth = "local_bpi > 100",
+                        cond.filter = "!is.na(RO)")
+
+# REMOVE SMALL RIDGES
+atbl$RDG <- pi.sgm(atbl, nbs, rNumb = TRUE, RO = "RDG", min.N = 20)
+```
+
+<a id="figure3"></a>
+
+```{r ridge_plot, message=FALSE, warning=FALSE, echo=FALSE}
+# ALL ROs HAVE THE SAMWE CLASS
+ROall <- atbl$RO
+ROall[!is.na(ROall)] <- 1
+rROall <- cv.2.rast(rstack, ROall)
+
+# RIDGES
+rRDG <- cv.2.rast(rstack, atbl$RDG)
+
+plot(rROall, type="classes", col = "black", ext = ext(rROall),
+     plg=list(x=ext(rROall)[2], y=ext(rROall)[4], legend = "RU"))
+plot(rRDG, type="classes", ext = ext(rROall), add = TRUE,
+     plg=list(x=ext(rROall)[2], y=ext(rROall)[4]-10000, title = "Ridges (#14):", ncol=2))
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 3 - Ridges,** colors identify discrete ridge objects. In black is highlighted the relief unit (RU).</span></div>
+
+## Data.table
+
+The R package [data.table](https://rdatatable.gitlab.io/data.table/) provides an easy syntax to handle and transform groups within tables and facilitates the computation of group statistics. In the context of `scapesClassification`, it can be used to facilitate hierarchic classifications and to summarize raster object statistics. 
+
+As an example, we will first compute some simple statistics for each raster object: number of cells (`N`), average (`avgD`), maximum (`maxD`), minimum (`minD`) and standard deviation (`sdD`) of depth values. In addition, we will count the number of discrete ridges each object contains (`nRDG`) and the percentage of the object they cover (`pRDG`).  
+
+Finally we will rename raster object IDs based on the rank of minimum depth values: the raster object with the lowest minimum depth value will have `ID = 1`; the object with the highest minimum depth value will have the highest ID. 
+
+```{r data_table, message=FALSE, warning=FALSE}
+# DATA TABLE
+library(data.table)
+
+# CONVERT ATTRIBUTE TABLE TO ATTRIBUTE 'DATA' TABLE
+atbl <- as.data.table(atbl)
+
+# COMPUTE STATISTICS
+RO_stat <- atbl[!is.na(RO), 
+                
+                .(N = .N,
+                  minD = round(max(bathymetry), 2),
+                  avgD = round(mean(bathymetry), 2),
+                  maxD = round(min(bathymetry), 2),
+                  sdD = round(sd(bathymetry), 2), 
+                  nRDG = sum(!duplicated(RDG), na.rm = TRUE),
+                  pRDG = round(sum(!is.na(RDG))/.N, 2)),
+                
+                by = "RO"]
+
+# RENAME AND RANK RO IDs BY MIN. DEPTH
+new_IDs <- RO_stat[, data.table::frankv(minD, order = -1L)]
+
+atbl[!is.na(RO), RO := new_IDs[match(RO, RO_stat$RO)] ]
+RO_stat[, RO := new_IDs][order(RO)][]
+```
+
+## Interactive maps
+
+Raster objects can be visualized as interactive maps using the R packages [mapview](https://r-spatial.github.io/mapview/) and [leaflet](https://rstudio.github.io/leaflet/). Each object can be associated to a pop-up using the R package [leafpop](https://github.com/r-spatial/leafpop). 
+The combined use of `scapesClassification`, `data.table` and interactive maps provides users with the capacity to highlight areas of interest, summarize raster object statistics and share the outcome. 
+
+As an example we will produce an interactive map of the relief unit objects with pop-up windows presenting the statistics computed with `data.table` ([Figure 4](#figure4)). 
+
+```{r loadMapView, message=FALSE, include=FALSE}
+library(mapview)
+library(leaflet)
+library(leafem)
+library(leafpop)
+
+# set gerenal options 
+mapviewOptions(basemaps = c("Esri.OceanBasemap", "OpenStreetMap"), na.color = "grey88", homebutton = FALSE, 
+               query.position = "bottomright", legend.opacity = 0.9)
+
+# set palettes
+palRYB <- c("#2892c7", "#fafa64", "#e81014")
+palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
+palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
+gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
+```
+
+<a id="figure4"></a>
+
+```{r RO_mapview, message=FALSE, warning=FALSE, echo=FALSE, fig.height=6}
+# RASTER OBJECTS
+rRO <- cv.2.rast(rstack, atbl$RO)
+rRO <- as.polygons(rRO, dissolve = TRUE)
+
+# RIDGES
+RDG  <- atbl$RDG
+RDG[which(!is.na(RDG))] <- 1
+rRDG <- cv.2.rast(rstack, RDG)
+rRDG <- as.polygons(rRDG, dissolve = TRUE)
+
+# PEAKS
+pcV <- vect(xyFromCell(rstack, pc), crs = crs(rRO))
+
+# BUILD POP UP TABLE
+names(rRO) <- "ID"
+names(rRDG)<- "ID"
+
+# Index vector IDs into RO_stat
+ind <- match(rRO$ID, RO_stat$RO)
+
+# Add columns
+rRO$N <- RO_stat$N[ind]
+rRO$minD <- RO_stat$minD[ind]
+rRO$avgD <- RO_stat$avgD[ind]
+rRO$maxD <- RO_stat$maxD[ind]
+rRO$sdD <- RO_stat$sdD[ind]
+rRO$nRDG <- RO_stat$nRDG[ind]
+rRO$pRDG <- RO_stat$pRDG[ind]
+
+# Plot
+m<- mapview(as(rRO,"Spatial"), layer.name = "RO", zcol = "ID", alpha.regions = 0.8, legend = FALSE,
+            popup = popupTable(as(rRO,"Spatial"), feature.id = FALSE, row.numbers = FALSE)) +
+    mapview(as(rRDG,"Spatial"), layer.name = "RDG", alpha.regions = 0.6, col.regions = "white", legend= FALSE, 
+          popup = FALSE) +
+    mapview(as(pcV,"Spatial"), layer.name = "Peak", alpha.regions = 0.6, col.regions = "red", legend= FALSE,
+          popup = FALSE) + 
+    mapview(raster::raster(rstack[["bathymetry_exm"]]), layer.name = "Depth (m)", col.regions = palRYB) +
+    mapview(raster::raster(rstack[["local_bpi_exm"]]), layer.name = "Local BPI", col.regions = palBYR)
+
+m@map %>% 
+  hideGroup(c("Depth (m)", "RDG", "Local BPI", "Peak")) %>% 
+  addLayersControl(overlayGroups = c("RO", "RDG", "Peak", "Depth (m)", "Local BPI"),
+                   position = "topleft",
+                   options = layersControlOptions(collapsed = FALSE))
+```
+
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 4 - Raster object interactive map,** colors identify discrete raster objects. **RO**, clickable layer. **RDG**, ridges within raster objects. **Peaks**, main peak of each raster object. Bathymetry and local BPI values are provided in background (due to plot re-projection, displayed and original values might be slightly different).</span></div>
+
+## Final class vector
+
+The relief unit class vector (which is composed by all the raster objects found) is saved in the file `"RU_obj.RDS"` and shared as part of the package data. 
+
+```{r classVect_RO, message=FALSE, warning=FALSE, collapse = TRUE}
+# RASTER OBJECTS
+unique(atbl$RO)
+
+# A total of 12 raster objects were identified
+length(na.omit(unique(atbl$RO)))
 ```

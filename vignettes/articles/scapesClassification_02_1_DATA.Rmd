@@ -36,12 +36,6 @@ grd <- grd[!grepl("hillshade", grd)]
 rstack <- rast(grd)
 ```
 
-```{r hillShade, message=FALSE, include=FALSE}
-# hillShade
-hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
-hs <- rast(hs[grepl("hillshade\\.grd", hs)])
-```
-
 ```{r loadMapView, message=FALSE, include=FALSE}
 library(mapview)
 library(leaflet)
@@ -59,35 +53,39 @@ gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b
 ```
 
 <a id="figure1"></a>
-We can plot the raster stack as an interactive map using the R packages [`mapview`](https://r-spatial.github.io/mapview/) and [`leaflet`](https://rstudio.github.io/leaflet/): 
-
-_Note that raster of class `SpatRaster` (package `terra`) are not yet supported in interactive maps, therefore, we will always convert raster objects to the class `RasterLayer` (package `raster`) before plotting._
+We can plot the raster stack as an interactive map using the R packages [mapview](https://r-spatial.github.io/mapview/) and [leaflet](https://rstudio.github.io/leaflet/): 
 
 ```{r plotRSTACK, message=FALSE, warning=FALSE, echo=FALSE}
 m <- mapview(raster::raster(rstack[[1]]), layer.name = c("Bathymetry (m)"), col.regions = palRYB) +
-  mapview(raster::raster(rstack[[3]]), layer.name = c("Local BPI"), col.regions = palBYR, hide = TRUE) + 
-  mapview(raster::raster(rstack[[4]]), layer.name = c("Regional BPI"), col.regions = palBYR, hide = TRUE) +
-  mapview(raster::raster(rstack[[6]]), layer.name = c("Slope (deg)"), col.regions = palYGB, hide = TRUE) + 
-  mapview(raster::raster(rstack[[5]]), layer.name = c("SD Bathymetry (9x9)"), col.regions = palYGB, hide = TRUE) + 
-  mapview(as.factor(raster::raster(rstack[[2]])), layer.name = c("Geomorphons"), method = "ngb", col.regions = gm_col, at=0:10)
+  mapview(raster::raster(rstack[[2]]), layer.name = c("Local BPI"), col.regions = palBYR, hide = TRUE) + 
+  mapview(raster::raster(rstack[[3]]), layer.name = c("Regional BPI"), col.regions = palBYR, hide = TRUE) +
+  mapview(raster::raster(rstack[[4]]), layer.name = c("Slope (deg)"), col.regions = palYGB, hide = TRUE)
 
 m@map %>% 
-  hideGroup(c("Local BPI", "Regional BPI", "Slope (deg)", "SD Bathymetry (9x9)", "Geomorphons")) %>% 
+  hideGroup(c("Local BPI", "Regional BPI", "Slope (deg)")) %>% 
   setView(lng = -28.55, lat = 38.45, zoom = 8) %>%
   addLayersControl(baseGroups = c("Esri.OceanBasemap", "OpenStreetMap"),
-                   overlayGroups = c("Bathymetry (m)", "Local BPI", "Regional BPI", "Slope (deg)", "SD Bathymetry (9x9)", "Geomorphons"),
+                   overlayGroups = c("Bathymetry (m)", "Local BPI", "Regional BPI", "Slope (deg)"),
                    position = "topleft",
                    options = layersControlOptions(collapsed = FALSE))
 ```
 <div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**FIGURE 1 -** Raster layers used for the classification of Geomorphic Management Units (GMUs). The geomorphon classes correspond to (1) flat, (2) summit, (3) ridge, (4) shoulder, (5) spur, (6) slope, (7) hollow, (8) footslope, (9) valley and (10) depression.</span></div>
 
+### Plots
+
+In the working example articles we will show how class vectors are computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` files used to generate the html files. 
+
+The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and to (ii) visualize the raster using R or an external software. In our examples we will use the R package `terra` to create static maps and the R packages `mapview` and `leaflet` to create interactive maps (_note that `mapview` do not support `terra` raster objects yet, therefore, they have to be converted into `raster` raster objects before plotting_). 
+
 ## Format input data
-The classification process in `scapesClassification` begins with the computation of two elements (see [Format inputs](scapesClassification_01_1_FormatInputs.html)):
+The classification process in `scapesClassification` begins with the computation of two elements (see [format inputs](scapesClassification_01_1_FormatInputs.html)):
 
 __Attribute table:__ the raster object converted into a `data.frame`. Attribute tables include only raster cells having no missing values. Function `attTbl()`.
+
+Classification rules are built accessing by name the variables stored in the attribute table (see `?conditions`). 
 ```{r attTbl, message=FALSE, warning=FALSE, collapse = TRUE}
 # COMPUTE ATTRIBUTE TABLE
-atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+atbl <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "slope"))
 
 # VIEW THE TOP 3 ROWS OF `atbl`
 # Each row corresponds to a raster cell as indicated in the column `atbl$Cell`
@@ -95,7 +93,8 @@ atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regio
 head(atbl, 3) 
 ```
 
-__List of neighborhoods:__ the neighborhoods of every raster cell included in the attribute table. Function `ngbList()`. 
+__List of neighborhoods:__ raster cell neighborhoods. Neighborhoods are computed only for cells included in the attribute table. Function `ngbList()`. 
+
 ```{r ngbList, message=FALSE, warning=FALSE, collapse = TRUE}
 # COMPUTE NEIGHBORHOOD LIST
 nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # the neighbors are identified by row numbers (see ?ngbList)

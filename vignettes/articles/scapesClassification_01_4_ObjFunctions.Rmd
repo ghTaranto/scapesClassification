@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FA
 
 > Object functions are functions used to identify and manipulate raster objects.
 
-## Data and example plots
+## Input data
 
 We will use a single-layer dummy raster to illustrate `scapesClassification` functions. We will start by computing its [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table) (where the raster is named `"dummy_var"`) and its [list of neighborhoods](scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods).
 
@@ -44,9 +44,11 @@ nbs <- ngbList(r)
 head(nbs, 3)
 ```
 
+### Plots
+
 In the following examples we will show how class vectors are computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
 
-> The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and (ii) use `terra::plot()` or any other software suitable for raster plots. 
+The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and to (ii) visualize the raster using R or an external software. In our examples we will use the R package `terra` and its function `terra::plot()`. 
 
 ## Manipulation functions
 

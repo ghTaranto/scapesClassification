@@ -83,13 +83,13 @@
       <a href="../articles/scapesClassification_02_1_DATA.html">Format input data</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_02_2_ISU.html">Island shelf unit</a>
+      <a href="../articles/scapesClassification_02_2_ISU.html">Island shelf unit (ISU)</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_02_3_PKS.html">Peak cells</a>
+      <a href="../articles/scapesClassification_02_3_PKS.html">Peak cells (PCs)</a>
     </li>
     <li>
-      <a href="../articles/scapesClassification_02_4_OBJ.html">Relief unit and raster objects</a>
+      <a href="../articles/scapesClassification_02_4_OBJ.html">Relief unit (RU) and raster objects (ROs)</a>
     </li>
   </ul>
 </li>
@@ -126,7 +126,7 @@
       <h1 data-toc-skip>Object functions</h1>
                         <h4 data-toc-skip class="author">Gerald H. Taranto</h4>
             
-            <h4 data-toc-skip class="date">Tue 08, March, 2022</h4>
+            <h4 data-toc-skip class="date">Wed 09, March, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ghTaranto/scapesClassification/blob/HEAD/vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd" class="external-link"><code>vignettes/articles/scapesClassification_01_4_ObjFunctions.Rmd</code></a></small>
       <div class="hidden name"><code>scapesClassification_01_4_ObjFunctions.Rmd</code></div>
@@ -140,7 +140,7 @@
 <p>Object functions are functions used to identify and manipulate raster objects.</p>
 </blockquote>
 <div class="section level2">
-<h2 id="data-and-example-plots">Data and example plots<a class="anchor" aria-label="anchor" href="#data-and-example-plots"></a>
+<h2 id="input-data">Input data<a class="anchor" aria-label="anchor" href="#input-data"></a>
 </h2>
 <p>We will use a single-layer dummy raster to illustrate <code>scapesClassification</code> functions. We will start by computing its <a href="scapesClassification_01_1_FormatInputs.html#attribute-table">attribute table</a> (where the raster is named <code>"dummy_var"</code>) and its <a href="scapesClassification_01_1_FormatInputs.html#list-of-neighborhoods">list of neighborhoods</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -174,10 +174,12 @@
 <span class="co">## </span>
 <span class="co">## $`3`</span>
 <span class="co">## [1]  2  4  9 10 11</span></code></pre></div>
+<div class="section level3">
+<h3 id="plots">Plots<a class="anchor" aria-label="anchor" href="#plots"></a>
+</h3>
 <p>In the following examples we will show how class vectors are computed. However, in order to improve the reading experience, the plots’ code is hidden. It can be accessed in the <code>*.RMD</code> file used to generate the html file.</p>
-<blockquote>
-<p>The plotting procedure is to (i) convert a class vectors into a raster using the function <code><a href="../reference/cv.2.rast.html">cv.2.rast()</a></code> and (ii) use <code><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">terra::plot()</a></code> or any other software suitable for raster plots.</p>
-</blockquote>
+<p>The plotting procedure is to (i) convert a class vectors into a raster using the function <code><a href="../reference/cv.2.rast.html">cv.2.rast()</a></code> and to (ii) visualize the raster using R or an external software. In our examples we will use the R package <code>terra</code> and its function <code><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">terra::plot()</a></code>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="manipulation-functions">Manipulation functions<a class="anchor" aria-label="anchor" href="#manipulation-functions"></a>

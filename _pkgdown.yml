@@ -106,11 +106,11 @@ navbar:
         - text: Geomorphic management units (GMUs)
         - text: Format input data
           href: articles/scapesClassification_02_1_DATA.html
-        - text: Island shelf unit
+        - text: Island shelf unit (ISU)
           href: articles/scapesClassification_02_2_ISU.html
-        - text: Peak cells
+        - text: Peak cells (PCs)
           href: articles/scapesClassification_02_3_PKS.html
-        - text: Relief unit and raster objects
+        - text: Relief unit (RU) and raster objects (ROs)
           href: articles/scapesClassification_02_4_OBJ.html
     github:
       icon: fab fa-github fa-lg

@@ -31,7 +31,7 @@ grd <- grd[!grepl("hillshade", grd)]
 rstack <- rast(grd)
 
 # COMPUTE ATTRIBUTE TABLE
-atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+atbl <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "slope"))
 
 # COMPUTE NEIGHBORHOOD LIST
 nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
@@ -51,6 +51,12 @@ atbl$ISU[!is.na(atbl$ISU)] <- 1 # Class 1 identifies all ISU cells
 
 head(atbl)
 ```
+
+### Plots
+
+In the following example we will show how the class vector of peak cells is computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
+
+The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and to (ii) visualize the raster using R or an external software. In our example we will use the R packages `mapview` and `leaflet` to create interactive maps (_note that `mapview` do not support `terra` raster objects yet, therefore, they have to be converted into `raster` raster objects before plotting_). 
 
 ```{r loadMapView, message=FALSE, include=FALSE}
 library(mapview)
@@ -131,14 +137,14 @@ m <-
           col.regions = "gray", layer.name = "ISU cell", popup = NULL, label = "ISU cell") + 
   mapview(as(rPC,"Spatial"), alpha.regions = 0.8, 
           col.regions = "black", layer.name = "Peak cell", popup = NULL, label = "Peak cell") + 
-  mapview(raster::raster(rstack[[1]]), layer.name = "Depth (m)", col.regions = palRYB) 
+  mapview(raster::raster(rstack[["bathymetry_exm"]]), layer.name = "Depth (m)", col.regions = palRYB) 
   
 m@map %>% 
   addLayersControl(overlayGroups = c("ISU cell", "Peak cell", "Depth (m)"),
                    position = "topleft",
                    options = layersControlOptions(collapsed = TRUE))
 ```
-<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Peak cells,** _local maxima_ found on the bathymetric raster layer.</span></div>
+<div style="line-height: 0.9em; margin-bottom: 1.5em;"><span class="legend">**Figure 1 - Peak cells,** _local maxima_ found on the bathymetric raster layer. Bathymetry values are provided in background (due to plot re-projection, displayed and original values might be slightly different).</span></div>
 
 
 ## Final class vector

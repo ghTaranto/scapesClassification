@@ -31,17 +31,13 @@ grd <- grd[!grepl("hillshade", grd)]
 rstack <- rast(grd)
 
 # COMPUTE ATTRIBUTE TABLE
-atbl <- attTbl(rstack, var_names = c("bathymetry", "gmorph", "local_bpi", "regional_bpi", "sd_bat", "slope"))
+atbl <- attTbl(rstack, var_names = c("bathymetry", "local_bpi", "regional_bpi", "slope"))
 
 # COMPUTE NEIGHBORHOOD LIST
 nbs <- ngbList(rstack, rNumb = TRUE, attTbl = atbl) # neighbors are identified by their row number in the attribute table
 ```
 
 ```{r hillShade, message=FALSE, include=FALSE}
-# hillShade
-hs <- list.files(system.file("extdata", package = "scapesClassification"), full.names = T)
-hs <- rast(hs[grepl("hillshade\\.grd", hs)])
-
 library(mapview)
 library(leaflet)
 library(leafem)
@@ -56,6 +52,12 @@ palYGB <- c("#ffff80" ,"#3dba65", "#0d1178")
 palBYR <- c("#4575b5", "#ffffbf", "#d62f27")
 gm_col <- c("grey70", "#380000", "#c80000", "#ff5014", "#fad23c", "#ffff3c", "#b4e614", "#3cfa96", "#0000ff", "#000038")
 ```
+
+### Plots
+
+In the following example we will show how the class vector of ISU cells is computed. However, in order to improve the reading experience, the plots' code is hidden. It can be accessed in the `*.RMD` file used to generate the html file. 
+
+The plotting procedure is to (i) convert a class vectors into a raster using the function `cv.2.rast()` and to (ii) visualize the raster using R or an external software. In our example we will use the R packages `mapview` and `leaflet` to create interactive maps (_note that `mapview` do not support `terra` raster objects yet, therefore, they have to be converted into `raster` raster objects before plotting_).
 
 ## ISU cells
 
@@ -169,7 +171,7 @@ m <-
           col.regions = "#FFD700", layer.name = "Flat cell", popup = NULL, label = "ISU shelf cell (flat cell)") + 
   mapview(as(rSC2,"Spatial"), alpha.regions = 0.8, 
           col.regions = "#A0522D", layer.name = "Hole cell", popup = NULL, label = "ISU shelf cell (hole cell)") + 
-  mapview(raster::raster(rstack[[6]]), layer.name = "Slope (deg)", col.regions = palYGB)
+  mapview(raster::raster(rstack[["slope_exm"]]), layer.name = "Slope (deg)", col.regions = palYGB)
 
 m@map %>% 
   hideGroup(c("SLOPE (deg)")) %>% 
@@ -236,8 +238,8 @@ m <-
           col.regions = "#A0522D", layer.name = "Hole cell", popup = NULL, label = "ISU shelf cell (hole cell)") + 
   mapview(as(rSL1,"Spatial"), alpha.regions = 0.8, 
           col.regions = "cyan", layer.name = "Slope cell", popup = NULL, label = "ISU shelf cell (slope cell)") +
-  mapview(raster::raster(rstack[[4]]), layer.name = "Regional BPI", col.regions = palBYR) + 
-  mapview(raster::raster(rstack[[3]]), layer.name = "Local BPI", col.regions = palBYR)
+  mapview(raster::raster(rstack[["regional_bpi_exm"]]), layer.name = "Regional BPI", col.regions = palBYR) + 
+  mapview(raster::raster(rstack[["local_bpi_exm"]]), layer.name = "Local BPI", col.regions = palBYR)
 
 m@map %>% 
   hideGroup(c("Local BPI")) %>% 
