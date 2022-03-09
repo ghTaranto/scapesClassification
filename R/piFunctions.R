@@ -278,7 +278,7 @@ pi.sgm <- function(attTbl,
                    ngbList,
                    rNumb = FALSE,
                    RO,
-                   mainPI,
+                   mainPI = NULL,
                    secPI = NULL,
                    cut.mPI = NULL,
                    cut.sPI = NULL,
@@ -287,15 +287,24 @@ pi.sgm <- function(attTbl,
                    r = NULL){
 
 
-  # TEST ARGUMENT RO, mainPI
-  if( !all(c(RO, mainPI) %in% names(attTbl)) ){
+  if( !RO %in% names(attTbl) ){
     stop("'RO', 'mainPI' must be columns of 'attTbl'")
+  }
+
+  if( !is.null(mainPI) ){
+    if(!mainPI %in% names(attTbl)){
+      stop("'mainPI' must be a column of 'attTbl'")
+    }
   }
 
   if( !is.null(secPI) ){
     if(!secPI %in% names(attTbl)){
       stop("'secPI' must be a column of 'attTbl'")
     }
+  }
+
+  if(all( sapply(list(mainPI, secPI, min.N), is.null) )){
+    stop("'mainPI', 'secPI' and 'min.N' are all NULL")
   }
 
   # TEST FOR COLUMN CELL IN attTbl
@@ -499,7 +508,7 @@ pi.add <- function(attTbl,
                    ngbList,
                    rNumb = FALSE,
                    RO,
-                   mainPI,
+                   mainPI = NULL,
                    secPI = NULL,
                    add.mPI = NULL,
                    add.sPI = NULL,
@@ -510,14 +519,24 @@ pi.add <- function(attTbl,
 
 
   # TEST ARGUMENT RO, mainPI
-  if( !all(c(RO, mainPI) %in% names(attTbl)) ){
+  if( !RO %in% names(attTbl) ){
     stop("'RO', 'mainPI' must be columns of 'attTbl'")
+  }
+
+  if( !is.null(mainPI) ){
+    if(!mainPI %in% names(attTbl)){
+      stop("'mainPI' must be a column of 'attTbl'")
+    }
   }
 
   if( !is.null(secPI) ){
     if(!secPI %in% names(attTbl)){
       stop("'secPI' must be a column of 'attTbl'")
     }
+  }
+
+  if(all( sapply(list(mainPI, secPI, min.N), is.null) )){
+    stop("'mainPI', 'secPI' and 'min.N' are all NULL")
   }
 
   # TEST FOR COLUMN CELL IN attTbl

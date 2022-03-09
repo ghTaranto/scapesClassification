@@ -9,7 +9,7 @@ pi.sgm(
   ngbList,
   rNumb = FALSE,
   RO,
-  mainPI,
+  mainPI = NULL,
   secPI = NULL,
   cut.mPI = NULL,
   cut.sPI = NULL,

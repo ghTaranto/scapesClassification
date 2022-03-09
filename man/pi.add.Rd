@@ -9,7 +9,7 @@ pi.add(
   ngbList,
   rNumb = FALSE,
   RO,
-  mainPI,
+  mainPI = NULL,
   secPI = NULL,
   add.mPI = NULL,
   add.sPI = NULL,
