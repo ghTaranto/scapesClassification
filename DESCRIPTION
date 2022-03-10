@@ -1,6 +1,6 @@
 Package: scapesClassification
 Title: Classification of geo-spaces
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     person(given = "Gerald H.",
            family = "Taranto",
