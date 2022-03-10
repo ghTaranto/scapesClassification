@@ -93,25 +93,25 @@ navbar:
       menu:
         - text: Implementation
         - text: Format inputs
-          href: articles/scapesClassification_01_1_FormatInputs.html
+          href: articles/imp/scapesClassification_01_1_FormatInputs.html
         - text: Rule evaluation and types
-          href: articles/scapesClassification_01_2_RulesEvalTypes.html
+          href: articles/imp/scapesClassification_01_2_RulesEvalTypes.html
         - text: Classification functions
-          href: articles/scapesClassification_01_3_ClassFunctions.html
+          href: articles/imp/scapesClassification_01_3_ClassFunctions.html
         - text: Object functions
-          href: articles/scapesClassification_01_4_ObjFunctions.html
+          href: articles/imp/scapesClassification_01_4_ObjFunctions.html
     workex:
       text: Example
       menu:
         - text: Geomorphic management units (GMUs)
         - text: Format input data
-          href: articles/scapesClassification_02_1_DATA.html
+          href: articles/exm/scapesClassification_02_1_DATA.html
         - text: Island shelf unit (ISU)
-          href: articles/scapesClassification_02_2_ISU.html
+          href: articles/exm/scapesClassification_02_2_ISU.html
         - text: Peak cells (PCs)
-          href: articles/scapesClassification_02_3_PKS.html
+          href: articles/exm/scapesClassification_02_3_PKS.html
         - text: Relief unit (RU) and raster objects (ROs)
-          href: articles/scapesClassification_02_4_OBJ.html
+          href: articles/exm/scapesClassification_02_4_OBJ.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/ghTaranto/scapesClassification
