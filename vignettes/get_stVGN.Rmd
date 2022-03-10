@@ -1,0 +1,51 @@
+---
+title: "Get started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+If you are just getting started with **scapesClassification** and you would like to have a general overview of the package capabilities you can consult the [github page](https://ghtaranto.github.io/scapesClassification/) and the **working example** articles. For a deeper understanding of how the package works you can consult the **implementation** articles and the examples throughout the package [documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html).
+
+---
+
+## Working example
+
+The working example provides a general overview about the package capabilities. It shows how to use **scapesClassification** to identify raster objects and marine seafloor structures (geomorphic management units - GMUs).
+
+1. [Format input data](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_02_1_DATA.html); 
+
+2. [Island shelf unit](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_02_2_ISU.html);
+
+3. [Peak cells](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_02_3_PKS.html); 
+
+4. [Relief unit and raster objects](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_02_4_OBJ.html);
+
+---
+
+## Implementation
+
+The implementation articles provide more insights about the functioning of the package. In particular they explain what types of classification rules can be considered, how they are parsed and how they are evaluated. In addition, classification and raster object functions are introduced. 
+
+1. [Format inputs](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_01_1_FormatInputs.html)
+
+2. [Rule evaluation and types](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_01_2_RulesEvalTypes.html)
+
+3. [Classification functions](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_01_3_ClassFunctions.html)
+
+4. [Object functions](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_01_4_ObjFunctions.html)
+
+---
+
+## Functions
+
+Examples are included throughout the package [documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html). Consult the function documentation `?conditions` for a general overview on how classification processes are implemented. 
