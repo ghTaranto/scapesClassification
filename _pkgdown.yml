@@ -113,6 +113,9 @@ navbar:
           href: articles/ghp/scapesClassification_02_3_PKS.html
         - text: Relief unit (RU) and raster objects (ROs)
           href: articles/ghp/scapesClassification_02_4_OBJ.html
+    news:
+      text: News
+      href: news/index.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/ghTaranto/scapesClassification
