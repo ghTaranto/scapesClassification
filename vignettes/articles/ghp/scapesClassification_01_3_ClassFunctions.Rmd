@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align='center', message=FALSE, warning=FA
 
 ## Class vectors
 
-Class vectors store function classifications by mapping raster cells to numeric classes (or to NA-values if no class is attributed). They are central to all classification funtions and present the following characteristics:
+Class vectors store function classifications by mapping raster cells to numeric classes (or to NA-values if no class is attributed). They are central to all classification functions and present the following characteristics:
 
 * The n^th^ element of a class vector corresponds to the raster cell stored in the n^th^ row of the  [attribute table](scapesClassification_01_1_FormatInputs.html#attribute-table). 
 

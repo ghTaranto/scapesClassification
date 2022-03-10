@@ -2,16 +2,16 @@ pandoc: 2.7.3
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
-  scapesClassification_02_1_DATA: exm/scapesClassification_02_1_DATA.html
-  scapesClassification_02_2_ISU: exm/scapesClassification_02_2_ISU.html
-  scapesClassification_02_3_PKS: exm/scapesClassification_02_3_PKS.html
-  scapesClassification_02_4_OBJ: exm/scapesClassification_02_4_OBJ.html
   get_st: get_st.html
-  scapesClassification_01_1_FormatInputs: imp/scapesClassification_01_1_FormatInputs.html
-  scapesClassification_01_2_RulesEvalTypes: imp/scapesClassification_01_2_RulesEvalTypes.html
-  scapesClassification_01_3_ClassFunctions: imp/scapesClassification_01_3_ClassFunctions.html
-  scapesClassification_01_4_ObjFunctions: imp/scapesClassification_01_4_ObjFunctions.html
-last_built: 2022-03-10T18:35Z
+  scapesClassification_01_1_FormatInputs: ghp/scapesClassification_01_1_FormatInputs.html
+  scapesClassification_01_2_RulesEvalTypes: ghp/scapesClassification_01_2_RulesEvalTypes.html
+  scapesClassification_01_3_ClassFunctions: ghp/scapesClassification_01_3_ClassFunctions.html
+  scapesClassification_01_4_ObjFunctions: ghp/scapesClassification_01_4_ObjFunctions.html
+  scapesClassification_02_1_DATA: ghp/scapesClassification_02_1_DATA.html
+  scapesClassification_02_2_ISU: ghp/scapesClassification_02_2_ISU.html
+  scapesClassification_02_3_PKS: ghp/scapesClassification_02_3_PKS.html
+  scapesClassification_02_4_OBJ: ghp/scapesClassification_02_4_OBJ.html
+last_built: 2022-03-10T19:01Z
 urls:
   reference: https://ghtaranto.github.io/scapesClassification/reference
   article: https://ghtaranto.github.io/scapesClassification/articles

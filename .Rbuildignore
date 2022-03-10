@@ -6,5 +6,4 @@
 ^pkgdown$
 ^_pkgdown\.yml$
 ^.*\.gif$
-^vignettes/articles/imp$
-^vignettes/articles/exm$
+^vignettes/articles/ghp$
