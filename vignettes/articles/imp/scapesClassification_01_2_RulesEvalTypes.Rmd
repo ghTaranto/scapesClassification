@@ -21,7 +21,7 @@ A second major difference is in the diversity of relative and absolute condition
 
 ### Evaluation neighborhood {#en}
 
-`(scapes)Classifications` take into account the spatial relationships existing among distinct groups of cells ([class contiguity and continuity](scapesClassification_01_2_RuleEvaluation.html#focal-evaluation)). The ___evaluation neighborhood___, in which focal evaluations take place, is composed of the following elements ([Figure 1](#figure1)):  
+In [focal evaluations](scapesClassification_01_2_RulesEvalTypes.html#focal-evaluation), `scapesClassification` functions take into account the spatial relationships existing among distinct groups of cells. The ___evaluation neighborhood___, in which focal evaluations take place, is composed of the following elements ([Figure 1](#figure1)):  
 
 * **Focal cell.** Cell whose neighbors are evaluated against the classification rule(s). 
 
