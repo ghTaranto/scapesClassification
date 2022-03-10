@@ -78,8 +78,8 @@ navbar:
   structure:
     left:
       - intro
-      - impl
-      - workex
+      - getst
+      - articles
       - reference
       - tutorials
       - news
@@ -88,8 +88,11 @@ navbar:
     reference:
       text: Functions
       href: reference/index.html
-    impl:
-      text: Implementation
+    getst:
+      text: Get started
+      href: articles/get_st.html
+    articles:
+      text: Articles
       menu:
         - text: Implementation
         - text: Format inputs
@@ -100,9 +103,7 @@ navbar:
           href: articles/imp/scapesClassification_01_3_ClassFunctions.html
         - text: Object functions
           href: articles/imp/scapesClassification_01_4_ObjFunctions.html
-    workex:
-      text: Example
-      menu:
+        - text: ---
         - text: Geomorphic management units (GMUs)
         - text: Format input data
           href: articles/exm/scapesClassification_02_1_DATA.html

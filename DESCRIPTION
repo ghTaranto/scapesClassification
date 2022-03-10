@@ -1,5 +1,5 @@
 Package: scapesClassification
-Title: Seascape or Landscape Classification Using Environmental Data
+Title: Classification of geo-spaces
 Version: 0.1.0
 Authors@R: 
     person(given = "Gerald H.",

@@ -7,30 +7,45 @@ The R-package `scapesClassification` is designed to translate users’
 mental models of seascapes, landscapes and, more generally, of
 geo-spaces into computer representations (classifications). Spaces and
 geographic objects are classified with user-defined rules taking into
-account spatial data as well as spatial relationships among different
-classes and objects.
+account spatial data as well as the spatial relationships existing among
+different classes and objects.
 
 ## Raster surfaces and objects
 
-  - (scapes)Classifications are performed on raster surfaces. The suit
+  - *scapesClassifications* are performed on raster surfaces. The suit
     of available functions can be used to segment the raster space and
-    to identify distinct raster objects (i.e., distinct groups of raster
-    cells, each having a unique ID).
+    to identify and manipulate distinct raster objects (i.e., groups of
+    raster cells identified by a unique ID).
 
 ## Key ideas
 
   - Landscapes and seascapes tend to have prominent features easy to
-    identify. These features can be associated to a group of raster
-    cells (**anchor cells**) and can be used to initialize a
-    classification process;
+    identify. These features can be considered as ***anchor
+    locations***, locations around which a classification process can
+    start and evolve.
 
-  - Classification rules can take into account spatial relationships,
+  - A classification process can take into account the ***spatial
+    relationships*** that are expected to exist among different classes,
     i.e., where a segment of space or an object is expected to be in
-    relation to anchor cells or to other objects;
+    relation to other segments and objects.
 
-  - Classification rules can also take into account multi-layer gridded
-    data; objects and segments can be defined based on a combination of
-    data-driven rules and spatial relationships.
+  - Based on such relationships, it is possible to estimate where a
+    certain class is expected to exist and to perform ***focal
+    evaluations*** of classification rules: rules are only evaluated at
+    suitable locations, thus, limiting possible misclassification cases.
+
+  - A classification process is seen as ***multi-step***: as new
+    portions of a raster are classified they can be used to define new
+    focal areas over which classification rules are evaluated.
+
+## Get started
+
+If you are just getting started with `scapesClassification` and you
+would like to have a general overview of the package capabilities you
+can consult the github page and the working example articles. For a
+deeper understanding of how the package works you can consult the
+implementation articles and the examples throughout the package
+[documentation](https://ghtaranto.github.io/scapesClassification/reference/index.html).
 
 ## Installation
 
@@ -48,19 +63,3 @@ And the development version from
 # install.packages("devtools")
 devtools::install_github("ghTaranto/scapesClassification", dependencies = TRUE)
 ```
-
-<div style="color-background: #1088a0;">
-
-## Usage and documentation
-
-A general overview of the package is available in [Github
-Pages](https://ghtaranto.github.io/scapesClassification/index.html):
-
-  - Implementation
-
-  - [Working
-    example](file:///E:/Documents/GeraldTaranto/Phd/ATLAS/Reports_Papers/GMU/Rcodes/Git/scapesClassification/docs/articles/scapesClassification_02_0_GMU.html)
-
-  - [Functions](https://ghtaranto.github.io/scapesClassification/reference/index.html)
-
-</div>
