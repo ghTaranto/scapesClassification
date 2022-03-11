@@ -1,6 +1,7 @@
 Package: scapesClassification
-Title: Classification of geo-spaces
+Title: Seascape and Landscape Classification 
 Version: 1.0.0
+Depends:	R (>= 3.5.0)
 Authors@R: 
     person(given = "Gerald H.",
            family = "Taranto",
@@ -32,5 +33,5 @@ Imports:
     terra,
     methods
 VignetteBuilder: knitr
-URL: https://github.com/ghTaranto/scapesClassification, https://ghtaranto.github.io/scapesClassification
+URL: https://github.com/ghTaranto/scapesClassification, https://ghtaranto.github.io/scapesClassification/
 BugReports: https://github.com/ghTaranto/scapesClassification/issues

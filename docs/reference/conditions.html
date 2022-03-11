@@ -118,7 +118,7 @@ string with the types of rules detected in the condition string.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p><strong>Conditions (or classification rules)</strong></p><ul><li><p>Classification rules evaluate either to true or false and determine what
+    <p><strong>Conditions (alias classification rules)</strong></p><ul><li><p>Classification rules evaluate either to true or false and determine what
 raster cells have to be classified.</p></li>
 <li><p>Conditions are passed to <code>scapesClassification</code> functions as a
 single character string. They can consist of combination of variables names
@@ -128,8 +128,8 @@ logic operators <code>(&amp;||)</code> and base R functions (e.g.,
 <code>abs(variable_name)</code>).</p></li>
 <li><p>All variables included in an attribute table (see <code><a href="attTbl.html">attTbl</a></code>)
 can be included in a condition string by name (e.g., var name =
-<code>"dummy_var"</code>; condition = <code>"dummy_var &gt; 1"</code>).</p></li>
-</ul><p><br><strong>Class vectors</strong></p><ul><li><p>Class vectors map raster cells to numeric classes.</p></li>
+<code>"dummy_var"</code>; condition = <code>"dummy_var &gt; 1"</code>).<br></p></li>
+</ul><p><strong>Class vectors</strong></p><ul><li><p>Class vectors map raster cells to numeric classes.</p></li>
 <li><p>The n^th^ element of a class vector stores the class of the raster cell
 stored in the n^th^ row of the corresponding attribute table (see
 <code><a href="attTbl.html">attTbl</a></code>).</p></li>
@@ -138,8 +138,8 @@ information about the groups of cells that have already been classified.</p></li
 <li><p>Every time a class vector is provided as a function input, it is
 <em>updated</em> by assigning a numeric class to <em>unclassified cells</em> that meet
 function conditions.</p></li>
-<li><p>Unclassified cells are represented as NA values.</p></li>
-</ul><p><br><strong>Rule evaluation: Global evaluation</strong></p><ul><li><p>Classification rules are applied to all unclassified raster
+<li><p>Unclassified cells are represented as NA values.<br></p></li>
+</ul><p><strong>Rule evaluation: Global evaluation</strong></p><ul><li><p>Classification rules are applied to all unclassified raster
 cells.</p></li>
 <li><p>Function using <em>global evaluation</em>: <code><a href="cond.4.all.html">cond.4.all</a></code>.</p></li>
 </ul><p><strong>Rule evaluation: Focal evaluation</strong></p><ul><li><p>Classification rules are applied only to raster cells at specific
@@ -153,8 +153,8 @@ at each iteration, newly classified cells become focal cells and conditions
 are tested in their neighborhood.</p></li>
 <li><p>Function using <em>focal evaluation</em>: <code><a href="anchor.seed.html">anchor.seed</a></code>,
 <code><a href="cond.4.nofn.html">cond.4.nofn</a></code>, <code><a href="cond.reclass.html">cond.reclass</a></code>,
-<code><a href="reclass.nbs.html">reclass.nbs</a></code> and <code><a href="classify.all.html">classify.all</a></code>.</p></li>
-</ul><p><br><strong>Focal evaluation: Definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8
+<code><a href="reclass.nbs.html">reclass.nbs</a></code> and <code><a href="classify.all.html">classify.all</a></code>.<br></p></li>
+</ul><p><strong>Focal evaluation: Definitions</strong></p><ul><li><p><strong>Cell neighborhood:</strong> a cell with coordinates <code>(x, y)</code> has 8
 neighbors with coordinates: <code>(x±1, y)</code>,  <code>(x, y±1)</code> and
 <code>(x±1, y±1)</code>. Cells on the edge of a raster have less than 8
 neighbors. See <code><a href="ngbList.html">ngbList</a></code>.</p></li>
@@ -165,8 +165,8 @@ identified by the argument <code>nbs_of</code>.</p></li>
 being tested. At turns all cells in the neighborhood of a focal cell are
 tested against the classification rule(s).</p></li>
 <li><p><strong>Directional neighborhood:</strong> it consists of the intersection between the
-focal and the test cell neighborhoods.</p></li>
-</ul><p><br><strong>Condition type: Absolute conditions</strong></p>
+focal and the test cell neighborhoods.<br></p></li>
+</ul><p><strong>Condition type: Absolute conditions</strong></p>
 <p><strong>1) Absolute test cell condition:</strong> compares cell values against a
 threshold value.</p><ul><li><p>This type of condition applies to all functions with a <code>conditions</code>
 argument.</p></li>
@@ -174,10 +174,9 @@ argument.</p></li>
 classification number. In focal evaluations all <code>test cells</code> meeting
 absolute conditions receive a classification number.</p></li>
 <li><p><em>Examples of valid conditions:</em> <code>"variable_A &gt; 1 &amp; variable_B !=
-  0"</code>; <code>"(variable_A^2 &lt; 50 &amp; variable_B == 0) | abs(variable_C) &gt; 50"</code>.
-<br><em>Functions:</em> <code><a href="anchor.seed.html">anchor.seed</a></code>, <code><a href="cond.4.all.html">cond.4.all</a></code>,
-<code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and <code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
-</ul><p><br><strong>2) Absolute neighborhood condition:</strong> compares the values of the
+  0"</code>; <code>"(variable_A^2 &lt; 50 &amp; variable_B == 0) | abs(variable_C) &gt; 50"</code>.<br><em>Functions:</em> <code><a href="anchor.seed.html">anchor.seed</a></code>, <code><a href="cond.4.all.html">cond.4.all</a></code>,
+<code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and <code><a href="cond.reclass.html">cond.reclass</a></code>.<br></p></li>
+</ul><p><strong>2) Absolute neighborhood condition:</strong> compares the values of the
 <code>test cell</code> and of its <code>neighborhood</code> against a threshold value.</p><ul><li><p>An absolute neighborhood condition is identified by a variable name
 followed by curly brackets (e.g., <code>"variable_name{}"</code>).</p></li>
 <li><p>A maximum of 9 evaluations are performed for each test cell (the test
@@ -197,8 +196,8 @@ is not possible to have a condition string like <code>"variable_A{} &gt; 0 &amp;
 <code>directional = TRUE</code>.</p></li>
 <li><p><em>Example of valid conditions:</em> <code>"variable_A{} &gt; 1 &amp; abs(variable_B)
   != 0"</code>. <br><em>Functions:</em> <code><a href="cond.4.nofn.html">cond.4.nofn</a></code> and
-<code><a href="cond.reclass.html">cond.reclass</a></code>.</p></li>
-</ul><p><br><strong>Condition type: Relative conditions</strong></p>
+<code><a href="cond.reclass.html">cond.reclass</a></code>.<br></p></li>
+</ul><p><strong>Condition type: Relative conditions</strong></p>
 <p><strong>1) Relative focal cell condition:</strong> compares the <code>test cell</code> value
 against the <code>focal cell</code> value.</p><ul><li><p>A relative focal cell condition is identified by a variable name followed
 by square brackets (e.g., <code>"variable_name[]"</code>).</p></li>

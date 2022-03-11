@@ -8,3 +8,6 @@
 ^.*\.gif$
 ^vignettes/articles/ghp$
 ^get_st\.Rmd$
+^doc$
+^Meta$
+^Rplots.pdf$

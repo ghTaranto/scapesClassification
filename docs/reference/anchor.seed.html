@@ -189,8 +189,8 @@ class vectors.</p>
     <div id="details">
     <h2>Details</h2>
     <p>This function implements an algorithm to identify seed cells, growth
-buffers and isolation buffers.</p>
-<p><br><strong>Condition arguments</strong></p>
+buffers and isolation buffers.<br></p>
+<p><strong>Condition arguments</strong></p>
 <p>The function takes as inputs four sets of conditions with
 <code>cond.growth</code> and <code>cond.isol</code> taking into account class
 contiguity and continuity (see <code><a href="conditions.html">conditions</a></code>):</p><ol><li><p><strong><code>cond.filter</code></strong>, the conditions to define what cells have to be
@@ -201,8 +201,8 @@ conditions are applied.</p></li>
 <li><p><strong><code>cond.growth</code></strong>, the conditions to define a buffer around the
 seed cell.</p></li>
 <li><p><strong><code>cond.isol</code></strong>, the conditions to isolate one seed cell (and its
-growth buffer) from another.</p></li>
-</ol><p><br><strong>Iterations</strong></p>
+growth buffer) from another.<br></p></li>
+</ol><p><strong>Iterations</strong></p>
 <p>The argument <code>cond.filter</code> defines the set of cells to be considered
 by the function.</p><ol><li><p>A seed cell is identified based on <code>cond.seed</code> and receives a
 classification number as specified by the argument <code>class</code>. If
@@ -220,8 +220,8 @@ only evaluated for cells that were not identified as seed, growth or
 isolation cells in previous iterations.</p></li>
 <li><p>A new iteration starts. Seed, growth and isolation cells identified in
 previous iteration are ignored in successive iterations.</p></li>
-<li><p>The function stops when it cannot identify any new seed cell.</p></li>
-</ol><p><br><strong>Relative focal cell conditions and evaluation lag</strong></p><ul><li><p>The arguments <code>lag.growth</code> and <code>lag.isol</code> control the
+<li><p>The function stops when it cannot identify any new seed cell.<br></p></li>
+</ol><p><strong>Relative focal cell conditions and evaluation lag</strong></p><ul><li><p>The arguments <code>lag.growth</code> and <code>lag.isol</code> control the
 evaluation lag of <em>relative focal cell conditions</em> (see
 <code><a href="conditions.html">conditions</a></code>).</p></li>
 <li><p>When <code>lag.*</code> are set to <code>0</code>, <em>relative focal cell conditions</em>
