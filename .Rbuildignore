@@ -13,3 +13,4 @@
 ^Rplots\.pdf$
 ^cran-comments\.md$
 ^\.github$
+^CRAN-SUBMISSION$
