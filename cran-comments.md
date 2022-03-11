@@ -39,7 +39,7 @@ _rhub::check_on_debian()_
 
 ## R CMD check results
   
-There was 1 warning common to many environments
+There was **1 warning** common to many environments
 
 > checking for executable files ... WARNING
   Found the following executable file:
