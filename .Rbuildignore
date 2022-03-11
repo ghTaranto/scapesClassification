@@ -10,4 +10,5 @@
 ^get_st\.Rmd$
 ^doc$
 ^Meta$
-^Rplots.pdf$
+^Rplots\.pdf$
+^cran-comments\.md$
