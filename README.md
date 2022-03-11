@@ -1,6 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/ghTaranto/scapesClassification/workflows/R-CMD-check/badge.svg)](https://github.com/ghTaranto/scapesClassification/actions)
+<!-- badges: end -->
+
 # scapesClassification <img src="man/figures/logo.png" align="right" width="200" style="padding: 0 0 10px 15px" />
 
 The R-package `scapesClassification` is designed to translate users’
