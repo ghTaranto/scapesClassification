@@ -14,14 +14,12 @@ knitr::opts_chunk$set(out.width = "100%", echo = TRUE)
 ```
 
 ## Study case and input data
-Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge ([Figure 1](#figure1)). Geomorphic management units (GMUs) will be identified using a `SpatRaster`([`terra package`](https://rspatial.org/spatial-terra/4-rasterdata.html#spatrast)) of six layers that includes bathymetry, bathymetric derivatives ([Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm)) and the geomorphons of the area ([Jasiewicz and Stepinski, 2013](https://www.sciencedirect.com/science/article/pii/S0169555X12005028#!)):
+Our study area is located in the 'Triangle' of the Azores (NE Atlantic), around the islands of Faial, Pico and São Jorge ([Figure 1](#figure1)). Geomorphic management units (GMUs) will be identified using a `SpatRaster`([`terra package`](https://rspatial.org/spatial-terra/4-rasterdata.html#spatrast)) of 4 layers that includes bathymetry and bathymetric derivatives ([Walbridge et al., 2018](https://www.mdpi.com/2076-3263/8/3/94/htm)):
   
 * **Bathymetry:** depth values;
-* **Local BPI:** bathymetric position index (BPI) computed with an outer radius of 10px (ca. 5 km);
+* **Local BPI:** bathymetric position index (BPI) computed with an outer radius of 10px (ca. 5 km); 
 * **Regional BPI:** bathymetric position index (BPI) computed with an outer radius of 40px (ca. 20 km);
 * **Slope:** slope values;
-* **SD bathymetry:** standard deviation of bathymetric values computed on a 9x9 window;
-* **Geomorphons:** identify basic morphological terrain types.
 
 We will start by loading the required libraries and data into the workspace:
 ```{r loadLD, message=FALSE, warning=FALSE, collapse = TRUE}
