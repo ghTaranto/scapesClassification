@@ -25,7 +25,7 @@ Check for spelling and syntax errors in conditions (\code{cond} argument) and
 detect the type of conditions being used.
 }
 \details{
-\strong{Conditions (or classification rules)}
+\strong{Conditions (alias classification rules)}
 \itemize{
 \item Classification rules evaluate either to true or false and determine what
 raster cells have to be classified.
@@ -37,10 +37,10 @@ logic operators \code{(&||)} and base R functions (e.g.,
 \code{abs(variable_name)}).
 \item All variables included in an attribute table (see \code{\link{attTbl}})
 can be included in a condition string by name (e.g., var name =
-\code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
+\code{"dummy_var"}; condition = \code{"dummy_var > 1"}).\cr
 }
 
-\cr \strong{Class vectors}
+\strong{Class vectors}
 \itemize{
 \item Class vectors map raster cells to numeric classes.
 \item The n^th^ element of a class vector stores the class of the raster cell
@@ -51,10 +51,10 @@ information about the groups of cells that have already been classified.
 \item Every time a class vector is provided as a function input, it is
 \emph{updated} by assigning a numeric class to \emph{unclassified cells} that meet
 function conditions.
-\item Unclassified cells are represented as NA values.
+\item Unclassified cells are represented as NA values.\cr
 }
 
-\cr \strong{Rule evaluation: Global evaluation}
+\strong{Rule evaluation: Global evaluation}
 \itemize{
 \item Classification rules are applied to all unclassified raster
 cells.
@@ -74,10 +74,10 @@ at each iteration, newly classified cells become focal cells and conditions
 are tested in their neighborhood.
 \item Function using \emph{focal evaluation}: \code{\link{anchor.seed}},
 \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
-\code{\link{reclass.nbs}} and \code{\link{classify.all}}.
+\code{\link{reclass.nbs}} and \code{\link{classify.all}}.\cr
 }
 
-\cr \strong{Focal evaluation: Definitions}
+\strong{Focal evaluation: Definitions}
 \itemize{
 \item \strong{Cell neighborhood:} a cell with coordinates \code{(x, y)} has 8
 neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
@@ -90,10 +90,10 @@ identified by the argument \code{nbs_of}.
 being tested. At turns all cells in the neighborhood of a focal cell are
 tested against the classification rule(s).
 \item \strong{Directional neighborhood:} it consists of the intersection between the
-focal and the test cell neighborhoods.
+focal and the test cell neighborhoods.\cr
 }
 
-\cr \strong{Condition type: Absolute conditions}
+\strong{Condition type: Absolute conditions}
 
 \strong{1) Absolute test cell condition:} compares cell values against a
 threshold value.
@@ -104,12 +104,12 @@ argument.
 classification number. In focal evaluations all \code{test cells} meeting
 absolute conditions receive a classification number.
 \item \emph{Examples of valid conditions:} \code{"variable_A > 1 & variable_B !=
-  0"}; \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}.
-\cr \emph{Functions:} \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
-\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
+  0"}; \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}.\cr
+\emph{Functions:} \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
+\code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.\cr
 }
 
-\cr \strong{2) Absolute neighborhood condition:} compares the values of the
+\strong{2) Absolute neighborhood condition:} compares the values of the
 \code{test cell} and of its \code{neighborhood} against a threshold value.
 \itemize{
 \item An absolute neighborhood condition is identified by a variable name
@@ -131,10 +131,10 @@ is not possible to have a condition string like \code{"variable_A{} > 0 &
 \code{directional = TRUE}.
 \item \emph{Example of valid conditions:} \code{"variable_A{} > 1 & abs(variable_B)
   != 0"}. \cr \emph{Functions:} \code{\link{cond.4.nofn}} and
-\code{\link{cond.reclass}}.
+\code{\link{cond.reclass}}.\cr
 }
 
-\cr \strong{Condition type: Relative conditions}
+\strong{Condition type: Relative conditions}
 
 \strong{1) Relative focal cell condition:} compares the \code{test cell} value
 against the \code{focal cell} value.

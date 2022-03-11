@@ -61,7 +61,7 @@
 #'
 #'   \item All types of conditions can be used. The condition string can only
 #'   include one neighborhood condition (\code{'{}'}) (see
-#'   \code{\link{conditions}}).}\cr
+#'   \code{\link{conditions}}).}
 #'
 #'   **Homogeneous growth (\code{hgrowth})**
 #'

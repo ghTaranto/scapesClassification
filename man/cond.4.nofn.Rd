@@ -97,7 +97,7 @@ become focal cells and conditions are tested in their neighborhood.
 
 \item All types of conditions can be used. The condition string can only
 include one neighborhood condition (\code{'{}'}) (see
-\code{\link{conditions}}).}\cr
+\code{\link{conditions}}).}
 
 \strong{Homogeneous growth (\code{hgrowth})}
 

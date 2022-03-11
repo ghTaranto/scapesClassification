@@ -17,7 +17,7 @@
 #' @seealso [cond.4.all()], [cond.4.nofn()], [anchor.seed()], [cond.reclass()],
 #'   [conditions()]
 #'
-#' @details **Conditions (or classification rules)**
+#' @details **Conditions (alias classification rules)**
 #'
 #'   * Classification rules evaluate either to true or false and determine what
 #'   raster cells have to be classified.
@@ -31,9 +31,9 @@
 #'
 #'   * All variables included in an attribute table (see \code{\link{attTbl}})
 #'   can be included in a condition string by name (e.g., var name =
-#'   \code{"dummy_var"}; condition = \code{"dummy_var > 1"}).
+#'   \code{"dummy_var"}; condition = \code{"dummy_var > 1"}).\cr
 #'
-#'   \cr **Class vectors**
+#'   **Class vectors**
 #'
 #'   * Class vectors map raster cells to numeric classes.
 #'
@@ -48,10 +48,9 @@
 #'   _updated_ by assigning a numeric class to _unclassified cells_ that meet
 #'   function conditions.
 #'
-#'   * Unclassified cells are represented as NA values.
+#'   * Unclassified cells are represented as NA values.\cr
 #'
-#'
-#'   \cr **Rule evaluation: Global evaluation**
+#'   **Rule evaluation: Global evaluation**
 #'
 #'   * Classification rules are applied to all unclassified raster
 #'   cells.
@@ -74,9 +73,9 @@
 #'
 #'   * Function using _focal evaluation_: \code{\link{anchor.seed}},
 #'   \code{\link{cond.4.nofn}}, \code{\link{cond.reclass}},
-#'   \code{\link{reclass.nbs}} and \code{\link{classify.all}}.
+#'   \code{\link{reclass.nbs}} and \code{\link{classify.all}}.\cr
 #'
-#'   \cr **Focal evaluation: Definitions**
+#'   **Focal evaluation: Definitions**
 #'
 #'   * __Cell neighborhood:__ a cell with coordinates \code{(x, y)} has 8
 #'   neighbors with coordinates: \code{(x±1, y)},  \code{(x, y±1)} and
@@ -92,9 +91,9 @@
 #'   tested against the classification rule(s).
 #'
 #'   * __Directional neighborhood:__ it consists of the intersection between the
-#'   focal and the test cell neighborhoods.
+#'   focal and the test cell neighborhoods.\cr
 #'
-#'   \cr **Condition type: Absolute conditions**
+#'   **Condition type: Absolute conditions**
 #'
 #'   __1) Absolute test cell condition:__ compares cell values against a
 #'   threshold value.
@@ -107,11 +106,11 @@
 #'   absolute conditions receive a classification number.
 #'
 #'   * _Examples of valid conditions:_ \code{"variable_A > 1 & variable_B !=
-#'   0"}; \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}.
-#'   \cr _Functions:_ \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
-#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.
+#'   0"}; \code{"(variable_A^2 < 50 & variable_B == 0) | abs(variable_C) > 50"}.\cr
+#'   _Functions:_ \code{\link{anchor.seed}}, \code{\link{cond.4.all}},
+#'   \code{\link{cond.4.nofn}} and \code{\link{cond.reclass}}.\cr
 #'
-#'   \cr __2) Absolute neighborhood condition:__ compares the values of the
+#'   __2) Absolute neighborhood condition:__ compares the values of the
 #'   \code{test cell} and of its \code{neighborhood} against a threshold value.
 #'
 #'   * An absolute neighborhood condition is identified by a variable name
@@ -138,9 +137,9 @@
 #'
 #'   * _Example of valid conditions:_ \code{"variable_A{} > 1 & abs(variable_B)
 #'   != 0"}. \cr _Functions:_ \code{\link{cond.4.nofn}} and
-#'   \code{\link{cond.reclass}}.
+#'   \code{\link{cond.reclass}}.\cr
 #'
-#'   \cr **Condition type: Relative conditions**
+#'   **Condition type: Relative conditions**
 #'
 #'   __1) Relative focal cell condition:__ compares the \code{test cell} value
 #'   against the \code{focal cell} value.

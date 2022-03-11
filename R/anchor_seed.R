@@ -53,9 +53,9 @@
 #'   class vectors.
 #'
 #' @details This function implements an algorithm to identify seed cells, growth
-#'   buffers and isolation buffers.
+#'   buffers and isolation buffers.\cr
 #'
-#'   \cr**Condition arguments**
+#'   **Condition arguments**
 #'
 #'   The function takes as inputs four sets of conditions with
 #'   \code{cond.growth} and \code{cond.isol} taking into account class
@@ -72,9 +72,9 @@
 #'   seed cell.
 #'
 #'   4. **\code{cond.isol}**, the conditions to isolate one seed cell (and its
-#'   growth buffer) from another.
+#'   growth buffer) from another.\cr
 #'
-#'   \cr**Iterations**
+#'   **Iterations**
 #'
 #'   The argument \code{cond.filter} defines the set of cells to be considered
 #'   by the function.
@@ -100,9 +100,9 @@
 #'   5. A new iteration starts. Seed, growth and isolation cells identified in
 #'   previous iteration are ignored in successive iterations.
 #'
-#'   6. The function stops when it cannot identify any new seed cell.
+#'   6. The function stops when it cannot identify any new seed cell.\cr
 #'
-#'   \cr**Relative focal cell conditions and evaluation lag**
+#'   **Relative focal cell conditions and evaluation lag**
 #'
 #'   * The arguments \code{lag.growth} and \code{lag.isol} control the
 #'   evaluation lag of _relative focal cell conditions_ (see
