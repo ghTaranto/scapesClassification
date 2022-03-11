@@ -45,4 +45,4 @@ There was 1 warning common to many environments
   Found the following executable file:
     inst/extdata/Azores.dbf
 
-According to dbf specification (found in this link https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm ) a DBASE level 5 file, last updated in 2022 (makes second byte 122, that's 122 years after 1900 :P ), matches the above 2-byte signature, so it gets misidentified as executable (link)[https://mac.r-project.org/macbuilder/results/1647016745-f231131c578998f4/]
+>According to dbf specification (found in this link https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm ) a DBASE level 5 file, last updated in 2022 (makes second byte 122, that's 122 years after 1900 :P ), matches the above 2-byte signature, so it gets misidentified as executable [link](https://mac.r-project.org/macbuilder/results/1647016745-f231131c578998f4/). This is actually a shape file I use to provide a [working example](https://ghtaranto.github.io/scapesClassification/articles/ghp/scapesClassification_02_2_ISU.html#anchor-cells) 
