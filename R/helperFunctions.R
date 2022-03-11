@@ -236,7 +236,7 @@
 #' # 'seedVector' and 'classVector' are not valid names
 #' names_attTbl <- c(names_attTbl, "classVector", "seedVector")
 #' cond <- TRUE
-#' conditions1(names_attTbl, cond)
+#' conditions(names_attTbl, cond)
 #' }
 #'
 #' ################################################################################
@@ -325,7 +325,7 @@ conditions <- function(names_attTbl,
   c_eval <- gsub("\\[|\\]|\\{|\\}", "", c_eval)
   c_eval <- try(eval(parse(text = c_eval)), silent = TRUE)
 
-  if(class(c_eval) == "try-error"){stop(paste0("Check conditions, possible syntax error."))}
+  if(!is.logical(c_eval)){stop(paste0("Check conditions, possible syntax error."))}
 
   # PRINT RESULTS IF NO ERRORS
   if(!silent){

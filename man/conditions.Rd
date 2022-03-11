@@ -220,7 +220,7 @@ conditions(names_attTbl, cond)
 # 'seedVector' and 'classVector' are not valid names
 names_attTbl <- c(names_attTbl, "classVector", "seedVector")
 cond <- TRUE
-conditions1(names_attTbl, cond)
+conditions(names_attTbl, cond)
 }
 
 ################################################################################
