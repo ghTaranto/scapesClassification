@@ -39,4 +39,10 @@ _rhub::check_on_debian()_
 
 ## R CMD check results
   
- 
+There was 1 warning common to many environments
+
+> checking for executable files ... WARNING
+  Found the following executable file:
+    inst/extdata/Azores.dbf
+
+According to dbf specification (found in this link https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm ) a DBASE level 5 file, last updated in 2022 (makes second byte 122, that's 122 years after 1900 :P ), matches the above 2-byte signature, so it gets misidentified as executable (link)[https://mac.r-project.org/macbuilder/results/1647016745-f231131c578998f4/]
