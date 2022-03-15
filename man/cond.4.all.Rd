@@ -88,7 +88,7 @@ r_cv2 <- cv.2.rast(r, at$Cell, classVector = cv2)
 ################################################################################
 # PLOTS
 ################################################################################
-par(mfrow=c(1,2))
+oldpar <- par(mfrow = c(1,2))
 m <- c(4.5, 0.5, 2, 3.2)
 
 # 1.
@@ -110,6 +110,7 @@ mtext(side=3, line=1, adj=0, cex=1, font=2, "2. COND.4.ALL")
 mtext(side=3, line=0, adj=0, cex=0.9, "Update class vector (class 1 not overwritten)")
 mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var <= 3'")
 mtext(side=1, line=1, cex=0.9, adj=0, "Class: 2")
+par(oldpar)
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=cond.4.nofn]{cond.4.nofn()}}, \code{\link[=cond.reclass]{cond.reclass()}}

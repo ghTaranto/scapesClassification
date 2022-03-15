@@ -68,7 +68,7 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' m <- c(3, 1, 5, 1)
 #'
 #' # 1)
@@ -89,6 +89,7 @@
 #' mtext(side=3, line=1, adj=0, cex=0.9, "Classify all unclassified cells")
 #' legend("bottomright", bg = "white", fill = c("#78b2c4", "#cfc1af", "#818792"),
 #'        legend = c("Class 1", "Class 2"))
+#' par(oldpar)
 
 classify.all  <- function(attTbl,
                           ngbList,

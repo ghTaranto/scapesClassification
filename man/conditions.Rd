@@ -208,21 +208,6 @@ conditions(names_attTbl, cond)
 cond <- "bathymetry[]>bathymetry | abs(slope{}) < slope"
 conditions(names_attTbl, cond)
 
-\dontrun{
-# The function conditions detect syntax and spelling errors
-
-cond <- "bathymetry[]>10 & | abs(slope{}) < 5"
-conditions(names_attTbl, cond)
-
-cond <- "baxxxthymetryxxx[]>10 &  abs(slope{}) < 5"
-conditions(names_attTbl, cond)
-
-# 'seedVector' and 'classVector' are not valid names
-names_attTbl <- c(names_attTbl, "classVector", "seedVector")
-cond <- TRUE
-conditions(names_attTbl, cond)
-}
-
 ################################################################################
 # FOCAL EVALUATION DEFINITIONS
 ################################################################################

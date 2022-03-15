@@ -63,7 +63,7 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(2,2))
+#' oldpar <- par(mfrow = c(2,2))
 #' m = c(1, 3.5, 2.5, 3.5)
 #'
 #' # 1)
@@ -109,6 +109,7 @@
 #' mtext(side=1, line=0, cex=0.9, adj=0, ac4)
 #' legend("bottomleft", ncol = 1, bg = "white",
 #'        legend = c("Anchor cell (ac)", "Polygon"), fill = c("#78b2c4", "red"))
+#' par(oldpar)
 
 anchor.svo <- function(r,
                        dsn,

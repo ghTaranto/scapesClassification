@@ -60,6 +60,11 @@
 #'                      cond.growth = "dummy_var<dummy_var[]",
 #'                      lag.growth  = 0)
 #'
+#' # Convert class vector at$RO to raster and plot
+#' r_RO  <- cv.2.rast(r = r, classVector = at$RO)
+#' terra::plot(r_RO, type="classes", main="Raster objects",
+#'             plg=list(x=1, y=1, cex=0.9))
+#'
 #' ################################################################################
 #' # STANDARDIZED RELATIVE POSITION INDEX
 #' ################################################################################
@@ -67,7 +72,7 @@
 #'                 type = "s",
 #'                 plot = TRUE, r = r)
 #'
-#' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+#' # Annotate relPI
 #' points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
 #'        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
 #'        pch=20, col="yellow")
@@ -75,15 +80,18 @@
 #'        terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
 #'        pch=20, col="darkgreen")
 #' text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
+#' legend(1.02, 0.4, legend=c("1", "2"), bty = "n", title="RO:", xpd=TRUE,
+#' col=c("#E6E600", "#00A600"), pch=20, cex=0.9, pt.cex = 1.5)
 #'
 #' ################################################################################
 #' # NORMALIZED RELATIVE POSITION INDEX
 #' ################################################################################
+#' # Compute normalized relative position index
 #' relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
 #'                 type = "n",
 #'                 plot = TRUE, r = r)
 #'
-#' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+#' # Annotate relPI
 #' points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
 #'        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
 #'        pch=20, col="yellow")
@@ -91,6 +99,8 @@
 #'        terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
 #'        pch=20, col="darkgreen")
 #' text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
+#' legend(1.02, 0.4, legend=c("1", "2"), bty = "n", title="RO:", xpd=TRUE,
+#' col=c("#E6E600", "#00A600"), pch=20, cex=0.9, pt.cex = 1.5)
 
 rel.pi <- function(attTbl,
                    RO,
@@ -135,13 +145,6 @@ rel.pi <- function(attTbl,
 
   if(plot){
 
-    graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-    m <- c(1.2,1.2,1.2,3)
-
-    r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
-    terra::plot(r_RO, type="classes", main="Raster objects", mar=m,
-                plg=list(x=1, y=1, cex=0.9))
-
     r_rPI <- cv.2.rast(r = r, classVector = attTbl$relPI)
 
     # breaks
@@ -159,11 +162,10 @@ rel.pi <- function(attTbl,
       tt <- "Normalized relPI"
     }
 
-    terra::plot(r_rPI, type="interval", main=tt, mar=m, breaks=brk,
+    terra::plot(r_rPI, type="interval", main=tt, breaks=brk,
                 plg=list(x=terra::ext(r_rPI)[2], y=terra::ext(r_rPI)[4], cex=0.9))
   }
 
-  on.exit(graphics::layout(1))
   return(attTbl$relPI)
 
 }
@@ -266,10 +268,27 @@ rel.pi <- function(attTbl,
 #'               RO = "RO",        # Raster objects
 #'               mainPI = "relPI", # PI segmentation layer
 #'               cut.mPI = 0,      # segment on relPI values <= 0
-#'               plot = TRUE, r = r)
+#'               plot = FALSE, r = r)
 #'
-#' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+#' ################################################################################
+#' # PLOT
+#' ################################################################################
+#' # Convert class vectors to raster
+#' r_RO  <- cv.2.rast(r = r, classVector = at$RO)
+#' r_RO1 <- cv.2.rast(r = r, classVector = RO1)
+#'
+#' # Plot
+#' oldpar <- par(mfrow = c(1,2))
+#' m <- c(4.5, 0.5, 2, 3.2)
+#'
+#' terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
+#' plg=list(x=1, y=1, cex=0.9))
+#'
+#' terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+#'             plg=list(x=1, y=1, cex=0.9))
 #' text(xyFromCell(r,at$Cell), as.character(round(at$relPI,2))) # visualize relPI
+#' text(0.01, 1, "Cut on relPI <= 0", adj=c(0,1), cex = 0.8)
+#' par(oldpar)
 #'
 #' # Two output raster objects
 #' unique(RO1)
@@ -375,19 +394,13 @@ pi.sgm <- function(attTbl,
 
   # Plot
   if(plot){
-    graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-    m <- c(1.2,1.2,1.2,3)
-
-    r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
-    terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
-                plg=list(x=terra::ext(r_RO)[2], y=terra::ext(r_RO)[4], cex=0.9))
 
     r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
-    terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+    terra::plot(r_RO1, type="classes", main="Raster objects - Output",
                 plg=list(x=terra::ext(r_RO1)[2], y=terra::ext(r_RO1)[4], cex=0.9))
+
   }
 
-  on.exit(graphics::layout(1))
   return(RO1)
 
 }
@@ -495,11 +508,28 @@ pi.sgm <- function(attTbl,
 #'               RO = "RO",     # Raster objects
 #'               mainPI = "PI", # PI addition layer
 #'               add.mPI = 1,   # add disjoint objects with PI values > 1
-#'               plot = TRUE,
-#'               r = r)
+#'               plot = FALSE, r = r)
 #'
-#' graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-#' text(xyFromCell(r,at$Cell), as.character(round(at$PI,2))) # visualize relPI
+#' ################################################################################
+#' # PLOT
+#' ################################################################################
+#' # Convert class vectors to raster
+#' r_RO  <- cv.2.rast(r = r, classVector = at$RO)
+#' r_RO1 <- cv.2.rast(r = r, classVector = RO1)
+#'
+#' # Plot
+#' oldpar <- par(mfrow = c(1,2))
+#' m <- c(4.5, 0.5, 2, 3.2)
+#'
+#' terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
+#'             plg=list(x=1, y=1, cex=0.9))
+#'
+#' terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+#'             plg=list(x=1, y=1, cex=0.9))
+#' text(xyFromCell(r,at$Cell), as.character(round(at$PI,2)),
+#' cex = 0.8) # visualize relPI
+#' text(0.01, 1, "Add on PI >= 1", adj=c(0,0), cex = 0.8)
+#' par(oldpar)
 #'
 #' # Two raster object
 #' unique(RO1)
@@ -612,19 +642,11 @@ pi.add <- function(attTbl,
 
   if(plot){
 
-    graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
-    m <- c(1.2,1.2,1.2,3)
-
-    r_RO  <- cv.2.rast(r = r, classVector = attTbl[[RO]])
-    terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
-                plg=list(x=terra::ext(r_RO)[2], y=terra::ext(r_RO)[4], cex=0.9))
-
     r_RO1 <- cv.2.rast(r = r, attTbl$Cell, classVector = RO1)
-    terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+    terra::plot(r_RO1, type="classes", main="Raster objects - Output",
                 plg=list(x=terra::ext(r_RO1)[2], y=terra::ext(r_RO1)[4], cex=0.9))
   }
 
-  on.exit(graphics::layout(1))
   return(RO1)
 
 }

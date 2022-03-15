@@ -112,7 +112,7 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(2,2))
+#' oldpar <- par(mfrow = c(2,2))
 #' m = c(0.1, 3.5, 3.2, 3.5)
 #'
 #'
@@ -146,6 +146,7 @@
 #' mtext(side=3, line=0, adj=0, cex=0.9, "reclass_all = TRUE")
 #' legend("bottomright", ncol = 1, bg = "white", y.intersp= 1.2,
 #'        legend = c("Reclassified cells"), fill = c("#cfad89"))
+#' par(oldpar)
 
 reclass.nbs  <- function(attTbl,
                          ngbList,

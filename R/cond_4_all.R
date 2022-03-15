@@ -77,7 +77,7 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' m <- c(4.5, 0.5, 2, 3.2)
 #'
 #' # 1.
@@ -99,6 +99,7 @@
 #' mtext(side=3, line=0, adj=0, cex=0.9, "Update class vector (class 1 not overwritten)")
 #' mtext(side=1, line=0, cex=0.9, adj=0, "Rule: 'dummy_var <= 3'")
 #' mtext(side=1, line=1, cex=0.9, adj=0, "Class: 2")
+#' par(oldpar)
 
 cond.4.all <- function(attTbl,
                        cond,

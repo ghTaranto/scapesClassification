@@ -117,7 +117,6 @@
 #' # ABSOLUTE TEST CELL CONDITION - NO CLASS CONTINUITY
 #' ######################################################################################
 #'
-#'
 #' # conditions: "dummy_var >= 3"
 #' cv1 <- cond.4.nofn(attTbl = at, ngbList = nbs,
 #'
@@ -287,7 +286,7 @@
 #' r_hg  <- cv.2.rast(r, at$Cell,classVector = hg, plot = FALSE)
 #'
 #' # Plots
-#' par(mfrow=c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' m <- c(3, 1, 5, 1)
 #'
 #' # Original raster objects (for plotting)
@@ -319,6 +318,7 @@
 #' legend("topleft", bg = "white", y.intersp= 1.3,
 #'        fill = c("#1088a0", "#cfc1af", "#78b2c4", "#cfc1af", "#818792"),
 #'        legend = c("RO1", "RO2", "RO1 - growth", "RO2 - growth", "Unclassified cells"))
+#' par(oldpar)
 
 cond.4.nofn <- function(attTbl,
                         ngbList,

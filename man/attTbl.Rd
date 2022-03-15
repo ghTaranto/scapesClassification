@@ -47,7 +47,7 @@ r <- terra::rast(matrix(c(NA,100,100,NA,100,100,0,0,0),
 rcn <- r; rcn[] <- 1:9
 
 ## PLOT DATA AND CELL NUMBERS ##
-par(mfrow=c(1,2))
+oldpar <- par(mfrow = c(1,2))
 m <- c(4, 1, 4, 1)
 
 plot(r, col="grey90", colNA="red3", mar=m, asp = NA, axes=FALSE, legend=FALSE)
@@ -61,6 +61,7 @@ plot(rcn, col="grey90", mar=m, asp=NA, axes=FALSE, legend=FALSE)
 text(rcn)
 lines(rcn)
 mtext(side=3, line=0.2, adj=0, cex=1.5, font=2, "Cell numbers")
+par(oldpar)
 
 ## VISUALIZE ATTRIBUTE TABLE ##
 

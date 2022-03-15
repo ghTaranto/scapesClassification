@@ -114,7 +114,7 @@ r_cr <- cv.2.rast(r, cr)
 ################################################################################
 # PLOTS
 ################################################################################
-par(mfrow=c(1,2))
+oldpar <- par(mfrow = c(1,2))
 m <- c(3, 1, 5, 4)
 
 # 1.
@@ -136,6 +136,7 @@ mtext(side=3, line=1, adj=0, cex=1, font=2, "2. COND.RECLASS")
 mtext(side=3, line=0, adj=0, cex=0.9, "Reclassify cells meeting conditions")
 mtext(side=1, line=0, cex=1, adj=0, "Class: 2")
 mtext(side=1, line=1, cex=1, adj=0, "Rule: 'dummy_var{ } >= 5'; peval = 1")
+par(oldpar)
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}

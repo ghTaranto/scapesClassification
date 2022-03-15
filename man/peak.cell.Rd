@@ -81,7 +81,7 @@ r_pcb <- cv.2.rast(r, at$Cell, classVector = pc_b, plot = FALSE)
 
 #PLOTS
 ###############################################################################
-par(mfrow=c(1,2))
+oldpar <- par(mfrow = c(1,2))
 m <- c(4, 1, 4, 1)
 
 # PLOT 1 - p_edge = FALSE
@@ -103,6 +103,7 @@ mtext(side=3, line=0, adj=0, cex=0.9, "p_edge = TRUE")
 legend("bottomright", bg = "white",
        legend = c("Peak cell", "Unclassified cells"),
        fill = c("#cfad89", "#818792"))
+par(oldpar)
 }
 \seealso{
 \code{\link[=conditions]{conditions()}}, \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}

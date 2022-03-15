@@ -71,6 +71,11 @@ at$RO <- anchor.seed(at, nbs, silent=TRUE, class = NULL, rNumb=TRUE,
                      cond.growth = "dummy_var<dummy_var[]",
                      lag.growth  = 0)
 
+# Convert class vector at$RO to raster and plot
+r_RO  <- cv.2.rast(r = r, classVector = at$RO)
+terra::plot(r_RO, type="classes", main="Raster objects",
+            plg=list(x=1, y=1, cex=0.9))
+
 ################################################################################
 # STANDARDIZED RELATIVE POSITION INDEX
 ################################################################################
@@ -78,7 +83,7 @@ relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "s",
                 plot = TRUE, r = r)
 
-graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+# Annotate relPI
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
        pch=20, col="yellow")
@@ -86,15 +91,18 @@ points(terra::xFromCell(r, at$Cell[which(at$RO==2)]),
        terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
        pch=20, col="darkgreen")
 text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
+legend(1.02, 0.4, legend=c("1", "2"), bty = "n", title="RO:", xpd=TRUE,
+col=c("#E6E600", "#00A600"), pch=20, cex=0.9, pt.cex = 1.5)
 
 ################################################################################
 # NORMALIZED RELATIVE POSITION INDEX
 ################################################################################
+# Compute normalized relative position index
 relPI <- rel.pi(attTbl = at, RO = "RO", el = "dummy_var",
                 type = "n",
                 plot = TRUE, r = r)
 
-graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+# Annotate relPI
 points(terra::xFromCell(r, at$Cell[which(at$RO==1)]),
        terra::yFromCell(r, at$Cell[which(at$RO==1)]) - 0.04,
        pch=20, col="yellow")
@@ -102,6 +110,8 @@ points(terra::xFromCell(r, at$Cell[which(at$RO==2)]),
        terra::yFromCell(r, at$Cell[which(at$RO==2)]) - 0.04,
        pch=20, col="darkgreen")
 text(xyFromCell(r,at$Cell), as.character(round(relPI,2)))
+legend(1.02, 0.4, legend=c("1", "2"), bty = "n", title="RO:", xpd=TRUE,
+col=c("#E6E600", "#00A600"), pch=20, cex=0.9, pt.cex = 1.5)
 }
 \seealso{
 \code{\link[=attTbl]{attTbl()}}, \code{\link[=ngbList]{ngbList()}}, \code{\link[=pi.add]{pi.add()}}, \code{\link[=pi.sgm]{pi.sgm()}}

@@ -77,7 +77,7 @@
 #' ################################################################################
 #' # PLOTS
 #' ################################################################################
-#' par(mfrow=c(2,2))
+#' oldpar <- par(mfrow = c(2,2))
 #' m = c(1, 3.5, 2.5, 3.5)
 #'
 #' # 1)
@@ -106,6 +106,7 @@
 #' mtext(side=1, line=0, cex=0.9, adj=0, "class2cell = TRUE; class2nbs = TRUE")
 #' legend("bottomright", ncol = 1, bg = "white", fill = c("#78b2c4", "#818792"),
 #'        legend = c("Classified cells","Unclassified cells"))
+#' par(oldpar)
 
 anchor.cell <-
   function(attTbl, r, anchor, class,

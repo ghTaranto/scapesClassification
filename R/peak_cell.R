@@ -70,7 +70,7 @@
 #'
 #' #PLOTS
 #' ###############################################################################
-#' par(mfrow=c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' m <- c(4, 1, 4, 1)
 #'
 #' # PLOT 1 - p_edge = FALSE
@@ -92,6 +92,7 @@
 #' legend("bottomright", bg = "white",
 #'        legend = c("Peak cell", "Unclassified cells"),
 #'        fill = c("#cfad89", "#818792"))
+#' par(oldpar)
 
 
 peak.cell <- function(attTbl,

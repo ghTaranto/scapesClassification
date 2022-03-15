@@ -137,11 +137,10 @@
 #' # COMPUTE THE LIST OF NEIGBORHOODS
 #' nbs <- ngbList(r)
 #'
-#'
 #' ############################################################################
 #' # EXAMPLE PLOTS
 #' ############################################################################
-#' par(mfrow=c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' m <- c(4.5, 0.5, 2, 3.2)
 #'
 #' # 1a. Do not show isol.buff
@@ -175,7 +174,6 @@
 #' mtext(side=1, line=2, cex=1, adj=0, "dummy_var<dummy_var[] & dummy_var>2")
 #' mtext(side=1, line=3, cex=1, adj=0, "dummy_var<dummy_var[]")
 #' text(xFromCell(r,c(20,43)),yFromCell(r,c(20,43))-0.05,"SEED",col="red",cex=0.80)
-#'
 #'
 #' # 2a. Lag.growth = Inf
 #' as <- anchor.seed(attTbl = at, ngbList = nbs, rNumb = FALSE, class = NULL, silent = TRUE,
@@ -240,6 +238,7 @@
 #' mtext(side=1, line=2, cex=1, adj=0, "NULL")
 #' mtext(side=1, line=3, cex=1, adj=0, "dummy_var < dummy_var[]; isol.buff = -999")
 #' text(xFromCell(r,seeds),yFromCell(r,seeds)-0.05,"SEED",col="red",cex=0.80)
+#' par(oldpar)
 
 anchor.seed <- function(attTbl,
                         ngbList,

@@ -121,10 +121,27 @@ RO1 <- pi.sgm(at, nbs,
               RO = "RO",        # Raster objects
               mainPI = "relPI", # PI segmentation layer
               cut.mPI = 0,      # segment on relPI values <= 0
-              plot = TRUE, r = r)
+              plot = FALSE, r = r)
 
-graphics::layout(matrix(c(1, 2), nrow=1, byrow=TRUE))
+################################################################################
+# PLOT
+################################################################################
+# Convert class vectors to raster
+r_RO  <- cv.2.rast(r = r, classVector = at$RO)
+r_RO1 <- cv.2.rast(r = r, classVector = RO1)
+
+# Plot
+oldpar <- par(mfrow = c(1,2))
+m <- c(4.5, 0.5, 2, 3.2)
+
+terra::plot(r_RO, type="classes", main="Raster objects - Input", mar=m,
+plg=list(x=1, y=1, cex=0.9))
+
+terra::plot(r_RO1, type="classes", main="Raster objects - Output", mar=m,
+            plg=list(x=1, y=1, cex=0.9))
 text(xyFromCell(r,at$Cell), as.character(round(at$relPI,2))) # visualize relPI
+text(0.01, 1, "Cut on relPI <= 0", adj=c(0,1), cex = 0.8)
+par(oldpar)
 
 # Two output raster objects
 unique(RO1)
