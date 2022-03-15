@@ -1,10 +1,32 @@
 Dear CRAN maintainers,
 
-I am submitting a new package called 'scapesClassification' 
+I am re-submitting the package 'scapesClassification' 
+
+after responding to your comments
 
 Thanks you,
 
 Gerald H. Taranto
+
+## Re-submission
+
+* Please do not start the description with "This package", package name, title or similar.
+
+> Done
+
+* References describing the methods in your package.
+
+> At the moment there are no external references as I developed all algorithms from scatch. 
+I'm working on a peer reviewd article I'll add as a reference as soon as I pass the review
+process.
+
+* Use of `\dontrun{}` in examples.
+
+> I removed all the examples using dontrun
+
+* Please always make sure to reset to user's options()
+
+> Done
 
 ## Release summary
 
