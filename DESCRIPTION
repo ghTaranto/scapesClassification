@@ -1,5 +1,5 @@
 Package: scapesClassification
-Title: Seascape and Landscape Classification 
+Title: User-Defined Classification of Raster Surfaces
 Version: 1.0.0
 Depends: R (>= 3.5.0)
 Authors@R: 
