@@ -235,7 +235,7 @@ cell.</p></li>
 <span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"><span class="co"># PLOTS</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">m</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">3.5</span>, <span class="fl">3.2</span>, <span class="fl">3.5</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"></span>
@@ -269,6 +269,7 @@ cell.</p></li>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">3</span>, line<span class="op">=</span><span class="fl">0</span>, adj<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, <span class="st">"reclass_all = TRUE"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, ncol <span class="op">=</span> <span class="fl">1</span>, bg <span class="op">=</span> <span class="st">"white"</span>, y.intersp<span class="op">=</span> <span class="fl">1.2</span>,</span>
 <span class="r-in">       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Reclassified cells"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#cfad89"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="reclass.nbs-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

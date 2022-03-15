@@ -275,21 +275,6 @@ and relative conditions. <br><em>Functions:</em> <code><a href="cond.4.nofn.html
 <span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "'Relative focal cell' AND 'Relative neighborhood' condition type(s) detected."</span>
 <span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># The function conditions detect syntax and spelling errors</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"bathymetry[]&gt;10 &amp; | abs(slope{}) &lt; 5"</span></span>
-<span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="st">"baxxxthymetryxxx[]&gt;10 &amp;  abs(slope{}) &lt; 5"</span></span>
-<span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># 'seedVector' and 'classVector' are not valid names</span></span>
-<span class="r-in"><span class="va">names_attTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="st">"classVector"</span>, <span class="st">"seedVector"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">cond</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span class="r-in"><span class="fu">conditions</span><span class="op">(</span><span class="va">names_attTbl</span>, <span class="va">cond</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"><span class="co"># FOCAL EVALUATION DEFINITIONS</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>

@@ -112,7 +112,7 @@ m <-
 m@map %>% 
   setView(lng = -28.35, lat = 38.59, zoom = 10) %>%
   addLayersControl(baseGroups = c("OpenStreetMap", "Esri.OceanBasemap"),
-                   overlayGroups = c("Anchor cell", "Land cell", "Complete cases", "Island shapefile"),
+                   overlayGroups = c("Anchor cell", "Land cell", "Island shapefile"),
                    position = "topleft",
                    options = layersControlOptions(collapsed = TRUE))
 ```

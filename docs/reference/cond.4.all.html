@@ -189,7 +189,7 @@ the argument <code>class</code>.</p></li>
 <span class="r-in"><span class="co">################################################################################</span></span>
 <span class="r-in"><span class="co"># PLOTS</span></span>
 <span class="r-in"><span class="co">################################################################################</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">0.5</span>, <span class="fl">2</span>, <span class="fl">3.2</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># 1.</span></span>
@@ -212,6 +212,7 @@ the argument <code>class</code>.</p></li>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">1</span>, line<span class="op">=</span><span class="fl">0</span>, cex<span class="op">=</span><span class="fl">0.9</span>, adj<span class="op">=</span><span class="fl">0</span>, <span class="st">"Rule: 'dummy_var &lt;= 3'"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span>side<span class="op">=</span><span class="fl">1</span>, line<span class="op">=</span><span class="fl">1</span>, cex<span class="op">=</span><span class="fl">0.9</span>, adj<span class="op">=</span><span class="fl">0</span>, <span class="st">"Class: 2"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="cond.4.all-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span>
 </code></pre></div>
     </div>
   </div>
