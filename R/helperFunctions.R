@@ -470,13 +470,15 @@ cond.parse <- function(names_attTbl, cond){
 #' Transform a class vector or a generic vector into a raster.
 #'
 #' @param r raster object.
-#' @param classVector numeric vector, the values to be assigned to the cell numbers
-#'   indicated by \code{index}.
+#' @param classVector numeric vector, the values to be assigned to the cell
+#'   numbers indicated by \code{index}.
 #' @param index numeric vector, the cell numbers of the argument \code{r} to
 #'   which assign the values of the argument \code{classVector}. If \code{NULL},
 #'   the column \code{Cell} of the attribute table \code{attTbl(r)} is used (see
 #'   \code{\link{attTbl}}).
 #' @param plot logic, plot the raster.
+#' @param type character, type of map/legend. One of "continuous", "classes", or
+#'   "interval".
 #' @param writeRaster filename, if a raster name is provided save the raster to
 #'   a file.
 #' @param overWrite logic, if the raster names already exist, the existing file
@@ -512,7 +514,8 @@ cond.parse <- function(names_attTbl, cond){
 #' cv.2.rast(r, cv, plot = TRUE)
 #' text(r) # add raster values
 
-cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = NULL, overWrite = FALSE){
+cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, type = "classes",
+                      writeRaster = NULL, overWrite = FALSE){
 
   if(is.null(index)){
     index <- attTbl(r)
@@ -524,7 +527,7 @@ cv.2.rast <- function(r, classVector, index = NULL, plot = FALSE, writeRaster = 
   r2[index] <- classVector
 
   if (plot){
-    terra::plot(r2, type="classes")
+    terra::plot(r2, type = type)
   }
 
   if (!is.null(writeRaster)){

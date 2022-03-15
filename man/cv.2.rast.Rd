@@ -9,6 +9,7 @@ cv.2.rast(
   classVector,
   index = NULL,
   plot = FALSE,
+  type = "classes",
   writeRaster = NULL,
   overWrite = FALSE
 )
@@ -16,8 +17,8 @@ cv.2.rast(
 \arguments{
 \item{r}{raster object.}
 
-\item{classVector}{numeric vector, the values to be assigned to the cell numbers
-indicated by \code{index}.}
+\item{classVector}{numeric vector, the values to be assigned to the cell
+numbers indicated by \code{index}.}
 
 \item{index}{numeric vector, the cell numbers of the argument \code{r} to
 which assign the values of the argument \code{classVector}. If \code{NULL},
@@ -25,6 +26,9 @@ the column \code{Cell} of the attribute table \code{attTbl(r)} is used (see
 \code{\link{attTbl}}).}
 
 \item{plot}{logic, plot the raster.}
+
+\item{type}{character, type of map/legend. One of "continuous", "classes", or
+"interval".}
 
 \item{writeRaster}{filename, if a raster name is provided save the raster to
 a file.}
