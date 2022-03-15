@@ -8,12 +8,11 @@ Authors@R:
            role = c("aut", "cre"),
            email = "gh.taranto@gmail.com",
            comment = c(ORCID = "0000-0002-7968-1982"))
-Description: The R-package 'scapesClassification' is designed to translate
-  users' mental models of seascapes, landscapes and, more generally, of
-  geographic features into computer representations (classifications). Spaces 
-  and geographic objects are classified with user-defined rules taking into 
-  account spatial data as well as spatial relationships among different classes 
-  and objects.
+Description: Series of algorithms to translate  users' mental models of seascapes, 
+  landscapes and, more generally, of geographic features into computer representations 
+  (classifications). Spaces and geographic objects are classified with user-defined 
+  rules taking into account spatial data as well as spatial relationships among 
+  different classes and objects.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
