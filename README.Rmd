@@ -36,7 +36,7 @@ If you are just getting started with **scapesClassification** and you would like
 
 ## Installation
 
-You can install the released version of `scapesClassification` from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of `scapesClassification` from [CRAN](https://cran.r-project.org/package=scapesClassification) with:
 
 ``` r
 install.packages("scapesClassification", dependencies = TRUE)

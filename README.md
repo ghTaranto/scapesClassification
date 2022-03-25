@@ -55,7 +55,7 @@ articles and the examples throughout the package
 ## Installation
 
 You can install the released version of `scapesClassification` from
-[CRAN](https://cran.r-project.org/web/packages/scapesClassification/index.html) with:
+[CRAN](https://cran.r-project.org/package=scapesClassification) with:
 
 ``` r
 install.packages("scapesClassification", dependencies = TRUE)
