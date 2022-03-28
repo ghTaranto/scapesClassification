@@ -139,8 +139,9 @@ atbl$RO <- pi.add(atbl, nbs, rNumb = TRUE,
                   cond.filter = "is.na(ISU)")
 
 rRO3 <- cv.2.rast(rstack, atbl$RO) # store raster for plotting
+#######################################################################################################
 
-# 4. COND.4.NOFN (HGROWTH)
+# 5. COND.4.NOFN (HGROWTH)
 # Task:
 # Homogeneous growth of raster objects;
 # At turns, each raster object adds contiguous cells having 

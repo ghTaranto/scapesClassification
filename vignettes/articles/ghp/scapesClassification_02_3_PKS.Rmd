@@ -94,9 +94,9 @@ atbl$pc <- peak.cell(atbl, nbs, rNumb = TRUE,
 
 # FILTER PEAK CELL
 
-# Filter condition:
+# Remove:
 # (i)  peak cell within the ISU            -> !is.na(ISU)
-# (ii) peak cell not on prominent features -> BPI > 100
+# (ii) peak cell not on prominent features -> BPI < 100
 
 cond <- "regional_bpi < 100 | local_bpi < 100 | !is.na(ISU)"
 
